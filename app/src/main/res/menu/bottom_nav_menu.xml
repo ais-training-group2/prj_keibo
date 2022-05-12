@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/home"
+        android:title="Home"/>
+    <item
+        android:id="@+id/circle_statistics"
+        android:title="Circle Statistics"/>
+    <item
+        android:id="@+id/bar_statistics"
+        android:title="Bar Statistics"/>
+    <item
+        android:id="@+id/settings"
+        android:title="Settings"/>
+</menu>

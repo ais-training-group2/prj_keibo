@@ -20,7 +20,7 @@ class ExActivity : AppCompatActivity() {
 
         //사용시 CoroutineScope 필요
         val start = CoroutineScope(Dispatchers.IO).async {
-            var data = DB.dao().loadEI("2022-05-17")
+            var data = DB.dao().loadEI()
         }
 
 

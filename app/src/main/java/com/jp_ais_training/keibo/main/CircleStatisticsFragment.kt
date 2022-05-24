@@ -1,60 +1,93 @@
 package com.jp_ais_training.keibo.main
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jp_ais_training.keibo.R
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.utils.ColorTemplate
+import com.jp_ais_training.keibo.databinding.FragmentCircleStatisticsBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CircleStatisticsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CircleStatisticsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+        private var mBinding: FragmentCircleStatisticsBinding? = null
+        private val binding get() = mBinding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+        //원그래프 선언
+        private var pieChart: PieChart?= null
+        //원그래프 항목
+        private var yValues = ArrayList<PieEntry>()
+
+        override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            mBinding = FragmentCircleStatisticsBinding.inflate(inflater, container, false)
+
+            //원그래프---------------------------------------------------------------
+            pieChart = binding.pieChart
+
+            setPieChartOption()
+            setPieChartItem()
+            setPieChartDataSet()
+
+            return binding.root
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_circle_statistics, container, false)
-    }
+        //원그래프 옵션 설정
+        private fun setPieChartOption(){
+            pieChart!!.setUsePercentValues(true)
+            pieChart!!.description!!.isEnabled = false
+            pieChart!!.setExtraOffsets(5f, 10f, 5f, 5f)
+            pieChart!!.dragDecelerationFrictionCoef = 0.95f
+            pieChart!!.isDrawHoleEnabled = false
+            pieChart!!.setHoleColor(Color.WHITE)
+            pieChart!!.transparentCircleRadius = 61f
+            pieChart!!.legend!!.isEnabled = false //하단 색항목 리스트 제거
+            pieChart!!.animateXY(1000, 1000) //초기 애니메이션 설정
+        }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CircleStatisticsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CircleStatisticsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
+        //원그래프 항목 추가
+        private fun setPieChartItem(){
+            yValues.add(PieEntry(34f, ""))
+            yValues.add(PieEntry(23f, ""))
+            yValues.add(PieEntry(14f, ""))
+            yValues.add(PieEntry(35f, ""))
+            yValues.add(PieEntry(40f, ""))
+            yValues.add(PieEntry(40f, ""))
+        }
+
+        //원그래프 데이터 세팅
+        private fun setPieChartDataSet(){
+            val dataSet = PieDataSet(yValues, "")
+            dataSet.sliceSpace = 3f
+            dataSet.selectionShift = 5f
+            dataSet.setColors(*ColorTemplate.JOYFUL_COLORS)
+
+            val data = PieData(dataSet)
+            data.setValueTextSize(0f)
+
+            pieChart?.data = data
+        }
+
+        //원그래프 데이터 초기화
+        private fun clearPieChart(){
+            yValues.clear()
+            pieChart!!.invalidate()
+            pieChart!!.clear()
+        }
+
+        override fun onDestroyView() {
+            //원그래프 데이터 초기화
+            clearPieChart()
+
+            mBinding = null
+
+            super.onDestroyView()
+        }
 }
+

@@ -57,4 +57,10 @@ dependencies {
 
     //MPChart
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    //Heo_UI_Lib
+    implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
 }

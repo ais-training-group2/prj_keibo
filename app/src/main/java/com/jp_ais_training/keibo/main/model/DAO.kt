@@ -69,13 +69,13 @@ interface DAO {
     @Query("SELECT * FROM IncomeItem " +
             "WHERE datetime Like :select||'%' AND income_type ='flex'" +
             "ORDER BY income_item_id ASC;")
-    fun loadFlexII(select:String) : List<IncomeItem>
+    fun loadFlexII(select:String) : List<ResponseItem>
 
     //IncomeItem - fix기준 특정 데이터 불러오기
     @Query("SELECT * FROM IncomeItem " +
             "WHERE datetime Like :select||'%' AND  income_type ='fix'" +
             "ORDER BY income_item_id ASC;")
-    fun loadFixII(select:String) : List<IncomeItem>
+    fun loadFixII(select:String) : List<ResponseItem>
 
 
     //IncomeItem - Month 기준 합계 데이터 불러오기
@@ -134,7 +134,7 @@ interface DAO {
             "ON S.main_category_id = M.main_category_id " +
             "WHERE datetime Like :select||'%' AND M.expense_type ='flex'" +
             "ORDER BY expense_item_id ASC;")
-    fun loadFlexEI(select:String) : List<ExpenseItemDetail>
+    fun loadFlexEI(select:String) : List<ResponseItem>
 
     //Expense Item - fix기준 특정 데이터 불러오기
     @Query("SELECT * " +
@@ -145,7 +145,7 @@ interface DAO {
             "ON S.main_category_id = M.main_category_id " +
             "WHERE datetime Like :select||'%' AND M.expense_type ='fix'" +
             "ORDER BY expense_item_id ASC;")
-    fun loadFixEI(select:String) : List<ExpenseItemDetail>
+    fun loadFixEI(select:String) : List<ResponseItem>
 
 
     //Expense Item - Month 기준 합계 데이터 불러오기

@@ -38,3 +38,13 @@ data class loadSumMainCategoryEI(
     @ColumnInfo(name = "main_id") val main_id: Int?,
     @ColumnInfo(name = "type") val type: String?
 )
+
+data class ResponseItem(
+    @ColumnInfo(name = "id") val id: Int?,
+    @ColumnInfo(name = "sub_category_id") val sub_category_id: Int?,
+    @ColumnInfo(name = "main_category_name") val main_category_name: String?,
+    @ColumnInfo(name = "sub_category_name") val sub_category_name: String?,
+    @ColumnInfo(name = "name") val name: String?,
+    @ColumnInfo(name = "price") val price: Int?,
+    @ColumnInfo(name = "datetime") val datetime: String?
+)

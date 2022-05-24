@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.ActivityMainBinding
+import com.jp_ais_training.keibo.main.home.HomeFragment
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding

@@ -1,4 +1,4 @@
-package com.example.myapplication.model.Entity
+package com.jp_ais_training.keibo.main.model.Entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

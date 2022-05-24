@@ -1,4 +1,4 @@
-package com.example.myapplication.model.Response
+package com.jp_ais_training.keibo.main.model.Response
 
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey

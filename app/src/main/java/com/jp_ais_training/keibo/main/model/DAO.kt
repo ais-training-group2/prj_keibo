@@ -1,11 +1,11 @@
-package com.example.myapplication.model
+package com.jp_ais_training.keibo.main.model
 
 import androidx.room.*
-import com.example.myapplication.model.Entity.ExpenseItem
-import com.example.myapplication.model.Entity.IncomeItem
-import com.example.myapplication.model.Entity.MainCategory
-import com.example.myapplication.model.Entity.SubCategory
-import com.example.myapplication.model.Response.*
+import com.jp_ais_training.keibo.main.model.Entity.ExpenseItem
+import com.jp_ais_training.keibo.main.model.Entity.IncomeItem
+import com.jp_ais_training.keibo.main.model.Entity.MainCategory
+import com.jp_ais_training.keibo.main.model.Entity.SubCategory
+import com.jp_ais_training.keibo.main.model.Response.*
 
 @Dao
 interface DAO {

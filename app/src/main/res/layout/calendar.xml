@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".main.home.HomeFragment"
-    >
-
-    <include layout="@layout/calendar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+    android:orientation="vertical">
 
     <TextView
-        android:id="@+id/home_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="home fragment" />
+        android:layout_height="wrap_content"
+        android:text="calendar" />
 
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/home_calendar"
+        android:numColumns="7"
+
+        />
 </LinearLayout>

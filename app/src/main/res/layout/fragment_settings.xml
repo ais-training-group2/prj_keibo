@@ -31,7 +31,7 @@
                     android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="알람"
+                    android:text="@string/swi_all_label"
                     android:textSize="@dimen/setting_fragment_main_title_text_size"
 
                     android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
@@ -79,7 +79,7 @@
                     android:id="@+id/tv_alarm_1_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="정기적 고정지출 알람"
+                    android:text="@string/swi_alarm_1_label"
                     android:textSize="@dimen/setting_fragment_sub_title_text_size"
 
                     android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
@@ -127,7 +127,8 @@
                     android:id="@+id/tv_alarm_2_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="가계부 기입 요청 알람"
+                    android:text="@string/swi_alarm_2_label"
+
                     android:textSize="@dimen/setting_fragment_sub_title_text_size"
 
                     android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
@@ -175,7 +176,7 @@
                     android:id="@+id/tv_alarm_3_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="월말 지출 비교 알람"
+                    android:text="@string/swi_alarm_3_label"
                     android:textSize="@dimen/setting_fragment_sub_title_text_size"
 
                     android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"

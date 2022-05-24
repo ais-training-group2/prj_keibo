@@ -3,6 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/AIS-N/AndroidStudioProjects/prj_keibo/app/src/main/res/layout/activity_detail.xml" value="0.20018115942028986" />
+        <entry key="..\:/Users/AIS-N/AndroidStudioProjects/prj_keibo/app/src/main/res/layout/fragment_contents.xml" value="0.20018115942028986" />
+        <entry key="..\:/Users/AIS-N/AndroidStudioProjects/prj_keibo/app/src/main/res/layout/fragment_detail.xml" value="0.20018115942028986" />
+        <entry key="..\:/Users/AIS-N/AndroidStudioProjects/prj_keibo/app/src/main/res/layout/recycler_contents_item.xml" value="0.20018115942028986" />
         <entry key="..\:/Users/AIS-NB-109/AndroidStudioProjects/keibo/app/src/main/res/layout/activity_main.xml" value="0.4055619930475087" />
         <entry key="..\:/Users/AIS-NB-109/AndroidStudioProjects/keibo/app/src/main/res/layout/calendar.xml" value="0.4" />
         <entry key="..\:/Users/AIS-NB-109/AndroidStudioProjects/keibo/app/src/main/res/layout/fragment_bar_statistics.xml" value="0.31205211726384363" />

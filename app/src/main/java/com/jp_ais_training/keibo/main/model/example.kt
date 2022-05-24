@@ -2,11 +2,9 @@ package com.jp_ais_training.keibo.main.model
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.model.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 
 
 class ExActivity : AppCompatActivity() {

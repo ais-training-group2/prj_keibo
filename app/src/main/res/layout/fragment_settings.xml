@@ -1,14 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".main.SettingsFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="setting fragment" />
+        tools:context=".main.SettingsFragment">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
+
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/cl_alarm_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintVertical_chainStyle="packed"
+                >
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/swi_all_label"
+                    android:textSize="@dimen/setting_fragment_main_title_text_size"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_all"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+
+                <Switch
+                    android:id="@+id/swi_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tv_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_alarm_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
+
+                app:layout_constraintTop_toBottomOf="@+id/cl_title"
+                app:layout_constraintBottom_toTopOf="@+id/cl_alarm_2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:layout_constraintVertical_chainStyle="packed"
+
+                >
+
+                <TextView
+                    android:id="@+id/tv_alarm_1_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/swi_alarm_1_label"
+                    android:textSize="@dimen/setting_fragment_sub_title_text_size"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_alarm_1"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+
+                <Switch
+                    android:id="@+id/swi_alarm_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tv_alarm_1_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_alarm_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
+
+                app:layout_constraintTop_toBottomOf="@+id/cl_alarm_1"
+                app:layout_constraintBottom_toTopOf="@+id/cl_alarm_3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:layout_constraintVertical_chainStyle="packed"
+
+                >
+
+                <TextView
+                    android:id="@+id/tv_alarm_2_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/swi_alarm_2_label"
+
+                    android:textSize="@dimen/setting_fragment_sub_title_text_size"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_alarm_2"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+
+                <Switch
+                    android:id="@+id/swi_alarm_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tv_alarm_2_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_alarm_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
+
+                app:layout_constraintTop_toBottomOf="@+id/cl_alarm_2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:layout_constraintVertical_chainStyle="packed"
+
+                >
+
+                <TextView
+                    android:id="@+id/tv_alarm_3_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/swi_alarm_3_label"
+                    android:textSize="@dimen/setting_fragment_sub_title_text_size"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_alarm_3"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+
+                <Switch
+                    android:id="@+id/swi_alarm_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginHorizontal="@dimen/setting_fragment_main_margin_horizontal"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tv_alarm_3_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+</layout>

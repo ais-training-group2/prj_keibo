@@ -3,8 +3,9 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        //MPchart
-        maven { url 'https://jitpack.io' }
+        //MPChart
+        maven {url "https://jitpack.io"}
+
     }
 }
 dependencyResolutionManagement {
@@ -12,8 +13,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        //MPchart
-        maven { url 'https://jitpack.io' }
+        //MPChart
+        maven {url "https://jitpack.io"}
+
     }
 }
 rootProject.name = "keibo"

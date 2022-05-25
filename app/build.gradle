@@ -32,6 +32,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+
     }
 }
 
@@ -54,4 +55,7 @@ dependencies {
 
     //coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
+
+    //bar chart
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

@@ -152,39 +152,7 @@ class DetailActivity : AppCompatActivity() {
     }
 
 
-    private fun testSet(){
-        CoroutineScope(Dispatchers.Main).launch {
-            val start = CoroutineScope(Dispatchers.IO).async {
 
-                val random = Random()
-
-                DB.dao().insertMainCategory()
-
-                for (i in 1 until 20) {
-                    val main = random.nextInt(9)+1
-                    DB.dao().insertSubCategory(SubCategory(0, main, "sub"+i.toString(), "n"))
-                }
-                for (i in 1 until 500){
-                    val month = random.nextInt(9)+1
-                    val dayF = random.nextInt(3)
-                    val dayN = random.nextInt(7)+1
-                    val sub = random.nextInt(15)+1
-                    val typeR = random.nextInt(2)
-                    var type = ""
-                    if(typeR == 1){
-                        type="flex"
-                    }else{
-                        type="fix"
-                    }
-                    DB.dao().insertII(IncomeItem(0,type,"test"+i.toString(),100,
-                        "2022-0"+month.toString()+"-"+dayF.toString()+dayN.toString()))
-
-                    DB.dao().insertEI(ExpenseItem(0,sub,"test"+i.toString(),100,
-                        "2022-0"+month.toString()+"-"+dayF.toString()+dayN.toString()))
-                }
-            }.await()
-        }
-    }
 }
 
 

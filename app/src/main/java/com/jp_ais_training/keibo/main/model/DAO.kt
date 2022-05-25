@@ -17,20 +17,16 @@ interface DAO {
 
     //Main Category - 초기 Main Category 데이터 설정
     @Query("INSERT OR IGNORE INTO `MainCategory`(main_category_id,main_category_name,expense_type) VALUES" +
-            "(1,'공과금','fix')," +
-            "(2,'생활','fix')," +
-            "(3,'기타','fix')," +
-            "(4,'식비','flex')," +
-            "(5,'생활','flex')," +
-            "(6,'여가','flex')," +
-            "(7,'문화','flex')," +
-            "(8,'자기계발','flex')," +
-            "(9,'기타','flex');"
+            "(1,'公課金','fix')," +
+            "(2,'生活','fix')," +
+            "(3,'その他','fix')," +
+            "(4,'食費','flex')," +
+            "(5,'生活','flex')," +
+            "(6,'余暇','flex')," +
+            "(7,'文化','flex')," +
+            "(8,'自己開発','flex')," +
+            "(9,'その他','flex');"
     )fun insertMainCategory()
-
-    //데이터 전체 삭제
-    @Query("DELETE FROM `MainCategory`")
-    fun deleteAllMainCategory()
 
     //--------------------------------------------
 
@@ -40,13 +36,22 @@ interface DAO {
             "ORDER BY sub_category_id ASC;")
     fun loadSubCategory() : List<SubCategory>
 
-    //Sub Category- 데이터 업데이트
-    @Update
-    fun updateSubCategory(entity: SubCategory)
+    //Sub Category- SubCategory Check
+    @Query("SELECT CASE  " +
+            "WHEN S.main_category_id == :main_id AND S.sub_category_name == :sub_name THEN 1 ELSE 0 " +
+            "END FROM SubCategory AS S; " )
+    fun checkSubCategory(main_id : Int, sub_name : String) : Int
 
-    //Sub Category - 데이터 추가
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSubCategory(entity: SubCategory)
+    //Sub Category- 데이터 추가
+    @Query("INSERT INTO SubCategory(main_category_id,sub_category_name,deleted_yn) VALUES" +
+            "(:main_id,:sub_name,'n') ;")
+    fun insertSubCategory(main_id : Int, sub_name : String)
+
+    //Sub Category - 데이터 삭제 취소 (Soft Delete)
+    @Query("UPDATE SubCategory " +
+            "SET deleted_yn ='n' " +
+            "WHERE sub_category_id = :select")
+    fun updateDeletedSubCategory(select: Int);
 
     //Sub Category - 데이터 삭제 (Soft Delete)
     @Query("UPDATE SubCategory " +
@@ -54,16 +59,7 @@ interface DAO {
             "WHERE sub_category_id = :select")
     fun deleteSubCategory(select: Int);
 
-    //데이터 전체 삭제
-    @Query("DELETE FROM `SubCategory`")
-    fun deleteAllSubCategory()
-
     //--------------------------------------------
-
-    //IncomeItem - 전체 데이터 불러오기
-    @Query("SELECT * FROM IncomeItem " +
-            "ORDER BY income_item_id ASC;")
-    fun loadIIt() : List<IncomeItem>
 
     //IncomeItem - flex기준 특정 데이터 불러오기
     @Query("SELECT * FROM IncomeItem " +
@@ -77,14 +73,13 @@ interface DAO {
             "ORDER BY income_item_id ASC;")
     fun loadFixII(select:String) : List<ResponseItem>
 
-
     //IncomeItem - Month 기준 합계 데이터 불러오기
     @Query("SELECT substr(datetime,1,7) AS date, SUM(price) AS price " +
             "FROM IncomeItem " +
             "WHERE substr(datetime,1,7) Like :select||'%' " +
             "GROUP BY substr(datetime,1,7) " +
-            "ORDER BY substr(datetime,1,7) DESC;")
-    fun loadMonthSumII(select:String ) : List<loadSumII>
+            "ORDER BY substr(datetime,1,7) ASC;")
+    fun loadMonthSumII(select:String ) : List<LoadSumII>
 
     //IncomeItem - Day 기준 합계 데이터 불러오기
     @Query("SELECT datetime AS date, SUM(price) AS price " +
@@ -92,38 +87,35 @@ interface DAO {
             "WHERE datetime Like :select||'%' " +
             "GROUP BY datetime " +
             "ORDER BY datetime ASC;")
-    fun loadDaySumII(select:String ) : List<loadSumII>
+    fun loadDaySumII(select:String ) : List<LoadSumII>
 
     //IncomeItem - Week 기준 합계 데이터 불러오기
     @Query("SELECT strftime('%W',datetime) AS date, SUM(price) AS price " +
             "FROM IncomeItem WHERE datetime Like :select||'%' " +
             "GROUP BY strftime('%W',datetime)" +
             "ORDER BY strftime('%W',datetime) ASC;")
-    fun loadWeekSumII(select:String ) : List<loadSumII>
+    fun loadWeekSumII(select:String ) : List<LoadSumII>
 
     //IncomeItem - Week-Day 기준 합계 데이터 불러오기
     @Query("SELECT datetime AS date, SUM(price) AS price " +
-            "FROM IncomeItem WHERE strftime('%W',datetime) Like :select||'%' " +
+            "FROM IncomeItem WHERE substr(datetime,1,4) = :year AND strftime('%W',datetime) Like :week||'%'  " +
             "GROUP BY datetime ORDER BY datetime ASC;")
-    fun loadWeekDaySumII(select:String ) : List<loadSumII>
+    fun loadWeekDaySumII(year : String, week : String) : List<LoadSumII>
 
     //IncomeItem - 데이터 추가
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertII(entity: IncomeItem)
+    @Query("INSERT INTO IncomeItem(income_type,name,price,datetime) VALUES" +
+            "(:type,:name,:price,:datetime);")
+    fun insertII(type : String, name : String, price : Int, datetime : String)
 
     //IncomeItem- 데이터 업데이트
     @Update
     fun updateII(entity: IncomeItem)
 
     //IncomeItem - 데이터 삭제
-    @Delete
-    fun deleteII(entity: IncomeItem);
+    @Query("DELETE FROM IncomeItem WHERE income_item_id == :id;")
+    fun deleteII(id : Int);
 
     //--------------------------------------------
-
-    //Expense Item - 데이터 불러오기
-    @Query("SELECT * from ExpenseItem ORDER BY expense_item_id ASC;")
-    fun loadEI() : List<ExpenseItem>
 
     //Expense Item - flex기준 특정 데이터 불러오기
     @Query("SELECT * " +
@@ -147,34 +139,33 @@ interface DAO {
             "ORDER BY expense_item_id ASC;")
     fun loadFixEI(select:String) : List<ResponseItem>
 
-
     //Expense Item - Month 기준 합계 데이터 불러오기
     @Query("SELECT substr(datetime,1,7) AS date, SUM(price) AS price " +
             "FROM ExpenseItem " +
             "WHERE substr(datetime,1,7) Like :select||'%' " +
             "GROUP BY substr(datetime,1,7) " +
             "ORDER BY substr(datetime,1,7) ASC;")
-    fun loadMonthSumEI(select:String ) : List<loadSumEI>
+    fun loadMonthSumEI(select:String ) : List<LoadSumEI>
 
     //Expense Item - Day 기준 합계 데이터 불러오기
     @Query("SELECT datetime AS date, SUM(price) AS price " +
             "FROM ExpenseItem WHERE datetime Like :select||'%' " +
             "GROUP BY datetime " +
             "ORDER BY datetime ASC;")
-    fun loadDaySumEI(select:String ) : List<loadSumEI>
+    fun loadDaySumEI(select:String ) : List<LoadSumEI>
 
     //Expense Item - Week 기준 합계 데이터 불러오기
     @Query("SELECT strftime('%W',datetime) AS date, SUM(price) AS price " +
             "FROM ExpenseItem WHERE datetime Like :select||'%' " +
             "GROUP BY strftime('%W',datetime)" +
             "ORDER BY strftime('%W',datetime) ASC;")
-    fun loadWeekSumEI(select:String ) : List<loadSumEI>
+    fun loadWeekSumEI(select:String ) : List<LoadSumEI>
 
     //Expense Item - Week-Day 기준 합계 데이터 불러오기
     @Query("SELECT datetime AS date, SUM(price) AS price " +
-            "FROM ExpenseItem WHERE strftime('%W',datetime) Like :select||'%' " +
+            "FROM ExpenseItem WHERE substr(datetime,1,4) = :year AND strftime('%W',datetime) Like :week||'%' " +
             "GROUP BY datetime ORDER BY datetime ASC;")
-    fun loadWeekDaySumEI(select:String ) : List<loadSumEI>
+    fun loadWeekDaySumEI(year: String , week:String ) : List<LoadSumEI>
 
     //Expense Item - main category 기준 합계 데이터 불러오기
     @Query("SELECT substr(E.datetime,1,7) AS 'date' ," +
@@ -185,40 +176,37 @@ interface DAO {
             "FROM ExpenseItem AS E " +
             "INNER JOIN SubCategory AS S " +
             "ON E.sub_category_id = S.sub_category_id " +
-                "INNER JOIN MainCategory AS M " +
-                "ON S.main_category_id = M.main_category_id " +
+            "INNER JOIN MainCategory AS M " +
+            "ON S.main_category_id = M.main_category_id " +
             "WHERE E.datetime like :select||'%' " +
             "GROUP BY M.main_category_id " +
             "ORDER BY M.main_category_id ASC; "
-    )fun loadMonthSumMainCategoryEI(select:String ) : List<loadSumMainCategoryEI>
+    )fun loadMonthSumMainCategoryEI(select:String ) : List<LoadSumMainCategoryEI>
 
     //Expense Item - sub category 기준 합계 데이터 불러오기
     @Query("SELECT substr(E.datetime,1,7) AS date, " +
-                "SUM(E.price) AS price, " +
-                "S.sub_category_name AS sub_name, " +
-                "S.main_category_id AS main_id " +
+            "SUM(E.price) AS price, " +
+            "S.sub_category_name AS sub_name, " +
+            "S.main_category_id AS main_id " +
             "FROM ExpenseItem AS E " +
             "INNER JOIN SubCategory AS S " +
             "ON E.sub_category_id = S.sub_category_id " +
             "WHERE E.datetime Like :select||'%' " +
             "GROUP BY E.sub_category_id " +
             "ORDER BY E.sub_category_id ASC;")
-    fun loadMonthSumSubCategoryEI(select:String ) : List<loadSumSubCategoryEI>
+    fun loadMonthSumSubCategoryEI(select:String ) : List<LoadSumSubCategoryEI>
 
     //Expense Item - 데이터 추가
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertEI(entity: ExpenseItem)
+    @Query("INSERT INTO ExpenseItem(sub_category_id,name,price,datetime) VALUES" +
+            "(:sub_id,:name,:price,:datetime);")
+    fun insertEI(sub_id : Int, name : String, price : Int, datetime : String)
 
     //Expense Item- 데이터 업데이트
     @Update
     fun updateEI(entity: ExpenseItem)
 
     //Expense Item - 데이터 삭제
-    @Delete
-    fun deleteEI(entity: ExpenseItem);
-
-    //데이터 전체 삭제
-    @Query("DELETE FROM `ExpenseItem`")
-    fun deleteAllEI()
+    @Query("DELETE FROM ExpenseItem WHERE expense_item_id == :id;")
+    fun deleteEI(id : Int);
 
 }

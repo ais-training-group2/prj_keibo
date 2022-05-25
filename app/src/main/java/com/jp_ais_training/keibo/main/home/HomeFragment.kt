@@ -9,19 +9,19 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.jp_ais_training.keibo.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
-    lateinit var binding: FragmentHomeBinding
+    private lateinit var binding: FragmentHomeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentHomeBinding.inflate(inflater)
         val numberOfWeek = 7
 
-        var dataSet = arrayListOf<CalendarItem>()
+        val dataSet = arrayListOf<CalendarItem>()
 
-        var dateNum = 30
-        var datePadding = 5
+        val dateNum = 30
+        val datePadding = 5
 
         for (i in 0..datePadding) {
             dataSet.add(CalendarItem(0,0,0,0))

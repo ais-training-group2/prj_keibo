@@ -1,14 +1,9 @@
 package com.jp_ais_training.keibo.main.home
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.jp_ais_training.keibo.databinding.CalendarBinding
 import com.jp_ais_training.keibo.databinding.CalendarItemBinding
 
 class CalendarAdapter(private val itemList: ArrayList<CalendarItem>) :
@@ -19,11 +14,12 @@ class CalendarAdapter(private val itemList: ArrayList<CalendarItem>) :
         RecyclerView.ViewHolder(binding.root) {
         init {
             // 아이템 클릭 리스너 작성
-            binding.calendarItem.setOnClickListener(View.OnClickListener { v ->
+            binding.calendarItem.setOnClickListener {
                 Log.d(
                     "View Holder",
                     "click: item$adapterPosition"
-                ) })
+                )
+            }
         }
 
         // 뷰 바인딩
@@ -51,18 +47,10 @@ class CalendarAdapter(private val itemList: ArrayList<CalendarItem>) :
     }
 
     override fun onBindViewHolder(holder: CalendarAdapter.ViewHolder, position: Int) {
-        val item = itemList[position]
         holder.bind(itemList[position])
     }
 
     override fun getItemCount(): Int {
         return itemList.size
     }
-
-
-    override fun getItemViewType(position: Int): Int {
-        return super.getItemViewType(position)
-    }
-
-
 }

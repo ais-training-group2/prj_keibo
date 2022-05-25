@@ -10,27 +10,27 @@
         >
         <TextView
             style="@style/WeekName"
-            android:text="日"
+            android:text="@string/sunday"
             android:textColor="#FF0000"
             />
         <TextView
             style="@style/WeekName"
-            android:text="月"/>
+            android:text="@string/monday"/>
         <TextView
             style="@style/WeekName"
-            android:text="火"/>
+            android:text="@string/tuesday"/>
         <TextView
             style="@style/WeekName"
-            android:text="水"/>
+            android:text="@string/wednesday"/>
         <TextView
             style="@style/WeekName"
-            android:text="木"/>
+            android:text="@string/thursday"/>
         <TextView
             style="@style/WeekName"
-            android:text="金"/>
+            android:text="@string/friday"/>
         <TextView
             style="@style/WeekName"
-            android:text="土"
+            android:text="@string/saturday"
             android:textColor="#0000FF"
             />
     </LinearLayout>

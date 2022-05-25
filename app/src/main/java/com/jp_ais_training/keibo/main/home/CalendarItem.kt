@@ -1,9 +1,5 @@
 package com.jp_ais_training.keibo.main.home
 
-enum class CalendarItemType {
-    Week, Item
-}
-
 data class CalendarItem(
     val index: Int,
     val date: Int,
@@ -11,4 +7,3 @@ data class CalendarItem(
     val expense: Int,
 )
 
-data class CalendarWeek(val week:String)

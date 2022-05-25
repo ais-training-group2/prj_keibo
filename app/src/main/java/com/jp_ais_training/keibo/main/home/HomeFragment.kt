@@ -31,7 +31,7 @@ class HomeFragment : Fragment() {
         }
         binding.homeCalendar.calendar.layoutManager=GridLayoutManager(context,numberOfWeek)
         binding.homeCalendar.calendar.adapter = CalendarAdapter(dataSet)
-
+        binding.homeCalendar.calendar.adapter
         return binding.root
     }
 }

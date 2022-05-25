@@ -19,4 +19,6 @@
     <string name="swi_alarm_3_label">月末支出比較通知</string>
 
     <string name="total">合計</string>
+    <string name="income">収入</string>
+    <string name="expense">支出</string>
 </resources>

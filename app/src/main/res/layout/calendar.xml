@@ -9,11 +9,41 @@
         android:layout_height="wrap_content"
         android:text="calendar" />
 
-    <GridView
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/home_calendar"
-        android:numColumns="7"
-
+        android:orientation="horizontal"
+        >
+        <TextView
+            style="@style/WeekName"
+            android:text="日"
+            android:textColor="#FF0000"
+            />
+        <TextView
+            style="@style/WeekName"
+            android:text="月"/>
+        <TextView
+            style="@style/WeekName"
+            android:text="火"/>
+        <TextView
+            style="@style/WeekName"
+            android:text="水"/>
+        <TextView
+            style="@style/WeekName"
+            android:text="木"/>
+        <TextView
+            style="@style/WeekName"
+            android:text="金"/>
+        <TextView
+            style="@style/WeekName"
+            android:text="土"
+            android:textColor="#0000FF"
+            />
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/calendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         />
 </LinearLayout>

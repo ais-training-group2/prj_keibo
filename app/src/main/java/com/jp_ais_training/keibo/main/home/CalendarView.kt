@@ -6,6 +6,6 @@ import android.os.Parcelable
 import android.widget.GridView
 
 @SuppressLint("ViewConstructor")
-class CalendarView() {
+class CalendarView(){
 
 }

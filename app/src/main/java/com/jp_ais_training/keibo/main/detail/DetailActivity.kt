@@ -12,11 +12,22 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.ActivityDetailBinding
+import com.jp_ais_training.keibo.main.model.AppDatabase
+import com.jp_ais_training.keibo.main.model.Entity.ExpenseItem
+import com.jp_ais_training.keibo.main.model.Entity.IncomeItem
+import com.jp_ais_training.keibo.main.model.Entity.SubCategory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class DetailActivity : AppCompatActivity() {
+    private lateinit var DB: AppDatabase
+
     private lateinit var viewPager: ViewPager2
     private lateinit var binding: ActivityDetailBinding
     private lateinit var viewPagerAdapter: ViewPagerAdapter
@@ -26,6 +37,11 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        //DB = AppDatabase.getInstance(this)!!
+
+        //testSet()
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -136,11 +152,39 @@ class DetailActivity : AppCompatActivity() {
     }
 
 
-    private fun setCurrentFragment(fragment: Fragment) =
-        supportFragmentManager.beginTransaction().apply {
-            replace(R.id.flFragment, fragment)
-            commit()
+    private fun testSet(){
+        CoroutineScope(Dispatchers.Main).launch {
+            val start = CoroutineScope(Dispatchers.IO).async {
+
+                val random = Random()
+
+                DB.dao().insertMainCategory()
+
+                for (i in 1 until 20) {
+                    val main = random.nextInt(9)+1
+                    DB.dao().insertSubCategory(SubCategory(0, main, "sub"+i.toString(), "n"))
+                }
+                for (i in 1 until 500){
+                    val month = random.nextInt(9)+1
+                    val dayF = random.nextInt(3)
+                    val dayN = random.nextInt(7)+1
+                    val sub = random.nextInt(15)+1
+                    val typeR = random.nextInt(2)
+                    var type = ""
+                    if(typeR == 1){
+                        type="flex"
+                    }else{
+                        type="fix"
+                    }
+                    DB.dao().insertII(IncomeItem(0,type,"test"+i.toString(),100,
+                        "2022-0"+month.toString()+"-"+dayF.toString()+dayN.toString()))
+
+                    DB.dao().insertEI(ExpenseItem(0,sub,"test"+i.toString(),100,
+                        "2022-0"+month.toString()+"-"+dayF.toString()+dayN.toString()))
+                }
+            }.await()
         }
+    }
 }
 
 

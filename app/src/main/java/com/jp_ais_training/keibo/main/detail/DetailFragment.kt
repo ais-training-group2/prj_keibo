@@ -7,7 +7,9 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentDetailBinding
+import com.jp_ais_training.keibo.main.model.AppDatabase
 import net.cachapa.expandablelayout.ExpandableLayout
 
 class DetailFragment() : Fragment() {
@@ -21,26 +23,22 @@ class DetailFragment() : Fragment() {
             targetDate = bundle.getString("targetDate").toString()
         }
         println("onCreate : $targetDate")
+        var frameLayoutId = ArrayList<Int>()
 
+        frameLayoutId.add(R.id.contents_frame1)
+        frameLayoutId.add(R.id.contents_frame2)
+        frameLayoutId.add(R.id.contents_frame3)
+        frameLayoutId.add(R.id.contents_frame4)
 
-
-            val bundle2 = Bundle()
-            bundle2.putString("targetDate", targetDate)
+        for (i in 0..3) {
+            val bundle = Bundle()
+            bundle.putInt("type", i)
+            bundle.putString("targetDate", targetDate)
             val fragment = ContentsFragment()
             fragment.arguments = bundle
-
-
             childFragmentManager.beginTransaction().apply {
-
-                bundle2.putInt("type", 0)
-                fragment.arguments = bundle
-
-                add(binding.contentsFrame1.id, fragment)
+                add(frameLayoutId[i], fragment)
                 commitNowAllowingStateLoss()
-                bundle2.putInt("type", 1)
-                fragment.arguments = bundle
-
-                add(binding.contentsFrame2.id,fragment)
             }
         }
 
@@ -61,7 +59,6 @@ class DetailFragment() : Fragment() {
         var expandTitle = ArrayList<TextView>()
         var expandArrow = ArrayList<TextView>()
         var expandLayout = ArrayList<ExpandableLayout>()
-
 
         colorArray.add(Color.rgb(255, 204, 204))
         colorArray.add(Color.rgb(229, 255, 204))

@@ -8,11 +8,7 @@ import com.jp_ais_training.keibo.main.model.Entity.SubCategory
 
 
 @Database(
-    entities = arrayOf(
-        ExpenseItem::class,
-                        IncomeItem::class,
-                        MainCategory::class,
-                        SubCategory::class),
+    entities = arrayOf(ExpenseItem::class,IncomeItem::class,MainCategory::class,SubCategory::class),
     version = 1,
     exportSchema = false
 )

@@ -78,7 +78,7 @@ interface DAO {
             "FROM IncomeItem " +
             "WHERE substr(datetime,1,7) Like :select||'%' " +
             "GROUP BY substr(datetime,1,7) " +
-            "ORDER BY substr(datetime,1,7) DESC;")
+            "ORDER BY substr(datetime,1,7) ASC;")
     fun loadMonthSumII(select:String ) : List<LoadSumII>
 
     //IncomeItem - Day 기준 합계 데이터 불러오기

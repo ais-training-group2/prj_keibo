@@ -98,9 +98,9 @@ interface DAO {
 
     //IncomeItem - Week-Day 기준 합계 데이터 불러오기
     @Query("SELECT datetime AS date, SUM(price) AS price " +
-            "FROM IncomeItem WHERE strftime('%W',datetime) Like :select||'%' " +
+            "FROM IncomeItem WHERE substr(datetime,1,4) = :year AND strftime('%W',datetime) Like :week||'%'  " +
             "GROUP BY datetime ORDER BY datetime ASC;")
-    fun loadWeekDaySumII(select:String) : List<LoadSumII>
+    fun loadWeekDaySumII(year : String, week : String) : List<LoadSumII>
 
     //IncomeItem - 데이터 추가
     @Query("INSERT INTO IncomeItem(income_type,name,price,datetime) VALUES" +
@@ -163,9 +163,9 @@ interface DAO {
 
     //Expense Item - Week-Day 기준 합계 데이터 불러오기
     @Query("SELECT datetime AS date, SUM(price) AS price " +
-            "FROM ExpenseItem WHERE strftime('%W',datetime) Like :select||'%' " +
+            "FROM ExpenseItem WHERE substr(datetime,1,4) = :year AND strftime('%W',datetime) Like :week||'%' " +
             "GROUP BY datetime ORDER BY datetime ASC;")
-    fun loadWeekDaySumEI(select:String  ) : List<LoadSumEI>
+    fun loadWeekDaySumEI(year: String , week:String ) : List<LoadSumEI>
 
     //Expense Item - main category 기준 합계 데이터 불러오기
     @Query("SELECT substr(E.datetime,1,7) AS 'date' ," +

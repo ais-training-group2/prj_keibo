@@ -295,7 +295,7 @@ class ContentsFragment() : Fragment() {
                         taxLayout.visibility = View.VISIBLE
                 }
 
-                var keyListener = View.OnKeyListener { _, KeyCode, event ->
+                val onKeyListener = View.OnKeyListener { _, KeyCode, event ->
                     if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                         closeKeyBoard()
                         name.clearFocus()
@@ -307,14 +307,43 @@ class ContentsFragment() : Fragment() {
                     false
                 }
 
+                val onNameFocusChangeListener = View.OnFocusChangeListener { view, isFocus ->
+                    if (isFocus) {
+                    } else {
+                        name.clearFocus()
+                        name.clearComposingText()
+                        closeKeyBoard()
+                    }
+                }
+
+                val onPriceFocusChangeListener = View.OnFocusChangeListener { view, isFocus ->
+                    if (isFocus) {
+                        val fPrice =
+                            DecimalFormat("#########").format(dataList[position].price)
+                        price.text = SpannableStringBuilder(fPrice)
+                    } else {
+                        val fPrice = if (type == 0 || type == 1) {
+                            DecimalFormat("+#,###,###.#").format(price.text.toString().toInt())
+                        } else {
+                            DecimalFormat("-#,###,###.#").format(price.text.toString().toInt())
+                        }
+                        price.text = SpannableStringBuilder(fPrice)
+                        price.clearFocus()
+                        price.clearComposingText()
+                        closeKeyBoard()
+                    }
+                }
+
                 cardView.setBackgroundColor(Color.WHITE)
                 name.setBackgroundColor(Color.WHITE)
                 name.setTextColor(Color.BLACK)
                 name.setCursorColor(ctx, parentColor)
-                name.setOnKeyListener(keyListener)
+                name.setOnKeyListener(onKeyListener)
+                name.onFocusChangeListener = onNameFocusChangeListener
                 price.setBackgroundColor(Color.WHITE)
                 price.setCursorColor(ctx, parentColor)
-                price.setOnKeyListener(keyListener)
+                price.setOnKeyListener(onKeyListener)
+                price.onFocusChangeListener = onPriceFocusChangeListener
                 mainCg.setBackgroundColor(parentColor)
                 mainCg.setTextColor(Color.WHITE)
                 subCg.setBackgroundColor(parentColor)
@@ -374,10 +403,11 @@ class ContentsFragment() : Fragment() {
             fun dataCompare(holder: ViewHolder, position: Int): Boolean {
 
                 val result: Boolean
+                val price : Int
+                Regex
                 return if (type == 0 || type == 1) {
                     holder.name.text.toString() != dataList[position].name
                             || holder.price.text.toString().toInt() != dataList[position].price
-
                 } else {
                     val taxFlag = holder.taxCheckBox.isChecked
                     var price = if (taxFlag)
@@ -432,34 +462,34 @@ class ContentsFragment() : Fragment() {
                     name.isClickable = true
                     name.keyListener = nameListener
                     name.movementMethod = nameMethod
-                 /*   name.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
-                        if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                            closeKeyBoard()
+                    /*   name.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
+                           if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                               closeKeyBoard()
 
-                            name.clearFocus()
-                            name.clearComposingText()
-                            price.clearFocus()
-                            name.clearComposingText()
-                            return@OnKeyListener true
-                        }
-                        false
-                    })*/
+                               name.clearFocus()
+                               name.clearComposingText()
+                               price.clearFocus()
+                               name.clearComposingText()
+                               return@OnKeyListener true
+                           }
+                           false
+                       })*/
 
                     price.isClickable = true
                     price.keyListener = priceListener
                     price.movementMethod = priceMethod
-                 /*   price.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
-                        if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                            closeKeyBoard()
+                    /*   price.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
+                           if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                               closeKeyBoard()
 
-                            name.clearFocus()
-                            name.clearComposingText()
-                            price.clearFocus()
-                            name.clearComposingText()
-                            return@OnKeyListener true
-                        }
-                        false
-                    })*/
+                               name.clearFocus()
+                               name.clearComposingText()
+                               price.clearFocus()
+                               name.clearComposingText()
+                               return@OnKeyListener true
+                           }
+                           false
+                       })*/
 
 
                     taxLayout.visibility = View.VISIBLE

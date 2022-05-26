@@ -4,15 +4,13 @@ import android.app.AlarmManager
 import android.app.Application
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.jp_ais_training.keibo.main.notireceiver.KinyuNotiReceiver
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
-class KeiboApplication: Application() {
+
+open class KeiboApplication: Application() {
 
     private lateinit var alarmManager: AlarmManager
     private val TAG = this::class.java.simpleName.toString()
@@ -21,7 +19,9 @@ class KeiboApplication: Application() {
         super.onCreate()
 
         // Notification Channel 생성
-        NotificationUtil(this).createChannels()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationUtil(this).createChannels()
+        }
 
         // AlarmManagert 생성 (특정 시간을 인식하는 BroadCast 생성 클래스)
         alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager

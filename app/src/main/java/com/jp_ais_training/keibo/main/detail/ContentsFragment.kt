@@ -24,11 +24,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
+import com.jp_ais_training.keibo.main.detail.CategoryDialog
 import com.jp_ais_training.keibo.main.model.AppDatabase
 import com.jp_ais_training.keibo.main.model.Response.ResponseItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import net.cachapa.expandablelayout.ExpandableLayout
 import java.lang.reflect.Field
 import java.text.DecimalFormat
@@ -54,12 +53,11 @@ class ContentsFragment() : Fragment() {
             targetDate = bundle.getString("targetDate").toString()
             type = bundle.getInt("type")
         }
-        println("onCreate : $targetDate")
-
         super.onCreate(savedInstanceState)
     }
 
-    private fun loadDate() {
+    private fun loadData() {
+        println("LoadData : $type")
         when (type) {
             0 -> {
                 dataList = DB.dao().loadFixII(targetDate)
@@ -95,23 +93,23 @@ class ContentsFragment() : Fragment() {
         recyclerView.setBackgroundColor(color)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        CoroutineScope(Dispatchers.IO).async {
-            loadDate()
-            recyclerView.adapter = context?.let {
-                SimpleAdapter(
-                    recyclerView,
-                    dataList,
-                    parentColor,
-                    color,
-                    type,
-                    targetDate,
-                    super.requireActivity(),
-                    it
-                )
+        CoroutineScope(Dispatchers.Main).launch {
+            withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                loadData()
+                recyclerView.adapter = context?.let {
+                    SimpleAdapter(
+                        recyclerView,
+                        dataList,
+                        parentColor,
+                        color,
+                        type,
+                        targetDate,
+                        super.requireActivity(),
+                        it
+                    )
+                }
             }
         }
-
-
         return binding.root
     }
 
@@ -252,7 +250,6 @@ class ContentsFragment() : Fragment() {
                         mainCg.text = dataList[position].main_category_name
                         subCg.text = dataList[position].sub_category_name
 
-
                         topLayout.visibility = View.VISIBLE
                         taxLayout.visibility = View.VISIBLE
                     }
@@ -263,10 +260,15 @@ class ContentsFragment() : Fragment() {
                     subCg.text = "サーブカテゴリ"
                     subCg.visibility = View.INVISIBLE
                     taxLayout.visibility = View.VISIBLE
-                    if (type == 0 || type == 1)
+
+                    if (type == 0 || type == 1) {
+                        price.setTextColor(Color.BLUE)
                         topLayout.visibility = View.GONE
-                    else
+                    } else {
+                        price.setTextColor(Color.RED)
                         taxLayout.visibility = View.VISIBLE
+                    }
+
                 }
 
                 val onKeyListener = View.OnKeyListener { _, KeyCode, event ->
@@ -320,8 +322,10 @@ class ContentsFragment() : Fragment() {
                             closeKeyBoard()
                         }
                     }
+                }
 
-
+                mainCg.setOnClickListener {
+                    CategoryDialog(ctx).callMainCategory()
                 }
 
                 cardView.setBackgroundColor(Color.WHITE)

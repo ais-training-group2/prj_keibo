@@ -33,5 +33,7 @@ object Const {
     val KINYU_NOTI_HOUR_OF_DAY = 21
     val KINYU_NOTI_MINUTE = 0
     val KINYU_NOTI_SECOND = 0
-    val KINYU_NOTI_MILLISECOND = 0
+    const val KINYU_NOTI_MILLISECOND = 0
+
+    const val NULL = "null"
 }

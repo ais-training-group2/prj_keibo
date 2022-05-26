@@ -1,7 +1,5 @@
 package com.jp_ais_training.keibo.main
 
-import android.content.SharedPreferences
-
 // 애플리케이션에서 활용할 공통 상수
 object Const {
 
@@ -10,6 +8,9 @@ object Const {
     val KINYU_CHANNEL_NAME = "KINYU CHANNEL"
     val COMPARISON_CHANNEL_ID = "COMPARISON"
     val COMPARISON_CHANNEL_NAME = "COMPARISON CHANNEL"
+
+    val FIX_EXPENSE_CHANNEL_ID = "FIXEXPENSE"
+    val FIX_EXPENSE_CHANNEL_NAME = "FIXEXPENSE CHANNEL"
 
     val KINYU_NOTIFICATION = -777
     val IS_INIT_KINYU_NOTI = "isInitKinyuNoti"

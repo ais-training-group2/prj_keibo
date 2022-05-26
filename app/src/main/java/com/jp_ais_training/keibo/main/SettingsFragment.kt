@@ -2,6 +2,7 @@ package com.jp_ais_training.keibo.main
 
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -34,95 +35,105 @@ class SettingsFragment : Fragment() {
     // 스위치 상태 초기화
     private fun initSwitchValue() {
         // 이전 스위치 상태 확인 및 대입
-        sharedPreferences = requireContext().getSharedPreferences(Const.NOTI_KEY, MODE_PRIVATE)
+        sharedPreferences = requireContext().getSharedPreferences(Const.NOTI_KEY,MODE_PRIVATE)
         val alarm1isRunning = sharedPreferences.getBoolean(Const.FIX_EXPENSE_NOTI_KEY, false)
         val alarm2isRunning = sharedPreferences.getBoolean(Const.KINYU_NOTI_KEY, false)
         val alarm3isRunning = sharedPreferences.getBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, false)
-        binding.swiAll.isChecked = alarm1isRunning && alarm2isRunning && alarm3isRunning
-        binding.swiAlarm1.isChecked = alarm1isRunning
-        binding.swiAlarm2.isChecked = alarm2isRunning
-        binding.swiAlarm3.isChecked = alarm3isRunning
+        binding.swiAll.isChecked= alarm1isRunning && alarm2isRunning && alarm3isRunning
+        binding.swiFixExpenseNoti.isChecked= alarm1isRunning
+        binding.swiKinyuNoti.isChecked= alarm2isRunning
+        binding.swiComparisonNoti.isChecked= alarm3isRunning
     }
 
     // 화면 클릭 이벤트 설정
     private fun setClickEvent() {
-
-        binding.swiAll.setOnClickListener {
+        binding.swiAll.setOnClickListener{
             val isChecked = binding.swiAll.isChecked
-            binding.swiAlarm1.isChecked = isChecked
-            binding.swiAlarm2.isChecked = isChecked
-            binding.swiAlarm3.isChecked = isChecked
+            binding.swiFixExpenseNoti.isChecked= isChecked
+            binding.swiKinyuNoti.isChecked= isChecked
+            binding.swiComparisonNoti.isChecked= isChecked
 
             val editor = sharedPreferences.edit()
             editor.putBoolean(Const.FIX_EXPENSE_NOTI_KEY, isChecked)
             editor.putBoolean(Const.KINYU_NOTI_KEY, isChecked)
             editor.putBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, isChecked)
             editor.commit()
+
+            updateNotification(Const.FIX_EXPENSE_NOTI_KEY)
+            updateNotification(Const.KINYU_NOTI_KEY)
+            updateNotification(Const.COMPARISON_EXPENSE_NOTI_KEY)
         }
 
-        binding.swiAlarm1.setOnClickListener {
-            val isChecked = binding.swiAlarm1.isChecked
+        binding.swiFixExpenseNoti.setOnClickListener{
+            val isChecked = binding.swiFixExpenseNoti.isChecked
             val editor = sharedPreferences.edit()
             editor.putBoolean(Const.FIX_EXPENSE_NOTI_KEY, isChecked)
             editor.commit()
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
-            binding.swiAll.isChecked = isChecked && binding.swiAlarm2.isChecked && binding.swiAlarm3.isChecked
+            binding.swiAll.isChecked= isChecked && binding.swiKinyuNoti.isChecked&& binding.swiComparisonNoti.isChecked
 
-            if (isChecked) {
-                setAlarm(Const.FIX_EXPENSE_NOTI_KEY)
-            } else {
-                closeAlarm(Const.FIX_EXPENSE_NOTI_KEY)
-            }
+            updateNotification(Const.FIX_EXPENSE_NOTI_KEY)
         }
 
-        binding.swiAlarm2.setOnClickListener {
-            val isChecked = binding.swiAlarm2.isChecked
+        binding.swiKinyuNoti.setOnClickListener{
+            val isChecked = binding.swiKinyuNoti.isChecked
             val editor = sharedPreferences.edit()
             editor.putBoolean(Const.KINYU_NOTI_KEY, isChecked)
             editor.commit()
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
-            binding.swiAll.isChecked = binding.swiAlarm1.isChecked && isChecked  && binding.swiAlarm3.isChecked
-
-            if (isChecked) {
-                setAlarm(Const.KINYU_NOTI_KEY)
-            } else {
-                closeAlarm(Const.KINYU_NOTI_KEY)
-            }
+            binding.swiAll.isChecked= binding.swiFixExpenseNoti.isChecked&& isChecked  && binding.swiComparisonNoti.isChecked
+            updateNotification(Const.KINYU_NOTI_KEY)
         }
 
-        binding.swiAlarm3.setOnClickListener {
-            val isChecked = binding.swiAlarm3.isChecked
+        binding.swiComparisonNoti.setOnClickListener{
+            val isChecked = binding.swiComparisonNoti.isChecked
             val editor = sharedPreferences.edit()
             editor.putBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, isChecked)
             editor.commit()
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
-            binding.swiAll.isChecked = binding.swiAlarm1.isChecked && binding.swiAlarm2.isChecked  && isChecked
+            binding.swiAll.isChecked= binding.swiFixExpenseNoti.isChecked&& binding.swiKinyuNoti.isChecked&& isChecked
 
-            if (isChecked) {
-                setAlarm(Const.COMPARISON_EXPENSE_NOTI_KEY)
-            } else {
-                closeAlarm(Const.COMPARISON_EXPENSE_NOTI_KEY)
+            updateNotification(Const.COMPARISON_EXPENSE_NOTI_KEY)
+        }
+    }
+
+    // 스위치의 현재 상태를 확인해
+    private fun updateNotification(flag: String) {
+
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.O) {
+            val notificationUtil = NotificationUtil(requireContext())
+            when(flag) {
+                Const.FIX_EXPENSE_NOTI_KEY -> {
+                    if (binding.swiFixExpenseNoti.isChecked) {
+                        notificationUtil.setFixExpenseNotification()
+                    } else {
+                        notificationUtil.cancelFixExpenseNotification()
+                    }
+                }
+                Const.KINYU_NOTI_KEY -> {
+                    if (binding.swiKinyuNoti.isChecked) {
+                        notificationUtil.setKinyuNotification()
+                    } else {
+                        notificationUtil.cancelKinyuNotification()
+                    }
+                }
+                Const.COMPARISON_EXPENSE_NOTI_KEY -> {
+                    if (binding.swiComparisonNoti.isChecked) {
+                        notificationUtil.setComparisonExpenseByMonthly()
+                    } else {
+                        notificationUtil.cancelComparisonExpenseByMonthly()
+                    }
+                }
             }
-        }
 
-    }
+            val str = "binding.swiFixExpenseNoti.isChecked: ${binding.swiFixExpenseNoti.isChecked}\n" +
+                    "binding.swiKinyuNoti.isChecked: ${binding.swiKinyuNoti.isChecked}\n" +
+                    "binding.swiComparisonNoti.isChecked: ${binding.swiComparisonNoti.isChecked}"
 
-    private fun setAlarm(flag: String) {
-        when(flag) {
-            Const.FIX_EXPENSE_NOTI_KEY -> Log.d(TAG, "1번 알람 설정")
-            Const.KINYU_NOTI_KEY -> Log.d(TAG, "2번 알람 설정")
-            Const.COMPARISON_EXPENSE_NOTI_KEY -> Log.d(TAG, "3번 알람 설정")
-        }
-    }
-
-    private fun closeAlarm(flag: String) {
-        when(flag) {
-            Const.FIX_EXPENSE_NOTI_KEY -> Log.d(TAG, "1번 알람 취소")
-            Const.KINYU_NOTI_KEY -> Log.d(TAG, "2번 알람 취소")
-            Const.COMPARISON_EXPENSE_NOTI_KEY -> Log.d(TAG, "3번 알람 취소")
+            Log.d(TAG, "$str")
         }
     }
 

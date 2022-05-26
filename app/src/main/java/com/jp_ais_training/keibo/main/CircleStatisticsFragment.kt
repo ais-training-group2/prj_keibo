@@ -12,6 +12,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.jp_ais_training.keibo.databinding.FragmentCircleStatisticsBinding
+import com.jp_ais_training.main.sharedPreferences.MyApplication
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,6 +32,8 @@ class CircleStatisticsFragment : Fragment() {
 
     //칼랜더 변수 선언
     val cal = Calendar.getInstance()
+
+    val app = requireActivity().application as MyApplication
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

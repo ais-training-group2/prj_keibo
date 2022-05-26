@@ -28,22 +28,38 @@ class BarStatisticsFragment : Fragment() {
     ): View? {
         _binding = FragmentBarStatisticsBinding.inflate(inflater,container,false)
 
+        Barchart()
+        DateButton()
+        return binding.root
+    }
+
+    inner class MyXAxisFormatter : ValueFormatter() {
+        private val days = arrayOf("1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月")
+        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+            return days.getOrNull(value.toInt()-1) ?: value.toString()
+        }
+    }
+
+    private fun DateButton(){
+        binding.DateLeft.setOnClickListener(){
+            val Date:Int = Integer.parseInt(binding.Date.text.toString())-1
+            binding.Date.text = Date.toString()
+        }
+
+        binding.DateRight.setOnClickListener(){
+            val Date:Int = Integer.parseInt(binding.Date.text.toString())+1
+            binding.Date.text = Date.toString()
+        }
+    }
+
+    private fun Barchart() {
         var barchart: BarChart = binding.barchart// barChart 생성
         val entries = ArrayList<BarEntry>()
 
+        for (i in 1..13) {
+            entries.add(BarEntry(i.toFloat(),i.toFloat()*5))
+        }
 
-        entries.add(BarEntry(1f,80f))
-        entries.add(BarEntry(2f,70.0f))
-        entries.add(BarEntry(3f,30.0f))
-        entries.add(BarEntry(4f,90.0f))
-        entries.add(BarEntry(5f,70.0f))
-        entries.add(BarEntry(6f,30.0f))
-        entries.add(BarEntry(7f,90.0f))
-        entries.add(BarEntry(8f,50.0f))
-        entries.add(BarEntry(9f,70.0f))
-        entries.add(BarEntry(10f,60.0f))
-        entries.add(BarEntry(11f,70.0f))
-        entries.add(BarEntry(12f,60.0f))
 
         barchart.run {
             description.isEnabled = false // 차트 옆에 별도로 표기되는 description을 안보이게 설정 (false)
@@ -95,13 +111,5 @@ class BarStatisticsFragment : Fragment() {
             invalidate()
         }
         // Inflate the layout for this fragment
-        return binding.root
-    }
-
-    inner class MyXAxisFormatter : ValueFormatter() {
-        private val days = arrayOf("1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月")
-        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-            return days.getOrNull(value.toInt()-1) ?: value.toString()
-        }
     }
 }

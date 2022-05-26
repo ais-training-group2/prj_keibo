@@ -12,6 +12,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.ActivityDetailBinding
+import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.keibo.main.model.AppDatabase
 import com.jp_ais_training.keibo.main.model.Entity.ExpenseItem
 import com.jp_ais_training.keibo.main.model.Entity.IncomeItem
@@ -50,9 +51,7 @@ class DetailActivity : AppCompatActivity() {
         val wholeDate = mutableListOf<Fragment>()
 
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        var strTargetDate: String? = intent.getStringExtra("targetDate")
-        strTargetDate = "2022-05-05"
-
+        var strTargetDate: String? = intent.getStringExtra(Const.TARGET_DATE)
         val currentDay = LocalDate.now()
         val lastDayOfMonth = LocalDate.of(currentDay.year, currentDay.month + 1, 1).minusDays(1)
 

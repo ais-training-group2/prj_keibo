@@ -18,6 +18,7 @@ import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
 import com.jp_ais_training.keibo.databinding.FragmentDetailBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
+import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.keibo.main.model.AppDatabase
 import com.jp_ais_training.keibo.main.model.Entity.ExpenseItem
 import com.jp_ais_training.keibo.main.model.Entity.IncomeItem
@@ -48,7 +49,7 @@ class ContentsFragment() : Fragment() {
 
         val bundle = arguments
         if (bundle != null) {
-            targetDate = bundle.getString("targetDate").toString()
+            targetDate = bundle.getString(Const.TARGET_DATE).toString()
             type = bundle.getInt("type")
         }
         println("onCreate : $targetDate")

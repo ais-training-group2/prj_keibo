@@ -43,8 +43,7 @@ class HomeFragment : Fragment() {
             dataSet.add(CalendarItem(i, dateFormat.format(calendar.time), 1000, 1000))
         }
         binding.homeCalendar.calendar.layoutManager = GridLayoutManager(context, numberOfWeek)
-        binding.homeCalendar.calendar.adapter = CalendarAdapter(dataSet)
-        binding.homeCalendar.calendar.adapter
+        binding.homeCalendar.calendar.adapter = CalendarAdapter(dataSet, context)
         return binding.root
     }
 }

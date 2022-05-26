@@ -36,4 +36,7 @@ object Const {
     const val KINYU_NOTI_MILLISECOND = 0
 
     const val NULL = "null"
+
+    const val TARGET_DATE = "targetDate"
+
 }

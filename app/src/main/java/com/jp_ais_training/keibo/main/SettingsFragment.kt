@@ -25,8 +25,6 @@ class SettingsFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
 
-        Log.d(TAG, "onCreateView")
-
         initSwitchValue()
         setClickEvent()
 
@@ -36,10 +34,10 @@ class SettingsFragment : Fragment() {
     // 스위치 상태 초기화
     private fun initSwitchValue() {
         // 이전 스위치 상태 확인 및 대입
-        sharedPreferences = requireContext().getSharedPreferences("Alarm", MODE_PRIVATE)
-        val alarm1isRunning = sharedPreferences.getBoolean("Alarm1", false)
-        val alarm2isRunning = sharedPreferences.getBoolean("Alarm2", false)
-        val alarm3isRunning = sharedPreferences.getBoolean("Alarm3", false)
+        sharedPreferences = requireContext().getSharedPreferences(Const.NOTI_KEY, MODE_PRIVATE)
+        val alarm1isRunning = sharedPreferences.getBoolean(Const.FIX_EXPENSE_NOTI_KEY, false)
+        val alarm2isRunning = sharedPreferences.getBoolean(Const.KINYU_NOTI_KEY, false)
+        val alarm3isRunning = sharedPreferences.getBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, false)
         binding.swiAll.isChecked = alarm1isRunning && alarm2isRunning && alarm3isRunning
         binding.swiAlarm1.isChecked = alarm1isRunning
         binding.swiAlarm2.isChecked = alarm2isRunning
@@ -50,110 +48,101 @@ class SettingsFragment : Fragment() {
     private fun setClickEvent() {
 
         binding.swiAll.setOnClickListener {
-            Log.d(TAG, "swiAll: ${binding.swiAll.isChecked}")
             val isChecked = binding.swiAll.isChecked
             binding.swiAlarm1.isChecked = isChecked
             binding.swiAlarm2.isChecked = isChecked
             binding.swiAlarm3.isChecked = isChecked
 
             val editor = sharedPreferences.edit()
-            editor.putBoolean("Alarm1", isChecked)
-            editor.putBoolean("Alarm2", isChecked)
-            editor.putBoolean("Alarm3", isChecked)
+            editor.putBoolean(Const.FIX_EXPENSE_NOTI_KEY, isChecked)
+            editor.putBoolean(Const.KINYU_NOTI_KEY, isChecked)
+            editor.putBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, isChecked)
             editor.commit()
         }
 
         binding.swiAlarm1.setOnClickListener {
-            Log.d(TAG, "swiAlarm1: ${binding.swiAlarm1.isChecked}")
             val isChecked = binding.swiAlarm1.isChecked
             val editor = sharedPreferences.edit()
-            editor.putBoolean("Alarm1", isChecked)
+            editor.putBoolean(Const.FIX_EXPENSE_NOTI_KEY, isChecked)
             editor.commit()
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
             binding.swiAll.isChecked = isChecked && binding.swiAlarm2.isChecked && binding.swiAlarm3.isChecked
 
             if (isChecked) {
-                setAlarm(1)
+                setAlarm(Const.FIX_EXPENSE_NOTI_KEY)
             } else {
-                closeAlarm(1)
+                closeAlarm(Const.FIX_EXPENSE_NOTI_KEY)
             }
         }
 
         binding.swiAlarm2.setOnClickListener {
-            Log.d(TAG, "swiAlarm2: ${binding.swiAlarm2.isChecked}")
             val isChecked = binding.swiAlarm2.isChecked
             val editor = sharedPreferences.edit()
-            editor.putBoolean("Alarm2", isChecked)
+            editor.putBoolean(Const.KINYU_NOTI_KEY, isChecked)
             editor.commit()
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
             binding.swiAll.isChecked = binding.swiAlarm1.isChecked && isChecked  && binding.swiAlarm3.isChecked
 
             if (isChecked) {
-                setAlarm(2)
+                setAlarm(Const.KINYU_NOTI_KEY)
             } else {
-                closeAlarm(2)
+                closeAlarm(Const.KINYU_NOTI_KEY)
             }
         }
 
         binding.swiAlarm3.setOnClickListener {
-            Log.d(TAG, "swiAlarm3: ${binding.swiAlarm3.isChecked}")
             val isChecked = binding.swiAlarm3.isChecked
             val editor = sharedPreferences.edit()
-            editor.putBoolean("Alarm3", isChecked)
+            editor.putBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, isChecked)
             editor.commit()
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
             binding.swiAll.isChecked = binding.swiAlarm1.isChecked && binding.swiAlarm2.isChecked  && isChecked
 
             if (isChecked) {
-                setAlarm(3)
+                setAlarm(Const.COMPARISON_EXPENSE_NOTI_KEY)
             } else {
-                closeAlarm(3)
+                closeAlarm(Const.COMPARISON_EXPENSE_NOTI_KEY)
             }
         }
 
     }
 
-    private fun setAlarm(flag: Int) {
+    private fun setAlarm(flag: String) {
         when(flag) {
-            1 -> Log.d(TAG, "1번 알람 설정")
-            2 -> Log.d(TAG, "2번 알람 설정")
-            3 -> Log.d(TAG, "3번 알람 설정")
+            Const.FIX_EXPENSE_NOTI_KEY -> Log.d(TAG, "1번 알람 설정")
+            Const.KINYU_NOTI_KEY -> Log.d(TAG, "2번 알람 설정")
+            Const.COMPARISON_EXPENSE_NOTI_KEY -> Log.d(TAG, "3번 알람 설정")
         }
     }
 
-    private fun closeAlarm(flag: Int) {
+    private fun closeAlarm(flag: String) {
         when(flag) {
-            1 -> Log.d(TAG, "1번 알람 취소")
-            2 -> Log.d(TAG, "2번 알람 취소")
-            3 -> Log.d(TAG, "3번 알람 취소")
+            Const.FIX_EXPENSE_NOTI_KEY -> Log.d(TAG, "1번 알람 취소")
+            Const.KINYU_NOTI_KEY -> Log.d(TAG, "2번 알람 취소")
+            Const.COMPARISON_EXPENSE_NOTI_KEY -> Log.d(TAG, "3번 알람 취소")
         }
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(TAG, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(TAG, "onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy")
     }
 }

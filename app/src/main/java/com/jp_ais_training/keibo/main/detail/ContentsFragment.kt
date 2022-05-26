@@ -2,15 +2,24 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.method.KeyListener
 import android.text.method.MovementMethod
+import android.util.TypedValue
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +35,7 @@ import com.jp_ais_training.keibo.main.model.ExActivity
 import com.jp_ais_training.keibo.main.model.Response.ResponseItem
 import kotlinx.coroutines.*
 import net.cachapa.expandablelayout.ExpandableLayout
+import java.lang.reflect.Field
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -44,6 +54,7 @@ class ContentsFragment() : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         DB = AppDatabase.getInstance(requireContext())!!
 
         val bundle = arguments
@@ -200,19 +211,19 @@ class ContentsFragment() : Fragment() {
                                 holder.price.text.toString().toInt()
                             else
                                 (holder.price.text.toString().toInt() * 1.1).toInt()
-                           /*
-                            //DB에 인설트 시키고 리턴값으로 id값 받기
-                            val item = ResponseItem(
-                                -1,
-                                -1,
-                                mainCg.text.toString(),
-                                subCg.text.toString(),
-                                name.text.toString(),
-                                price,
-                                targetDate
-                            )
+                            /*
+                             //DB에 인설트 시키고 리턴값으로 id값 받기
+                             val item = ResponseItem(
+                                 -1,
+                                 -1,
+                                 mainCg.text.toString(),
+                                 subCg.text.toString(),
+                                 name.text.toString(),
+                                 price,
+                                 targetDate
+                             )
 
-                            addItem(item)*/
+                             addItem(item)*/
 
                         } else {
                             //기존 데이터에서 변화된 값 체크
@@ -284,10 +295,26 @@ class ContentsFragment() : Fragment() {
                         taxLayout.visibility = View.VISIBLE
                 }
 
+                var keyListener = View.OnKeyListener { _, KeyCode, event ->
+                    if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                        closeKeyBoard()
+                        name.clearFocus()
+                        name.clearComposingText()
+                        price.clearFocus()
+                        name.clearComposingText()
+                        return@OnKeyListener true
+                    }
+                    false
+                }
+
                 cardView.setBackgroundColor(Color.WHITE)
-                name.setBackgroundColor(Color.TRANSPARENT)
+                name.setBackgroundColor(Color.WHITE)
                 name.setTextColor(Color.BLACK)
-                price.setBackgroundColor(Color.TRANSPARENT)
+                name.setCursorColor(ctx, parentColor)
+                name.setOnKeyListener(keyListener)
+                price.setBackgroundColor(Color.WHITE)
+                price.setCursorColor(ctx, parentColor)
+                price.setOnKeyListener(keyListener)
                 mainCg.setBackgroundColor(parentColor)
                 mainCg.setTextColor(Color.WHITE)
                 subCg.setBackgroundColor(parentColor)
@@ -317,9 +344,17 @@ class ContentsFragment() : Fragment() {
                 priceListener = price.keyListener
                 priceMethod = price.movementMethod
 
-                setActivationItem(true)
+                setActivationItem(false)
             }
 
+            fun closeKeyBoard() {
+                val view = activity.currentFocus
+                if (view != null) {
+                    val imm =
+                        activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(view.windowToken, 0)
+                }
+            }
 
             fun nullChecker(holder: ViewHolder): Boolean {
 
@@ -360,6 +395,7 @@ class ContentsFragment() : Fragment() {
             }
 
             fun deActivationItem(holder: ViewHolder) {
+                closeKeyBoard()
 
                 holder.cardView.isSelected = false
                 holder.cardView.setBackgroundColor(Color.WHITE)
@@ -367,10 +403,14 @@ class ContentsFragment() : Fragment() {
                 holder.name.isClickable = false
                 holder.name.keyListener = null
                 holder.name.movementMethod = null
+                holder.name.clearFocus()
+                holder.name.clearComposingText()
 
                 holder.price.isClickable = false
                 holder.price.keyListener = null
                 holder.price.movementMethod = null
+                holder.price.clearFocus()
+                holder.price.clearComposingText()
 
                 holder.taxLayout.visibility = View.INVISIBLE
 
@@ -389,13 +429,38 @@ class ContentsFragment() : Fragment() {
                     cardView.isSelected = true
                     cardView.setBackgroundColor(color)
 
-                    name.isClickable = false
-                    name.keyListener = null
-                    name.movementMethod = null
+                    name.isClickable = true
+                    name.keyListener = nameListener
+                    name.movementMethod = nameMethod
+                 /*   name.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
+                        if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                            closeKeyBoard()
 
-                    price.isClickable = false
-                    price.keyListener = null
-                    price.movementMethod = null
+                            name.clearFocus()
+                            name.clearComposingText()
+                            price.clearFocus()
+                            name.clearComposingText()
+                            return@OnKeyListener true
+                        }
+                        false
+                    })*/
+
+                    price.isClickable = true
+                    price.keyListener = priceListener
+                    price.movementMethod = priceMethod
+                 /*   price.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
+                        if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                            closeKeyBoard()
+
+                            name.clearFocus()
+                            name.clearComposingText()
+                            price.clearFocus()
+                            name.clearComposingText()
+                            return@OnKeyListener true
+                        }
+                        false
+                    })*/
+
 
                     taxLayout.visibility = View.VISIBLE
 
@@ -405,6 +470,7 @@ class ContentsFragment() : Fragment() {
                     subCg.setBackgroundColor(Color.WHITE)
 
                 } else {
+                    closeKeyBoard()
 
                     cardView.isSelected = false
                     cardView.setBackgroundColor(Color.WHITE)
@@ -412,10 +478,14 @@ class ContentsFragment() : Fragment() {
                     name.isClickable = false
                     name.keyListener = null
                     name.movementMethod = null
+                    name.clearFocus()
+                    name.clearComposingText()
 
                     price.isClickable = false
                     price.keyListener = null
                     price.movementMethod = null
+                    price.clearFocus()
+                    price.clearComposingText()
 
                     taxLayout.visibility = View.INVISIBLE
 
@@ -426,6 +496,55 @@ class ContentsFragment() : Fragment() {
 
                 }
             }
+
+
+            fun EditText.setCursorColor(context: Context, color: Int) {
+                val editText = this
+
+                val shapeDrawable = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setSize(2.dpToPixels(context), 0)
+                    setColor(color)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    textCursorDrawable = shapeDrawable
+                } else {
+                    try {
+                        // get the cursor resource id
+                        TextView::class.java.getDeclaredField("mCursorDrawableRes").apply {
+                            isAccessible = true
+                            val drawableResId: Int = getInt(editText)
+
+                            // get the editor
+                            val editorField: Field = TextView::class.java
+                                .getDeclaredField("mEditor")
+                            editorField.isAccessible = true
+                            val editor: Any = editorField.get(editText)
+
+                            // get the drawable and set a color filter
+                            val drawable: Drawable? = ContextCompat
+                                .getDrawable(editText.context, drawableResId)
+                            drawable?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+
+                            // set the drawables
+                            editor.javaClass.getDeclaredField("mCursorDrawable").apply {
+                                isAccessible = true
+                                set(editor, arrayOf(drawable, drawable))
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // log exception here
+                    }
+                }
+
+
+            }
+
+            fun Int.dpToPixels(context: Context): Int = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
+            ).toInt()
+
         }
 
 

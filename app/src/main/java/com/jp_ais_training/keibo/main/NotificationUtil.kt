@@ -32,6 +32,17 @@ class NotificationUtil(context: Context): ContextWrapper(context) {
         manager.createNotificationChannel(kinyuChannel)
 
         // 월말 지출 비교 알림
+        val comparisonChannel = NotificationChannel(Const.COMPARISON_CHANNEL_ID, Const.COMPARISON_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH)
+        // 이 채널에 게시된 알림이 알림 표시등(notification light)을 표시해야 하는지 여부를 설정합니다.
+        kinyuChannel.enableLights(true)
+        // 이 채널에 게시된 알림이 진동해야 하는지 여부를 설정합니다.
+        kinyuChannel.enableVibration(true)
+        // 이 채널에 게시된 알림에 대한 알림 라이트 색을 설정합니다.
+        kinyuChannel.lightColor = Color.GREEN
+        // 이 채널에 게시된 알림이 잠금 화면에 표시되는지 여부를 설정합니다.
+        kinyuChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        manager.createNotificationChannel(comparisonChannel)
+
     }
 
 

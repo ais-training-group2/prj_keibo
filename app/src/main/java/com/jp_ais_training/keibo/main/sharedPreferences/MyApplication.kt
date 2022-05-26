@@ -12,10 +12,10 @@ import java.util.*
 
 class MyApplication : KeiboApplication()
 {
-    lateinit var DB: AppDatabase
+    
     companion object
     {
-
+        lateinit var DB: AppDatabase
         lateinit var prefs: PreferenceUtil
     }
 

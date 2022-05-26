@@ -50,4 +50,7 @@ object Const {
     val NOTI_INTENT_TYPE_VALUE_GO_TO_SYOUSAI_PAGE = "GoToSyousaiPage"
     val NOTI_INTENT_TYPE_VALUE_GO_TO_BAR_STATISTIC = "GoToBarStatistic"
     val NOTI_INTENT_TYPE_VALUE_NONE= "None"
+    const val NULL = "null"
+
+    const val TARGET_DATE = "targetDate"
 }

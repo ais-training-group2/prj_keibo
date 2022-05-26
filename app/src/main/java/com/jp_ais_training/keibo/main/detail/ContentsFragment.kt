@@ -64,55 +64,33 @@ class ContentsFragment() : Fragment() {
         }
         println("onCreate : $targetDate")
 
-        CoroutineScope(Dispatchers.IO).async {
-            when (type) {
-                0 -> {
-                    dataList = DB.dao().loadFixII(targetDate)
-                    parentColor = Color.rgb(255, 204, 204)
-                    color = Color.rgb(255, 225, 225)
-                }
-                1 -> {
-                    dataList = DB.dao().loadFlexII(targetDate)
-                    parentColor = Color.rgb(229, 255, 204)
-                    color = Color.rgb(250, 255, 225)
-                }
-                2 -> {
-                    dataList = DB.dao().loadFixEI(targetDate)
-                    parentColor = Color.rgb(204, 255, 255)
-                    color = Color.rgb(225, 255, 255)
-                }
-                else -> {
-                    dataList = DB.dao().loadFlexEI(targetDate)
-                    parentColor = Color.rgb(229, 204, 255)
-                    color = Color.rgb(250, 225, 255)
-                }
-            }
-
-        }
-
-/*
-
-        dataArray.add(DB.dao().loadFixII(targetDate))
-        dataArray.add(DB.dao().loadFlexEI(targetDate))
-        dataArray.add(DB.dao().loadFixEI(targetDate))
-        dataArray.add(DB.dao().loadFlexEI(targetDate))
-
-        parentColorArray.add(Color.rgb(255, 204, 204))
-        parentColorArray.add(Color.rgb(229, 255, 204))
-        parentColorArray.add(Color.rgb(204, 255, 255))
-        parentColorArray.add(Color.rgb(229, 204, 255))
-
-        colorArray.add(Color.rgb(255, 225, 225))
-        colorArray.add(Color.rgb(250, 255, 225))
-        colorArray.add(Color.rgb(225, 255, 255))
-        colorArray.add(Color.rgb(250, 225, 255))
-
-
-*/
-
         super.onCreate(savedInstanceState)
     }
 
+    private fun loadDate() {
+        when (type) {
+            0 -> {
+                dataList = DB.dao().loadFixII(targetDate)
+                parentColor = Color.rgb(255, 204, 204)
+                color = Color.rgb(255, 225, 225)
+            }
+            1 -> {
+                dataList = DB.dao().loadFlexII(targetDate)
+                parentColor = Color.rgb(229, 255, 204)
+                color = Color.rgb(250, 255, 225)
+            }
+            2 -> {
+                dataList = DB.dao().loadFixEI(targetDate)
+                parentColor = Color.rgb(204, 255, 255)
+                color = Color.rgb(225, 255, 255)
+            }
+            else -> {
+                dataList = DB.dao().loadFlexEI(targetDate)
+                parentColor = Color.rgb(229, 204, 255)
+                color = Color.rgb(250, 225, 255)
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -125,20 +103,23 @@ class ContentsFragment() : Fragment() {
         recyclerView.setBackgroundColor(color)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        recyclerView.adapter = context?.let {
-            SimpleAdapter(
-                recyclerView,
-                dataList,
-                parentColor,
-                color,
-                type,
-                targetDate,
-                super.requireActivity(),
-                it
-            )
+        CoroutineScope(Dispatchers.Main).launch {
+            CoroutineScope(Dispatchers.IO).launch {
+                loadDate()
+                recyclerView.adapter = context?.let {
+                    SimpleAdapter(
+                        recyclerView,
+                        dataList,
+                        parentColor,
+                        color,
+                        type,
+                        targetDate,
+                        super.requireActivity(),
+                        it
+                    )
+                }
+            }
         }
-
-
 
         return binding.root
     }
@@ -403,8 +384,7 @@ class ContentsFragment() : Fragment() {
             fun dataCompare(holder: ViewHolder, position: Int): Boolean {
 
                 val result: Boolean
-                val price : Int
-                Regex
+                val price: Int
                 return if (type == 0 || type == 1) {
                     holder.name.text.toString() != dataList[position].name
                             || holder.price.text.toString().toInt() != dataList[position].price

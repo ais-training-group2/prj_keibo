@@ -12,12 +12,13 @@ import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.keibo.main.MainActivity
 import com.jp_ais_training.keibo.main.model.AppDatabase
+import com.jp_ais_training.keibo.main.model.Response.LoadSumEI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-class KinyuNotiReceiver: BroadcastReceiver() {
+class ComparisonExpenseNotiReceiver: BroadcastReceiver() {
 
     private val TAG = this::class.java.simpleName.toString()
 
@@ -26,15 +27,8 @@ class KinyuNotiReceiver: BroadcastReceiver() {
         intent?.let { it ->
             val calendar = Calendar.getInstance()
 
-            val year = calendar.get(Calendar.YEAR)
-            val month = (calendar.get(Calendar.MONTH) + 1).let {
-                if (it < 10) {
-                    "0$it"
-                } else {
-                    it.toString()
-                }
-            }
-            val day = calendar.get(Calendar.DAY_OF_MONTH).let {
+            val currentYear = calendar.get(Calendar.YEAR)
+            val currentMonth = (calendar.get(Calendar.MONTH) + 1).let {
                 if (it < 10) {
                     "0$it"
                 } else {
@@ -42,32 +36,42 @@ class KinyuNotiReceiver: BroadcastReceiver() {
                 }
             }
 
-            val today = "$year-$month-$day"
+            calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 1)
+
+            val prevYear = calendar.get(Calendar.YEAR)
+            val prevMonth = (calendar.get(Calendar.MONTH) + 1).let {
+                if (it < 10) {
+                    "0$it"
+                } else {
+                    it.toString()
+                }
+            }
+
+            val current = "$currentYear-$currentMonth"
+            val prev = "$prevYear-$prevMonth"
 
             val DB = AppDatabase.getInstance(context!!)!!
 
             CoroutineScope(Dispatchers.IO).launch {
-                // $year-$month-$day : YYYY-MM-DD
-                val fixEI = DB.dao().loadFixEI(today)
-                val flexEI = DB.dao().loadFlexEI(today)
-                val fixII = DB.dao().loadFixII(today)
-                val flexII = DB.dao().loadFlexII(today)
 
-                // 고정 지출, 변동 지출, 고정 수입, 변동 수입 모두 비어있다면,
-                if (fixEI.isEmpty() && flexEI.isEmpty() && fixII.isEmpty() && flexII.isEmpty()) {
+                val currentMonthExpenseSum: LoadSumEI =  DB.dao().loadMonthSumEI(current)[0]
+                val prevMonthExpenseSum: LoadSumEI =  DB.dao().loadMonthSumEI(prev)[0]
+
+                // 데이터가 있을 경우
+                if (currentMonthExpenseSum.price != null && prevMonthExpenseSum.price != null) {
                     val intent = Intent(context, MainActivity::class.java)
+                    intent.putExtra(Const.NOTI_INTENT_TYPE_KEY_WHAT_TO_DO, Const.NOTI_INTENT_TYPE_VALUE_GO_TO_BAR_STATISTIC)
                     intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    intent.putExtra(Const.NOTI_INTENT_TYPE_KEY_WHAT_TO_DO, Const.NOTI_INTENT_TYPE_VALUE_GO_TO_SYOUSAI_PAGE)
-                    intent.putExtra(Const.KINYU_MAIN_ACTIVITY_EXTRA_YEAR, year)
-                    intent.putExtra(Const.KINYU_MAIN_ACTIVITY_EXTRA_MONTH, month)
-                    intent.putExtra(Const.KINYU_MAIN_ACTIVITY_EXTRA_DAY, day)
 
                     val pendingIntent = PendingIntent.getActivity(context, Const.PENDING_INTENT_REQUEST_CODE, intent, Const.PENDING_INTENT_FLAGS)
 
-                    val contentTitle = Const.KINYU_NOTI_CONTENT_TITLE
-                    val contentText = "$today\n${Const.KINYU_NOTI_CONTENT_TEXT}"
+                    val contentTitle = Const.COMPARISON_NOTI_CONTENT_TITLE
+                    val contentText =
+                        "${Const.COMPARISON_NOTI_CONTENT_TEXT_1}${currentMonthExpenseSum.price}円\n" +
+                                "${Const.COMPARISON_NOTI_CONTENT_TEXT_2}${prevMonthExpenseSum.price}円\n" +
+                                "${Const.COMPARISON_NOTI_CONTENT_TEXT_3}${currentMonthExpenseSum.price - prevMonthExpenseSum.price}${Const.COMPARISON_NOTI_CONTENT_TEXT_4}"
 
-                    val builder = NotificationCompat.Builder(context!!, Const.KINYU_CHANNEL_ID)
+                    val builder = NotificationCompat.Builder(context!!, Const.COMPARISON_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_background)
                         .setContentTitle(contentTitle)
                         .setContentText(contentText)
@@ -79,6 +83,7 @@ class KinyuNotiReceiver: BroadcastReceiver() {
                     val notificationManagerCompat = NotificationManagerCompat.from(context!!)
                     notificationManagerCompat.notify(0, builder.build())
                 }
+
             }
         }
     }

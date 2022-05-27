@@ -32,9 +32,9 @@ interface DAO {
 
     //Sub Category - 데이터 불러오기
     @Query("SELECT * FROM SubCategory " +
-            "WHERE deleted_yn = 'n'" +
+            "WHERE deleted_yn = 'n' AND main_category_id = :select "  +
             "ORDER BY sub_category_id ASC;")
-    fun loadSubCategory() : List<SubCategory>
+    fun loadSubCategory(select: Int) : List<SubCategory>
 
     //Sub Category- SubCategory Check
     @Query("SELECT CASE  " +

@@ -11,6 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="1dp"
+        android:layout_gravity="center"
+        android:textSize="20dp"
+        android:textColor="#CCCCFF"
         android:paddingLeft="3dp"
         />
 
@@ -18,8 +21,8 @@
         android:id="@+id/body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_margin="1dp"
-        android:paddingLeft="3dp"
         />
 
     <LinearLayout
@@ -27,5 +30,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:orientation="horizontal" />
+        android:layout_gravity="center"
+        android:orientation="vertical" />
 </LinearLayout>

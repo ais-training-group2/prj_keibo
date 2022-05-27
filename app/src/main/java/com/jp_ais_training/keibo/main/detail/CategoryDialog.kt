@@ -1,18 +1,24 @@
 package com.jp_ais_training.keibo.main.detail
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.children
+import androidx.core.view.setPadding
+import androidx.fragment.app.Fragment
 import com.jp_ais_training.keibo.R
 
 
-class CategoryDialog(context: Context) {
+class CategoryDialog(activity: Activity) {
 
-    val ctx = context
+    val activity = activity
 
     private fun displayAlterDialog(
         context: Context,
@@ -23,9 +29,9 @@ class CategoryDialog(context: Context) {
         var inflater = LayoutInflater.from(context)
 
         val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1F
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog,null)
+        val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog, null)
         val dialog = AlertDialog.Builder(context).create()
         dialog.setView(inflatedLayout)
 
@@ -33,11 +39,38 @@ class CategoryDialog(context: Context) {
         inflatedLayout.findViewById<TextView>(R.id.body).text = body
         val buttonContainer = inflatedLayout.findViewById<LinearLayout>(R.id.buttonContainer)
 
-        for (dialogActions)
+        dialogActions.forEach { dialogAction ->
+            var buttonRow: LinearLayout =
+                inflater.inflate(R.layout.custom_alert_dialog_button, null) as LinearLayout
+            var button = buttonRow.children as Sequence<Button>
+
+            //button.elementAt(i)
+            button.forEach { i ->
+                i.text = "a"
+                i.setOnClickListener(View.OnClickListener {
+                    dialogAction.runnable.run()
+                    dialog.dismiss()
+                })
+            }
+
+
+            buttonContainer.addView(buttonRow, params)
+        }
+
+        dialog.show()
     }
 
-    fun callSubCategory()
+    fun callSubCategory() {
+        val dialogActions = mutableListOf<DialogAction>()
+        dialogActions.add(DialogAction("a", Runnable {}))
+        dialogActions.add(DialogAction("b", Runnable {}))
+        dialogActions.add(DialogAction("c", Runnable {}))
+        dialogActions.add(DialogAction("a", Runnable {}))
+        dialogActions.add(DialogAction("b", Runnable {}))
 
+        displayAlterDialog(activity, "サブカテゴリ", "カテゴリの追加はプラスボタンを押してください", dialogActions)
+    }
+/*
     fun callMainCategory() {
         val builder = AlertDialog.Builder(ctx)
 
@@ -59,7 +92,7 @@ class CategoryDialog(context: Context) {
         }
 
         builder.create().show()
-    }
+    }*/
 
 }
 

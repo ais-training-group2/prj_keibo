@@ -325,7 +325,7 @@ class ContentsFragment() : Fragment() {
                 }
 
                 mainCg.setOnClickListener {
-                    CategoryDialog(ctx).callMainCategory()
+                    CategoryDialog(activity).callSubCategory()
                 }
 
                 cardView.setBackgroundColor(Color.WHITE)

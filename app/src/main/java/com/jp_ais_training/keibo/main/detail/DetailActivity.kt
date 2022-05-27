@@ -52,6 +52,7 @@ class DetailActivity : AppCompatActivity() {
 
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         var strTargetDate: String? = intent.getStringExtra(Const.TARGET_DATE)
+        strTargetDate = "2022-05-05"
         val currentDay = LocalDate.now()
         val lastDayOfMonth = LocalDate.of(currentDay.year, currentDay.month + 1, 1).minusDays(1)
 

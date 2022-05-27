@@ -36,7 +36,6 @@ import java.text.DecimalFormat
 
 class ContentsFragment() : Fragment() {
 
-
     private lateinit var app: MyApplication
     private var targetDate = ""
     private var type = -1 // 0 IncomeFix 1 IncomeFlex 2 ExpenseFix 3 ExpenseFlex
@@ -164,6 +163,8 @@ class ContentsFragment() : Fragment() {
             private val priceListener: KeyListener
             private val nameMethod: MovementMethod
             private val priceMethod: MovementMethod
+
+            private val categoryDialog: CategoryDialog
 
             override fun onClick(v: View?) {
                 val holder =
@@ -328,8 +329,26 @@ class ContentsFragment() : Fragment() {
                 }
 
                 mainCg.setOnClickListener {
-                    CategoryDialog(activity).callSubCategory()
+                    categoryDialog.callMainCategory(type)
                 }
+
+                subCg.setOnClickListener {
+                    categoryDialog.callSubCategory(mainCg.tag.toString().toInt())
+                }
+
+                categoryDialog.setOnClickedListener(object : CategoryDialog.ButtonClickListener {
+                    override fun onClicked(id: Int, name: String, type: String) {
+                        if (type == "main") {
+                            mainCg.text = name
+                            mainCg.tag = id
+                        } else if (type == "sub") {
+                            subCg.text = name
+                            subCg.tag = id
+                        }
+
+                    }
+                })
+
 
                 cardView.setBackgroundColor(Color.WHITE)
                 name.setBackgroundColor(Color.WHITE)
@@ -369,6 +388,7 @@ class ContentsFragment() : Fragment() {
                 nameMethod = name.movementMethod
                 priceListener = price.keyListener
                 priceMethod = price.movementMethod
+                categoryDialog = CategoryDialog(activity)
 
                 setActivationItem(false)
             }

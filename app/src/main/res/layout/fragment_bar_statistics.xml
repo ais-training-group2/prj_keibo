@@ -53,21 +53,21 @@
                                 android:orientation="horizontal">
 
                                 <ImageButton
-                                    android:id="@+id/imageButton3"
-                                    android:layout_width="27dp"
+                                    android:id="@+id/DateLeft"
+                                    android:layout_width="48dp"
                                     android:layout_height="match_parent"
                                     android:background="@drawable/navi1_foreground" />
 
                                 <Button
-                                    android:id="@+id/button17"
+                                    android:id="@+id/Date"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Button"
+                                    android:text="2022"
                                     android:textColor="	#FFFFFF" />
 
                                 <ImageButton
-                                    android:id="@+id/imageButton4"
-                                    android:layout_width="28dp"
+                                    android:id="@+id/DateRight"
+                                    android:layout_width="48dp"
                                     android:layout_height="match_parent"
                                     android:background="@drawable/navi2_foreground" />
 

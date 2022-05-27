@@ -19,7 +19,7 @@
                 android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
 
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/cl_alarm_1"
+                app:layout_constraintBottom_toTopOf="@+id/cl_fix_expense_noti"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
 
@@ -60,14 +60,14 @@
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_alarm_1"
+                android:id="@+id/cl_fix_expense_noti"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
 
                 app:layout_constraintTop_toBottomOf="@+id/cl_title"
-                app:layout_constraintBottom_toTopOf="@+id/cl_alarm_2"
+                app:layout_constraintBottom_toTopOf="@+id/cl_kinyu_noti"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
 
@@ -76,7 +76,7 @@
                 >
 
                 <TextView
-                    android:id="@+id/tv_alarm_1_title"
+                    android:id="@+id/tv_fix_expense_noti_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/swi_alarm_1_label"
@@ -87,13 +87,13 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/swi_alarm_1"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_fix_expense_noti"
 
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
                     />
 
                 <Switch
-                    android:id="@+id/swi_alarm_1"
+                    android:id="@+id/swi_fix_expense_noti"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
@@ -101,21 +101,21 @@
 
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/tv_alarm_1_title"
+                    app:layout_constraintStart_toEndOf="@+id/tv_fix_expense_noti_title"
                     app:layout_constraintEnd_toEndOf="parent"
 
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_alarm_2"
+                android:id="@+id/cl_kinyu_noti"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
 
-                app:layout_constraintTop_toBottomOf="@+id/cl_alarm_1"
-                app:layout_constraintBottom_toTopOf="@+id/cl_alarm_3"
+                app:layout_constraintTop_toBottomOf="@+id/cl_fix_expense_noti"
+                app:layout_constraintBottom_toTopOf="@+id/cl_comparison_noti"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
 
@@ -124,7 +124,7 @@
                 >
 
                 <TextView
-                    android:id="@+id/tv_alarm_2_title"
+                    android:id="@+id/tv_kinyu_noti_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/swi_alarm_2_label"
@@ -136,13 +136,13 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/swi_alarm_2"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_kinyu_noti"
 
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
                     />
 
                 <Switch
-                    android:id="@+id/swi_alarm_2"
+                    android:id="@+id/swi_kinyu_noti"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
@@ -150,20 +150,20 @@
 
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/tv_alarm_2_title"
+                    app:layout_constraintStart_toEndOf="@+id/tv_kinyu_noti_title"
                     app:layout_constraintEnd_toEndOf="parent"
 
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_alarm_3"
+                android:id="@+id/cl_comparison_noti"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:layout_marginTop="@dimen/setting_fragment_main_margin_top"
 
-                app:layout_constraintTop_toBottomOf="@+id/cl_alarm_2"
+                app:layout_constraintTop_toBottomOf="@+id/cl_kinyu_noti"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -173,7 +173,7 @@
                 >
 
                 <TextView
-                    android:id="@+id/tv_alarm_3_title"
+                    android:id="@+id/tv_comparison_noti_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/swi_alarm_3_label"
@@ -184,13 +184,13 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/swi_alarm_3"
+                    app:layout_constraintEnd_toStartOf="@+id/swi_comparison_noti"
 
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
                     />
 
                 <Switch
-                    android:id="@+id/swi_alarm_3"
+                    android:id="@+id/swi_comparison_noti"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
@@ -198,7 +198,7 @@
 
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/tv_alarm_3_title"
+                    app:layout_constraintStart_toEndOf="@+id/tv_comparison_noti_title"
                     app:layout_constraintEnd_toEndOf="parent"
 
                     app:layout_constraintHorizontal_chainStyle="spread_inside"

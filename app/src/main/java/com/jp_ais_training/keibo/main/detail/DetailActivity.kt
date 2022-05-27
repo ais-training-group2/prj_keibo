@@ -80,7 +80,7 @@ class DetailActivity : AppCompatActivity() {
             binding.titleDate.text = targetDate.toString()
 
             val minDate = LocalDate.parse(
-                viewPagerAdapter.fragments[0].arguments?.getString("targetDate"),
+                viewPagerAdapter.fragments[0].arguments?.getString(Const.TARGET_DATE),
                 format
             )
 
@@ -110,7 +110,7 @@ class DetailActivity : AppCompatActivity() {
 
                 val maxDate = LocalDate.parse(
                     viewPagerAdapter.fragments[viewPagerAdapter.itemCount - 1].arguments?.getString(
-                        "targetDate"
+                        Const.TARGET_DATE
                     ),
                     format
                 )
@@ -145,7 +145,7 @@ class DetailActivity : AppCompatActivity() {
     private fun createFragment(targetDate: LocalDate?): Fragment {
         var fragment = DetailFragment()
         var bundle = Bundle()
-        bundle.putString("targetDate", targetDate.toString())
+        bundle.putString(Const.TARGET_DATE, targetDate.toString())
         fragment.arguments = bundle
         return fragment
     }

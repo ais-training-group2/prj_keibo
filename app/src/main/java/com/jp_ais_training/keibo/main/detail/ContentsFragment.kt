@@ -164,6 +164,8 @@ class ContentsFragment() : Fragment() {
             private val nameMethod: MovementMethod
             private val priceMethod: MovementMethod
 
+            private val categoryDialog: CategoryDialog
+
             override fun onClick(v: View?) {
                 val holder =
                     recyclerView.findViewHolderForAdapterPosition(selectedItem) as ViewHolder?
@@ -327,8 +329,26 @@ class ContentsFragment() : Fragment() {
                 }
 
                 mainCg.setOnClickListener {
-                    CategoryDialog(activity).callMainCategory(type)
+                    categoryDialog.callMainCategory(type)
                 }
+
+                subCg.setOnClickListener {
+                    categoryDialog.callSubCategory(mainCg.tag.toString().toInt())
+                }
+
+                categoryDialog.setOnClickedListener(object : CategoryDialog.ButtonClickListener {
+                    override fun onClicked(id: Int, name: String, type: String) {
+                        if (type == "main") {
+                            mainCg.text = name
+                            mainCg.tag = id
+                        } else if (type == "sub") {
+                            subCg.text = name
+                            subCg.tag = id
+                        }
+
+                    }
+                })
+
 
                 cardView.setBackgroundColor(Color.WHITE)
                 name.setBackgroundColor(Color.WHITE)
@@ -368,6 +388,7 @@ class ContentsFragment() : Fragment() {
                 nameMethod = name.movementMethod
                 priceListener = price.keyListener
                 priceMethod = price.movementMethod
+                categoryDialog = CategoryDialog(activity)
 
                 setActivationItem(false)
             }

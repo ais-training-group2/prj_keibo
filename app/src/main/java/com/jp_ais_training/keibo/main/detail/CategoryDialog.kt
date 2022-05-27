@@ -27,8 +27,17 @@ class CategoryDialog(private val activity: Activity) {
 
     val app = activity.application as MyApplication
 
+    interface ButtonClickListener {
+        fun onClicked(id: Int, name: String, type: String)
+    }
 
-    private fun displayCategoryDialog(
+    private lateinit var onClickListener: ButtonClickListener
+
+    fun setOnClickedListener(listener: ButtonClickListener) {
+        onClickListener = listener
+    }
+
+    private fun displayMainCategoryDialog(
         context: Context,
         title: String,
         body: String,
@@ -59,42 +68,112 @@ class CategoryDialog(private val activity: Activity) {
 
                 var buttonRow: LinearLayout =
                     inflater.inflate(R.layout.custom_alert_dialog_button, null) as LinearLayout
-                buttonRow.gravity=Gravity.CENTER
+                buttonRow.gravity = Gravity.CENTER
                 var buttons = buttonRow.children as Sequence<Button>
 
                 //button.elementAt(i)
-                for (i in 0 until buttons.count()) {
+                for (i in 0 until dialogActionListLimit3.size) {
+                    buttons.elementAt(i).visibility = View.VISIBLE
                     buttons.elementAt(i).text = dialogActionListLimit3.elementAt(i).text
                     buttons.elementAt(i).setOnClickListener(View.OnClickListener {
                         dialogActionListLimit3.elementAt(i).runnable.run()
+                        onClickListener.onClicked(
+                            dialogActionListLimit3.elementAt(i).id,
+                            dialogActionListLimit3.elementAt(i).text,
+                            "main"
+                        )
+                        callSubCategory(dialogActionListLimit3.elementAt(i).id)
                         dialog.dismiss()
                     })
                 }
                 buttonContainer.addView(buttonRow, params)
             }
             dialog.show()
+
         }
     }
 
-    fun callSubCategory() {
+    private fun displaySubCategoryDialog(
+        context: Context,
+        title: String,
+        body: String,
+        dialogActions: MutableList<DialogAction>
+    ) {
+        ContextCompat.getMainExecutor(context).execute {
+
+            var inflater = LayoutInflater.from(context)
+
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog, null)
+            val dialog = AlertDialog.Builder(context).create()
+            dialog.setView(inflatedLayout)
+            inflatedLayout.findViewById<TextView>(R.id.title).text = title
+            inflatedLayout.findViewById<TextView>(R.id.body).text = body
+            val buttonContainer = inflatedLayout.findViewById<LinearLayout>(R.id.buttonContainer)
+
+            for (i in 0..dialogActions.size / 3) {
+                val dialogActionListLimit3 = ArrayList<DialogAction>()
+                for (j in 0..2) {
+                    if (i * 3 + j < dialogActions.size)
+                        dialogActionListLimit3.add(dialogActions.elementAt(i * 3 + j))
+                    else
+                        break
+                }
+
+                var buttonRow: LinearLayout =
+                    inflater.inflate(R.layout.custom_alert_dialog_button, null) as LinearLayout
+                buttonRow.gravity = Gravity.CENTER
+                var buttons = buttonRow.children as Sequence<Button>
+
+                //button.elementAt(i)
+                for (i in 0 until dialogActionListLimit3.size) {
+                    buttons.elementAt(i).visibility = View.VISIBLE
+                    buttons.elementAt(i).text = dialogActionListLimit3.elementAt(i).text
+                    buttons.elementAt(i).setOnClickListener(View.OnClickListener {
+                        dialogActionListLimit3.elementAt(i).runnable.run()
+                        onClickListener.onClicked(
+                            dialogActionListLimit3.elementAt(i).id,
+                            dialogActionListLimit3.elementAt(i).text,
+                            "sub"
+                        )
+                        dialog.dismiss()
+                    })
+                }
+                buttonContainer.addView(buttonRow, params)
+            }
+            dialog.show()
+
+        }
+    }
+
+    fun callSubCategory(main_category_id: Int) {
         val dialogActions = mutableListOf<DialogAction>()
         CoroutineScope(Dispatchers.IO).launch {
             runBlocking {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val mainCategoryList = app.db.loadSubCategory()
-                    mainCategoryList.forEach { mainCategory ->
-                        dialogActions.add(DialogAction(mainCategory.main_category_name, Runnable {
-                            //액티비티에 네임 보내기 필요에 따라서 id도
-                            // 콜 서브 카테고리 다이얼 로크
-                        }))
+                    val subCategoryList = app.db.loadSubCategory(main_category_id)
+                    subCategoryList.forEach { subCategory ->
+                        dialogActions.add(
+                            DialogAction(
+                                subCategory.sub_category_id,
+                                subCategory.sub_category_name,
+                                Runnable {
+                                    //액티비티에 네임 보내기 필요에 따라서 id도
+                                    // 콜 서브 카테고리 다이얼 로크
+                                })
+                        )
                     }
                 }.join()
-                displayCategoryDialog(activity, "メインカテゴリ", "メインカテゴリを選択してください。", dialogActions)
-
+                displaySubCategoryDialog(
+                    activity,
+                    "サブカテゴリ",
+                    "カテゴリの追加はプラスボタンを押してください",
+                    dialogActions
+                )
             }
         }
-
-        displayCategoryDialog(activity, "サブカテゴリ", "カテゴリの追加はプラスボタンを押してください", dialogActions)
     }
 
 
@@ -111,44 +190,25 @@ class CategoryDialog(private val activity: Activity) {
                 CoroutineScope(Dispatchers.IO).launch {
                     val mainCategoryList = app.db.loadMainCategory(type)
                     mainCategoryList.forEach { mainCategory ->
-                        dialogActions.add(DialogAction(mainCategory.main_category_name, Runnable {
-                            //액티비티에 네임 보내기 필요에 따라서 id도
-                            // 콜 서브 카테고리 다이얼 로크
-                        }))
+                        dialogActions.add(
+                            DialogAction(
+                                mainCategory.main_category_id,
+                                mainCategory.main_category_name,
+                                Runnable {
+                                })
+                        )
                     }
                 }.join()
-                displayCategoryDialog(activity, "メインカテゴリ", "メインカテゴリを選択してください。", dialogActions)
-
+                displayMainCategoryDialog(
+                    activity,
+                    "メインカテゴリ",
+                    "メインカテゴリを選択してください。",
+                    dialogActions
+                )
             }
         }
     }
 
-
-/*
-    fun callMainCategory() {
-        val builder = AlertDialog.Builder(ctx)
-
-
-
-        builder.setCancelable(true)
-        builder.setTitle("メインカテゴリ")
-
-
-        builder.setItems(
-            arrayOf<CharSequence>("button 1", "button 2", "button 3", "button 4")
-        ) { _, which -> // The 'which' argument contains the index position of the selected item
-            when (which) {
-                0 -> Toast.makeText(ctx, "clicked 1", Toast.LENGTH_SHORT).show()
-                1 -> Toast.makeText(ctx, "clicked 2", Toast.LENGTH_SHORT).show()
-                2 -> Toast.makeText(ctx, "clicked 3", Toast.LENGTH_SHORT).show()
-                3 -> Toast.makeText(ctx, "clicked 4", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        builder.create().show()
-    }*/
-
 }
 
-class DialogAction(var text: String, var runnable: Runnable)
-class CategoryAction(var text: String, var runnable: Runnable)
+class DialogAction(var id: Int, var text: String, var runnable: Runnable)

@@ -64,7 +64,7 @@ class BarStatisticsFragment : Fragment() {
     private fun DBDataSet() {
         runBlocking {
             CoroutineScope(Dispatchers.IO).launch() {
-                data = app.DB.dao().loadMonthSumEI(binding.Date.text.toString())
+                data = app.db.loadMonthSumEI(binding.Date.text.toString())
             }.join()
             Barchart()
         }

@@ -11,18 +11,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.jp_ais_training.keibo.databinding.FragmentHomeBinding
 import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.main.sharedPreferences.MyApplication
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val TAG = this::class.java.simpleName.toString()
     private lateinit var app: MyApplication
-    private val dataSet = arrayListOf<CalendarItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,21 +31,39 @@ class HomeFragment : Fragment() {
         // 캘린더 레이아웃 작성
         val numberOfWeek = 7
         binding.homeCalendar.calendar.layoutManager = GridLayoutManager(context, numberOfWeek)
-
-        runBlocking {
-            CoroutineScope(Dispatchers.IO).launch {
-                setCalendarData(Calendar.getInstance()) // 해달 날짜 캘린더
-            }.join()
-            setCalendar(Calendar.getInstance())
-        }
-
+        setCalendarLayout(Calendar.getInstance())
         return binding.root
     }
 
-    private fun setCalendarData(calendar :Calendar ) {
+    private fun setCalendarLayout(calendar: Calendar) {
+        runBlocking {
+            val itemDataList = // 해달 날짜 캘린더
+                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                    setCalendarData(calendar) // 해달 날짜 캘린더
+                }
+
+            val totalAmount = // 해달 날짜 캘린더
+                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                    loadTotalAmount(calendar) // 해달 날짜 캘린더
+                }
+            setMonth(calendar)
+            setCalendar(itemDataList)
+            setTotalAmount(totalAmount)
+        }
+    }
+
+    private fun loadTotalAmount(calendar: Calendar): TotalAmount {
+        val yearMonth = SimpleDateFormat("yyyy-MM").format(calendar.time)
+        return TotalAmount(
+            app.db.loadMonthSumHEI(yearMonth),
+            app.db.loadMonthSumHEI(yearMonth)
+        )
+    }
+
+    private fun setCalendarData(calendar: Calendar): ArrayList<CalendarItem> {
         Log.d(TAG, "setCalendarData: start")
         // 기존 데이터 삭제
-        dataSet.clear()
+        val dataSet = ArrayList<CalendarItem>()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")     // 년월일 날짜 포멧
         val dateNum = calendar.getMaximum(Calendar.DAY_OF_MONTH)    // 당월의 마지막 날
@@ -80,14 +95,26 @@ class HomeFragment : Fragment() {
                 )
             )
         }
+        return dataSet
         Log.d(TAG, "setCalendarData: end")
     }
 
-    private fun setCalendar(calendar: Calendar) {
-        Log.d(TAG, "setCalendar: start")
+    private fun setMonth(calendar: Calendar) {
         binding.homeCalendar.calendarMonth.text =
             SimpleDateFormat("MM").format(calendar.time).toInt().toString() + "月"
-        binding.homeCalendar.calendar.adapter = CalendarAdapter(dataSet, context)
     }
 
+    private fun setCalendar(itemDataList: ArrayList<CalendarItem>) {
+        binding.homeCalendar.calendar.adapter = CalendarAdapter(itemDataList, context)
+    }
+
+    private fun setTotalAmount(totalAmount: TotalAmount) {
+        binding.homeTotalIncome.text = totalAmount.totalIncome.toString()
+        binding.homeTotalExpense.text = totalAmount.totalExpense.toString()
+    }
+
+    data class TotalAmount(
+        var totalExpense: Int,
+        var totalIncome: Int
+    )
 }

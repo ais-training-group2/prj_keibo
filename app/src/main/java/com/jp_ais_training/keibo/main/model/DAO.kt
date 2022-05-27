@@ -79,6 +79,14 @@ interface DAO {
             "ORDER BY income_item_id ASC;")
     fun loadFixII(select:String) : List<ResponseItem>
 
+    //IncomeItem - Month基準合計データ読み込み
+    @Query("SELECT SUM(price) AS price " +
+            "FROM IncomeItem " +
+            "WHERE substr(datetime,1,7) Like :select||'%' " +
+            "GROUP BY substr(datetime,1,7) " +
+            "ORDER BY substr(datetime,1,7) ASC;")
+    fun loadMonthSumHII(select:String ) : Int
+
     //IncomeItem - Month 기준 합계 데이터 불러오기
     @Query("SELECT substr(datetime,1,7) AS date, SUM(price) AS price " +
             "FROM IncomeItem " +
@@ -155,6 +163,14 @@ interface DAO {
             "WHERE datetime Like :select||'%' AND M.expense_type ='fix'" +
             "ORDER BY expense_item_id ASC;")
     fun loadFixEI(select:String) : List<ResponseItem>
+
+    //Expense Item - Month基準合計データ読み込み
+    @Query("SELECT SUM(price) AS price " +
+            "FROM ExpenseItem " +
+            "WHERE substr(datetime,1,7) Like :select||'%' " +
+            "GROUP BY substr(datetime,1,7) " +
+            "ORDER BY substr(datetime,1,7) ASC;")
+    fun loadMonthSumHEI(select:String ) : Int
 
     //Expense Item - Month 기준 합계 데이터 불러오기
     @Query("SELECT substr(datetime,1,7) AS date, SUM(price) AS price " +

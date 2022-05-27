@@ -5,7 +5,7 @@
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <application
-        android:name="com.jp_ais_training.main.sharedPreferences.MyApplication"
+        android:name="com.jp_ais_training.keibo.KeiboApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,7 +16,7 @@
         android:theme="@style/Theme.Keibo"
         tools:targetApi="31">
         <activity
-            android:name=".main.MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Keibo.NoActionBar">
             <intent-filter>
@@ -25,12 +25,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".main.detail.DetailActivity"
+            android:name=".activity.DetailActivity"
             android:exported="true"
             android:theme="@style/Theme.Keibo.NoActionBar">
         </activity>
-        <receiver android:name=".main.notireceiver.KinyuNotiReceiver" />
-        <receiver android:name=".main.notireceiver.ComparisonExpenseNotiReceiver" />
+        <receiver android:name=".receiver.KinyuNotiReceiver" />
+        <receiver android:name=".receiver.ComparisonExpenseNotiReceiver" />
 
     </application>
 

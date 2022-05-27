@@ -24,17 +24,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
+import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.keibo.main.detail.CategoryDialog
 import com.jp_ais_training.keibo.main.model.AppDatabase
 import com.jp_ais_training.keibo.main.model.Response.ResponseItem
+import com.jp_ais_training.main.sharedPreferences.MyApplication
 import kotlinx.coroutines.*
 import net.cachapa.expandablelayout.ExpandableLayout
 import java.lang.reflect.Field
 import java.text.DecimalFormat
 
 class ContentsFragment() : Fragment() {
-    private lateinit var DB: AppDatabase
 
+
+    private lateinit var app: MyApplication
     private var targetDate = ""
     private var type = -1 // 0 IncomeFix 1 IncomeFlex 2 ExpenseFix 3 ExpenseFlex
     private lateinit var dataList: List<ResponseItem>
@@ -45,13 +48,13 @@ class ContentsFragment() : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        app = requireActivity().application as MyApplication
 
-        DB = AppDatabase.getInstance(requireContext())!!
 
         val bundle = arguments
         if (bundle != null) {
-            targetDate = bundle.getString("targetDate").toString()
-            type = bundle.getInt("type")
+            targetDate = bundle.getString(Const.TARGET_DATE).toString()
+            type = bundle.getInt(Const.TYPE)
         }
         super.onCreate(savedInstanceState)
     }
@@ -60,22 +63,22 @@ class ContentsFragment() : Fragment() {
         println("LoadData : $type")
         when (type) {
             0 -> {
-                dataList = DB.dao().loadFixII(targetDate)
+                dataList = app.db.loadFixII(targetDate)
                 parentColor = Color.rgb(255, 204, 204)
                 color = Color.rgb(255, 225, 225)
             }
             1 -> {
-                dataList = DB.dao().loadFlexII(targetDate)
+                dataList = app.db.loadFlexII(targetDate)
                 parentColor = Color.rgb(229, 255, 204)
                 color = Color.rgb(250, 255, 225)
             }
             2 -> {
-                dataList = DB.dao().loadFixEI(targetDate)
+                dataList = app.db.loadFixEI(targetDate)
                 parentColor = Color.rgb(204, 255, 255)
                 color = Color.rgb(225, 255, 255)
             }
             else -> {
-                dataList = DB.dao().loadFlexEI(targetDate)
+                dataList = app.db.loadFlexEI(targetDate)
                 parentColor = Color.rgb(229, 204, 255)
                 color = Color.rgb(250, 225, 255)
             }

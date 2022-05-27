@@ -61,6 +61,12 @@ interface DAO {
 
     //--------------------------------------------
 
+    //IncomeItem - 전체 데이터 불러오기
+    @Query("SELECT * FROM IncomeItem " +
+            "WHERE datetime Like :select||'%'" +
+            "ORDER BY datetime ASC;")
+    fun loadII(select:String) : List<IncomeItem>
+
     //IncomeItem - flex기준 특정 데이터 불러오기
     @Query("SELECT * FROM IncomeItem " +
             "WHERE datetime Like :select||'%' AND income_type ='flex'" +
@@ -116,6 +122,12 @@ interface DAO {
     fun deleteII(id : Int);
 
     //--------------------------------------------
+
+    //Expense Item - 전체 데이터 불러오기
+    @Query("SELECT * FROM ExpenseItem " +
+            "WHERE datetime Like :select||'%'" +
+            "ORDER BY datetime ASC;")
+    fun loadEI(select:String) : List<ExpenseItem>
 
     //Expense Item - flex기준 특정 데이터 불러오기
     @Query("SELECT * " +

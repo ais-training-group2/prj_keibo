@@ -14,7 +14,6 @@ import com.jp_ais_training.keibo.main.model.Entity.SubCategory
 )
 
 abstract class AppDatabase : RoomDatabase() {
-
     abstract fun dao(): DAO
 
     companion object {

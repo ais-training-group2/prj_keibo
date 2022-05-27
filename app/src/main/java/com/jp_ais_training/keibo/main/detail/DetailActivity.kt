@@ -12,6 +12,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.ActivityDetailBinding
+import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.keibo.main.model.AppDatabase
 import com.jp_ais_training.keibo.main.model.Entity.ExpenseItem
 import com.jp_ais_training.keibo.main.model.Entity.IncomeItem
@@ -50,9 +51,7 @@ class DetailActivity : AppCompatActivity() {
         val wholeDate = mutableListOf<Fragment>()
 
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        var strTargetDate: String? = intent.getStringExtra("targetDate")
-        strTargetDate = "2022-05-05"
-
+        var strTargetDate: String? = intent.getStringExtra(Const.TARGET_DATE)
         val currentDay = LocalDate.now()
         val lastDayOfMonth = LocalDate.of(currentDay.year, currentDay.month + 1, 1).minusDays(1)
 
@@ -81,7 +80,7 @@ class DetailActivity : AppCompatActivity() {
             binding.titleDate.text = targetDate.toString()
 
             val minDate = LocalDate.parse(
-                viewPagerAdapter.fragments[0].arguments?.getString("targetDate"),
+                viewPagerAdapter.fragments[0].arguments?.getString(Const.TARGET_DATE),
                 format
             )
 
@@ -111,7 +110,7 @@ class DetailActivity : AppCompatActivity() {
 
                 val maxDate = LocalDate.parse(
                     viewPagerAdapter.fragments[viewPagerAdapter.itemCount - 1].arguments?.getString(
-                        "targetDate"
+                        Const.TARGET_DATE
                     ),
                     format
                 )
@@ -146,7 +145,7 @@ class DetailActivity : AppCompatActivity() {
     private fun createFragment(targetDate: LocalDate?): Fragment {
         var fragment = DetailFragment()
         var bundle = Bundle()
-        bundle.putString("targetDate", targetDate.toString())
+        bundle.putString(Const.TARGET_DATE, targetDate.toString())
         fragment.arguments = bundle
         return fragment
     }

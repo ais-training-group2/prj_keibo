@@ -124,10 +124,15 @@ interface DAO {
     //--------------------------------------------
 
     //Expense Item - 전체 데이터 불러오기
-    @Query("SELECT * FROM ExpenseItem " +
-            "WHERE datetime Like :select||'%'" +
+    @Query("SELECT E.expense_item_id,E.sub_category_id,E.name,E.price,E.datetime,M.expense_type AS type " +
+            "FROM ExpenseItem AS E " +
+            "INNER JOIN SubCategory AS S " +
+            "ON E.sub_category_id = S.sub_category_id " +
+            "INNER JOIN MainCategory AS M " +
+            "ON S.main_category_id = M.main_category_id " +
+            "WHERE E.datetime Like :select||'%'" +
             "ORDER BY datetime ASC;")
-    fun loadEI(select:String) : List<ExpenseItem>
+    fun loadEI(select:String) : List<ExpenseItemType>
 
     //Expense Item - flex기준 특정 데이터 불러오기
     @Query("SELECT * " +

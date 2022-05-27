@@ -36,7 +36,6 @@ import java.text.DecimalFormat
 
 class ContentsFragment() : Fragment() {
 
-
     private lateinit var app: MyApplication
     private var targetDate = ""
     private var type = -1 // 0 IncomeFix 1 IncomeFlex 2 ExpenseFix 3 ExpenseFlex
@@ -328,7 +327,7 @@ class ContentsFragment() : Fragment() {
                 }
 
                 mainCg.setOnClickListener {
-                    CategoryDialog(activity).callSubCategory()
+                    CategoryDialog(activity).callMainCategory(type)
                 }
 
                 cardView.setBackgroundColor(Color.WHITE)

@@ -55,8 +55,8 @@ class HomeFragment : Fragment() {
     private fun loadTotalAmount(calendar: Calendar): TotalAmount {
         val yearMonth = SimpleDateFormat("yyyy-MM").format(calendar.time)
         return TotalAmount(
-            app.db.loadMonthSumEI(yearMonth)[0].price!!,
-            app.db.loadMonthSumEI(yearMonth)[0].price!!
+            app.db.loadMonthSumHEI(yearMonth),
+            app.db.loadMonthSumHEI(yearMonth)
         )
     }
 

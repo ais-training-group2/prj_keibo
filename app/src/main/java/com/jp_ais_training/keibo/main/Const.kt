@@ -21,6 +21,11 @@ object Const {
     val KINYU_NOTI_KEY = "KinyuNoti"
     val COMPARISON_EXPENSE_NOTI_KEY = "ComparisonExpense"
 
+    val FIX_EXPENSE_NOTI_CONTENT_TITLE = "定期固定支出通知"
+    val FIX_EXPENSE_NOTI_CONTENT_TEXT_1 = "明日"
+    val FIX_EXPENSE_NOTI_CONTENT_TEXT_2 = "支出予定です。"
+
+
     val KINYU_NOTI_CONTENT_TITLE = "家計簿記入要請通知"
     val KINYU_NOTI_CONTENT_TEXT = "家計簿記入が届いてありません。記入してください!"
 

@@ -14,6 +14,7 @@ import com.jp_ais_training.main.sharedPreferences.MyApplication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -21,6 +22,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val TAG = this::class.java.simpleName.toString()
     private lateinit var app: MyApplication
+    private val dataSet = arrayListOf<CalendarItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,20 +31,24 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater)
         app = requireActivity().application as MyApplication
 
-        CoroutineScope(Dispatchers.IO).launch {
-            setCalendar()
+        // 캘린더 레이아웃 작성
+        val numberOfWeek = 7
+        binding.homeCalendar.calendar.layoutManager = GridLayoutManager(context, numberOfWeek)
+
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
+                setCalendarData(Calendar.getInstance()) // 해달 날짜 캘린더
+            }.join()
+            setCalendar(Calendar.getInstance())
         }
 
         return binding.root
     }
 
-    private fun setCalendar() {
-        val numberOfWeek = 7
-
-        val dataSet = arrayListOf<CalendarItem>()
-
-        val calendar = Calendar.getInstance()
-//        calendar.set(Calendar.MONTH,0)
+    private fun setCalendarData(calendar :Calendar ) {
+        Log.d(TAG, "setCalendarData: start")
+        // 기존 데이터 삭제
+        dataSet.clear()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")     // 년월일 날짜 포멧
         val dateNum = calendar.getMaximum(Calendar.DAY_OF_MONTH)    // 당월의 마지막 날
@@ -52,10 +58,6 @@ class HomeFragment : Fragment() {
 
         val expenseItemList = app.db.loadDaySumEI(yearMonth)
         val incomeItemList = app.db.loadDaySumII(yearMonth)
-
-        Log.d(TAG, "date: " + dateFormat.format(calendar.time))
-        Log.d(TAG, "dateNum: $dateNum")
-        Log.d(TAG, "datePadding: $datePadding")
 
         // 1일이 해당하는 요일까지 패딩 (1일이 수요일이라면 일, 월, 화요일이 패딩)
         for (i in 1 until datePadding) {
@@ -78,7 +80,14 @@ class HomeFragment : Fragment() {
                 )
             )
         }
-        binding.homeCalendar.calendar.layoutManager = GridLayoutManager(context, numberOfWeek)
+        Log.d(TAG, "setCalendarData: end")
+    }
+
+    private fun setCalendar(calendar: Calendar) {
+        Log.d(TAG, "setCalendar: start")
+        binding.homeCalendar.calendarMonth.text =
+            SimpleDateFormat("MM").format(calendar.time).toInt().toString() + "月"
         binding.homeCalendar.calendar.adapter = CalendarAdapter(dataSet, context)
     }
+
 }

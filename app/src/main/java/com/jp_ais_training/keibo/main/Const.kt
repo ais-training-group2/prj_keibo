@@ -54,4 +54,5 @@ object Const {
     const val NULL = "null"
 
     const val TARGET_DATE = "targetDate"
+    const val TYPE = "type"
 }

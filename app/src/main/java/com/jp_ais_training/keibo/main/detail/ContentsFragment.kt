@@ -17,33 +17,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
-import com.jp_ais_training.keibo.databinding.FragmentDetailBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
+import com.jp_ais_training.keibo.main.Const
+import com.jp_ais_training.keibo.main.detail.CategoryDialog
 import com.jp_ais_training.keibo.main.model.AppDatabase
-import com.jp_ais_training.keibo.main.model.Entity.ExpenseItem
-import com.jp_ais_training.keibo.main.model.Entity.IncomeItem
-import com.jp_ais_training.keibo.main.model.Entity.SubCategory
-import com.jp_ais_training.keibo.main.model.ExActivity
 import com.jp_ais_training.keibo.main.model.Response.ResponseItem
+import com.jp_ais_training.main.sharedPreferences.MyApplication
 import kotlinx.coroutines.*
 import net.cachapa.expandablelayout.ExpandableLayout
 import java.lang.reflect.Field
 import java.text.DecimalFormat
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 class ContentsFragment() : Fragment() {
-    private lateinit var DB: AppDatabase
 
+
+    private lateinit var app: MyApplication
     private var targetDate = ""
     private var type = -1 // 0 IncomeFix 1 IncomeFlex 2 ExpenseFix 3 ExpenseFlex
     private lateinit var dataList: List<ResponseItem>
@@ -54,38 +48,37 @@ class ContentsFragment() : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        app = requireActivity().application as MyApplication
 
-        DB = AppDatabase.getInstance(requireContext())!!
 
         val bundle = arguments
         if (bundle != null) {
-            targetDate = bundle.getString("targetDate").toString()
-            type = bundle.getInt("type")
+            targetDate = bundle.getString(Const.TARGET_DATE).toString()
+            type = bundle.getInt(Const.TYPE)
         }
-        println("onCreate : $targetDate")
-
         super.onCreate(savedInstanceState)
     }
 
-    private fun loadDate() {
+    private fun loadData() {
+        println("LoadData : $type")
         when (type) {
             0 -> {
-                dataList = DB.dao().loadFixII(targetDate)
+                dataList = app.db.loadFixII(targetDate)
                 parentColor = Color.rgb(255, 204, 204)
                 color = Color.rgb(255, 225, 225)
             }
             1 -> {
-                dataList = DB.dao().loadFlexII(targetDate)
+                dataList = app.db.loadFlexII(targetDate)
                 parentColor = Color.rgb(229, 255, 204)
                 color = Color.rgb(250, 255, 225)
             }
             2 -> {
-                dataList = DB.dao().loadFixEI(targetDate)
+                dataList = app.db.loadFixEI(targetDate)
                 parentColor = Color.rgb(204, 255, 255)
                 color = Color.rgb(225, 255, 255)
             }
             else -> {
-                dataList = DB.dao().loadFlexEI(targetDate)
+                dataList = app.db.loadFlexEI(targetDate)
                 parentColor = Color.rgb(229, 204, 255)
                 color = Color.rgb(250, 225, 255)
             }
@@ -104,8 +97,8 @@ class ContentsFragment() : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         CoroutineScope(Dispatchers.Main).launch {
-            CoroutineScope(Dispatchers.IO).launch {
-                loadDate()
+            withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                loadData()
                 recyclerView.adapter = context?.let {
                     SimpleAdapter(
                         recyclerView,
@@ -120,7 +113,6 @@ class ContentsFragment() : Fragment() {
                 }
             }
         }
-
         return binding.root
     }
 
@@ -188,10 +180,13 @@ class ContentsFragment() : Fragment() {
                         if (position == dataList.size) {
                             println("Insert" + holder.name.text)
                             val taxFlag = holder.taxCheckBox.isChecked
+                            val tempPrice =
+                                holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
+                                    .toInt()
                             var price = if (taxFlag)
-                                holder.price.text.toString().toInt()
+                                tempPrice
                             else
-                                (holder.price.text.toString().toInt() * 1.1).toInt()
+                                (tempPrice * 1.1).toInt()
                             /*
                              //DB에 인설트 시키고 리턴값으로 id값 받기
                              val item = ResponseItem(
@@ -241,7 +236,6 @@ class ContentsFragment() : Fragment() {
 
                 if (dataList.size != position) {
                     name.text = SpannableStringBuilder(dataList[position].name)
-
                     if (type == 0 || type == 1) {
                         val fPrice =
                             DecimalFormat("+#,###,###.#").format(dataList[position].price)
@@ -259,7 +253,6 @@ class ContentsFragment() : Fragment() {
                         mainCg.text = dataList[position].main_category_name
                         subCg.text = dataList[position].sub_category_name
 
-
                         topLayout.visibility = View.VISIBLE
                         taxLayout.visibility = View.VISIBLE
                     }
@@ -270,10 +263,15 @@ class ContentsFragment() : Fragment() {
                     subCg.text = "サーブカテゴリ"
                     subCg.visibility = View.INVISIBLE
                     taxLayout.visibility = View.VISIBLE
-                    if (type == 0 || type == 1)
+
+                    if (type == 0 || type == 1) {
+                        price.setTextColor(Color.BLUE)
                         topLayout.visibility = View.GONE
-                    else
+                    } else {
+                        price.setTextColor(Color.RED)
                         taxLayout.visibility = View.VISIBLE
+                    }
+
                 }
 
                 val onKeyListener = View.OnKeyListener { _, KeyCode, event ->
@@ -298,21 +296,39 @@ class ContentsFragment() : Fragment() {
                 }
 
                 val onPriceFocusChangeListener = View.OnFocusChangeListener { view, isFocus ->
-                    if (isFocus) {
-                        val fPrice =
-                            DecimalFormat("#########").format(dataList[position].price)
-                        price.text = SpannableStringBuilder(fPrice)
-                    } else {
-                        val fPrice = if (type == 0 || type == 1) {
-                            DecimalFormat("+#,###,###.#").format(price.text.toString().toInt())
-                        } else {
-                            DecimalFormat("-#,###,###.#").format(price.text.toString().toInt())
+                    if (position == dataList.size) {
+                        if (!isFocus) {
+                            val fPrice = if (type == 0 || type == 1) {
+                                DecimalFormat("+#,###,###.#").format(price.text.toString().toInt())
+                            } else {
+                                DecimalFormat("-#,###,###.#").format(price.text.toString().toInt())
+                            }
+                            price.text = SpannableStringBuilder(fPrice)
+                            price.clearFocus()
+                            price.clearComposingText()
+                            closeKeyBoard()
                         }
-                        price.text = SpannableStringBuilder(fPrice)
-                        price.clearFocus()
-                        price.clearComposingText()
-                        closeKeyBoard()
+                    } else {
+                        if (isFocus) {
+                            val fPrice =
+                                DecimalFormat("#########").format(dataList[position].price)
+                            price.text = SpannableStringBuilder(fPrice)
+                        } else {
+                            val fPrice = if (type == 0 || type == 1) {
+                                DecimalFormat("+#,###,###.#").format(price.text.toString().toInt())
+                            } else {
+                                DecimalFormat("-#,###,###.#").format(price.text.toString().toInt())
+                            }
+                            price.text = SpannableStringBuilder(fPrice)
+                            price.clearFocus()
+                            price.clearComposingText()
+                            closeKeyBoard()
+                        }
                     }
+                }
+
+                mainCg.setOnClickListener {
+                    CategoryDialog(activity).callSubCategory()
                 }
 
                 cardView.setBackgroundColor(Color.WHITE)
@@ -384,16 +400,16 @@ class ContentsFragment() : Fragment() {
             fun dataCompare(holder: ViewHolder, position: Int): Boolean {
 
                 val result: Boolean
-                val price: Int
+                val price = holder.price.text.toString().replace(("[^\\d.]").toRegex(), "").toInt()
                 return if (type == 0 || type == 1) {
                     holder.name.text.toString() != dataList[position].name
-                            || holder.price.text.toString().toInt() != dataList[position].price
+                            || price != dataList[position].price
                 } else {
                     val taxFlag = holder.taxCheckBox.isChecked
                     var price = if (taxFlag)
-                        holder.price.text.toString().toInt()
+                        price
                     else
-                        (holder.price.text.toString().toInt() * 1.1).toInt()
+                        (price * 1.1).toInt()
 
                     holder.name.text.toString() != dataList[position].name
                             || price != dataList[position].price

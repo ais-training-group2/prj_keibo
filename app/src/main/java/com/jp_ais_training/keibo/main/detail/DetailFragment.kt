@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentDetailBinding
+import com.jp_ais_training.keibo.main.Const
 import com.jp_ais_training.keibo.main.model.AppDatabase
 import net.cachapa.expandablelayout.ExpandableLayout
 
@@ -32,8 +33,8 @@ class DetailFragment() : Fragment() {
 
         for (i in 0..3) {
             val bundle = Bundle()
-            bundle.putInt("type", i)
-            bundle.putString("targetDate", targetDate)
+            bundle.putInt(Const.TYPE, i)
+            bundle.putString(Const.TARGET_DATE, targetDate)
             val fragment = ContentsFragment()
             fragment.arguments = bundle
             childFragmentManager.beginTransaction().apply {

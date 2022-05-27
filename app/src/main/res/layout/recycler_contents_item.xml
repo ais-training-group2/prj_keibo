@@ -101,6 +101,7 @@
                     android:layout_weight="4"
                     android:gravity="center"
                     android:hint="価格"
+                    android:maxLength="9"
                     android:inputType="number"
                     android:maxLines="1"
                     android:padding="6dp"

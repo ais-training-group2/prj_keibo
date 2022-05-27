@@ -37,3 +37,12 @@ data class ResponseItem(
     @ColumnInfo(name = "price") val price: Int?,
     @ColumnInfo(name = "datetime") val datetime: String?
 )
+
+data class ExpenseItemType(
+    @ColumnInfo(name = "expense_item_id") val expense_item_id: Int?,
+    @ColumnInfo(name = "sub_category_id")val sub_category_id: Int?,
+    @ColumnInfo(name = "name") val name: String?,
+    @ColumnInfo(name = "price") val price: Int?,
+    @ColumnInfo(name = "datetime") val datetime: String?,
+    @ColumnInfo(name = "type") val type: String?
+)

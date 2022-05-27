@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.jp_ais_training.keibo.main.notireceiver.ComparisonExpenseNotiReceiver
 import com.jp_ais_training.keibo.main.notireceiver.KinyuNotiReceiver
@@ -14,6 +15,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 class NotificationUtil(context: Context): ContextWrapper(context) {
 
+    private val TAG = this::class.java.simpleName.toString()
     lateinit var manager: NotificationManager
 
     fun createChannels() {
@@ -115,12 +117,33 @@ class NotificationUtil(context: Context): ContextWrapper(context) {
         val intent = Intent(this, ComparisonExpenseNotiReceiver::class.java)
         val calendar = Calendar.getInstance()
 
-        // 매월 25일 21시00분00초
-        calendar.set(Calendar.DAY_OF_MONTH, Const.NOTI_DAY_OF_MONTH_25) // 25일
-        calendar.set(Calendar.HOUR_OF_DAY, Const.NOTI_HOUR_OF_DAY_21)  // 21시
-        calendar.set(Calendar.MINUTE, Const.NOTI_MINUTE_ZERO)        // 00분
-        calendar.set(Calendar.SECOND, Const.NOTI_SECOND_ZERO)        // 00초
-        calendar.set(Calendar.MILLISECOND, Const.NOTI_MILLISECOND_ZERO)
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+
+        // 오늘이 25일이 넘으면, 다음달 25일로 넘김
+        if(currentDay > Const.NOTI_DAY_OF_MONTH_25) {
+            // 매월 25일 21시00분00초
+            calendar.set(Calendar.MONTH, currentMonth + 1)  // 다음달
+            calendar.set(Calendar.DAY_OF_MONTH, Const.NOTI_DAY_OF_MONTH_25) // 25일
+            calendar.set(Calendar.HOUR_OF_DAY, Const.NOTI_HOUR_OF_DAY_21)  // 21시
+            calendar.set(Calendar.MINUTE, Const.NOTI_MINUTE_ZERO)        // 00분
+            calendar.set(Calendar.SECOND, Const.NOTI_SECOND_ZERO)        // 00초
+            calendar.set(Calendar.MILLISECOND, Const.NOTI_MILLISECOND_ZERO)
+        }
+        // 오늘이 25일인데, 21시가 넘었을 경우
+        else if (currentDay == Const.NOTI_DAY_OF_MONTH_25 && currentHour == Const.NOTI_HOUR_OF_DAY_21) {
+            // 21시이후 ~24시까지는 알람을 수행하지 않음
+            return
+        }
+        else {  // 오늘이 25일을 넘지않으면, 이번달 25일 21시로 설정
+            // 매월 25일 21시00분00초
+            calendar.set(Calendar.DAY_OF_MONTH, Const.NOTI_DAY_OF_MONTH_25) // 25일
+            calendar.set(Calendar.HOUR_OF_DAY, Const.NOTI_HOUR_OF_DAY_21)  // 21시
+            calendar.set(Calendar.MINUTE, Const.NOTI_MINUTE_ZERO)        // 00분
+            calendar.set(Calendar.SECOND, Const.NOTI_SECOND_ZERO)        // 00초
+            calendar.set(Calendar.MILLISECOND, Const.NOTI_MILLISECOND_ZERO)
+        }
 
         // 21시00분00초에 실행되는 intent
         val pendingIntent = PendingIntent.getBroadcast(

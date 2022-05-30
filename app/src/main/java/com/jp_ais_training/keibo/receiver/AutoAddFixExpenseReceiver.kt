@@ -19,24 +19,11 @@ class AutoAddFixExpenseReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d(TAG, "AutoAddFixExpenseReceiver")
 
-        // 이전달 Calendar 객체
-        val prevCalendar = Calendar.getInstance()
-        prevCalendar.set(Calendar.MONTH, prevCalendar.get(Calendar.MONTH) - 1)
-
-        val prevYear = prevCalendar.get(Calendar.YEAR)
-        val prevMonth = (prevCalendar.get(Calendar.MONTH) + 1).let {
-            if (it < 10) {
-                "0$it"
-            } else {
-                it.toString()
-            }
-        }
-
-        val prevMonthByYYYYMM = "$prevYear-$prevMonth"
+        val prevMonthAsYYYYMM = getPrevMonthAsYYYYMM()
         val db = AppDatabase.getInstance(context!!)!!
 
         CoroutineScope(Dispatchers.IO).launch {
-            val prevMonthFixExpenseList = db.dao().loadEI(prevMonthByYYYYMM).filter { item ->
+            val prevMonthFixExpenseList = db.dao().loadEI(prevMonthAsYYYYMM).filter { item ->
                 item.type == "fix"
             }
             // 이번달 Calendar 객체
@@ -47,11 +34,7 @@ class AutoAddFixExpenseReceiver: BroadcastReceiver() {
             for (item in prevMonthFixExpenseList) {
                 // datetime(String)를 Calendar 객체로 변환
                 val itemDatetime = item.datetime
-                val sdf = SimpleDateFormat("yyyy-MM-dd")
-                val date: Date = sdf.parse(itemDatetime)
-                val cal = Calendar.getInstance()
-                cal.time = date
-
+                val cal = convertStringToCalendar(itemDatetime)
                 // 이번달로 변경
                 cal.set(Calendar.MONTH, currentMonthAsInt)
 
@@ -65,23 +48,7 @@ class AutoAddFixExpenseReceiver: BroadcastReceiver() {
                     cal.set(Calendar.DAY_OF_MONTH, itemDay)
                 }
 
-                val year = cal.get(Calendar.YEAR)
-                val month = (cal.get(Calendar.MONTH) + 1).let {
-                    if (it < 10) {
-                        "0$it"
-                    } else {
-                        it.toString()
-                    }
-                }
-                val day = cal.get(Calendar.DAY_OF_MONTH).let {
-                    if (it < 10) {
-                        "0$it"
-                    } else {
-                        it.toString()
-                    }
-                }
-
-                val newDatetime = "$year-$month-$day"
+                val newDatetime = convertCalendarToString(cal)
 
 //                val newExpenseItemType = ExpenseItemType(item.expense_item_id, item.sub_category_id, item.name, item.price, newDatetime, item.type)
 //                Log.d(TAG, "item.datetime: ${item.datetime}  ${item.sub_category_id}, ${item.name}, ${item.price!!}, $newDatetime")
@@ -89,8 +56,52 @@ class AutoAddFixExpenseReceiver: BroadcastReceiver() {
                 // 저번달 고정 지출을 이번달에 추가
                 db.dao().insertEI(item.sub_category_id!!, item.name!!, item.price!!, newDatetime)
             }
+        }
+    }
 
+    private fun convertStringToCalendar(itemDatetime: String?): Calendar {
+        val sdf = SimpleDateFormat("yyyy-MM-dd")
+        val date: Date = sdf.parse(itemDatetime)
+        val cal = Calendar.getInstance()
+        cal.time = date
+
+        return cal
+    }
+
+    private fun convertCalendarToString(cal: Calendar): String {
+        val year = cal.get(Calendar.YEAR)
+        val month = (cal.get(Calendar.MONTH) + 1).let {
+            if (it < 10) {
+                "0$it"
+            } else {
+                it.toString()
+            }
+        }
+        val day = cal.get(Calendar.DAY_OF_MONTH).let {
+            if (it < 10) {
+                "0$it"
+            } else {
+                it.toString()
+            }
         }
 
+        return "$year-$month-$day"
+    }
+
+    private fun getPrevMonthAsYYYYMM(): String {
+        // 이전달 Calendar 객체
+        val prevCalendar = Calendar.getInstance()
+        prevCalendar.set(Calendar.MONTH, prevCalendar.get(Calendar.MONTH) - 1)
+
+        val prevYear = prevCalendar.get(Calendar.YEAR)
+        val prevMonth = (prevCalendar.get(Calendar.MONTH) + 1).let {
+            if (it < 10) {
+                "0$it"
+            } else {
+                it.toString()
+            }
+        }
+
+        return "$prevYear-$prevMonth"
     }
 }

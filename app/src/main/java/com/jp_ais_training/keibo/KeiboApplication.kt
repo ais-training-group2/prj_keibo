@@ -55,19 +55,9 @@ open class KeiboApplication: Application() {
 
         }
 
-        // YYYY-MM
+        // format:YYYY-MM
         val autoAddFixExpenseDate = prefs.getAutoAddFixExpenseDate()
-
-        val currentCalendar = Calendar.getInstance()
-        val year = currentCalendar.get(Calendar.YEAR)
-        val month = (currentCalendar.get(Calendar.MONTH) + 1).let {
-            if (it < 10) {
-                "0$it"
-            } else {
-                it.toString()
-            }
-        }
-        val currentMonth = "$year-$month"
+        val currentMonth = getCurrentMonth()
 
         Log.d(TAG, "autoAddFixExpenseDate: $autoAddFixExpenseDate, currentMonth: $currentMonth")
         if (autoAddFixExpenseDate.isNullOrEmpty() || autoAddFixExpenseDate != currentMonth) {
@@ -79,6 +69,19 @@ open class KeiboApplication: Application() {
 
     }
 
+    private fun getCurrentMonth(): String {
+        val currentCalendar = Calendar.getInstance()
+        val year = currentCalendar.get(Calendar.YEAR)
+        val month = (currentCalendar.get(Calendar.MONTH) + 1).let {
+            if (it < 10) {
+                "0$it"
+            } else {
+                it.toString()
+            }
+        }
+
+        return "$year-$month"
+    }
 
 
     fun testSet() {

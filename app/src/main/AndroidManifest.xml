@@ -31,6 +31,8 @@
         </activity>
         <receiver android:name=".receiver.KinyuNotiReceiver" />
         <receiver android:name=".receiver.ComparisonExpenseNotiReceiver" />
+        <receiver android:name=".receiver.FixExpenseReceiver" />
+        <receiver android:name=".receiver.AutoAddFixExpenseReceiver" />
 
     </application>
 

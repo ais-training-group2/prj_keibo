@@ -19,13 +19,16 @@ import com.jp_ais_training.keibo.KeiboApplication
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentBarStatisticsBinding
 import com.jp_ais_training.keibo.model.response.LoadSumEI
+import com.jp_ais_training.keibo.model.response.LoadSumII
 import kotlinx.coroutines.*
 
 class BarStatisticsFragment : Fragment() {
-    private var data: List<LoadSumEI>? = null
+    private var data_ei: List<LoadSumEI>? = null
+    private var data_ii: List<LoadSumII>? = null
     private var _binding: FragmentBarStatisticsBinding? = null
     private val binding get() = _binding!!
     lateinit var app: KeiboApplication
+    private var flag:Boolean= true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,8 +37,10 @@ class BarStatisticsFragment : Fragment() {
         _binding = FragmentBarStatisticsBinding.inflate(inflater, container, false)
         app = requireActivity().application as KeiboApplication
 
-        DateButton()
-        DBDataSet()
+        dateButton()
+        dbDataSet()
+        eiButton()
+        iiButton()
         return binding.root
     }
 
@@ -48,51 +53,86 @@ class BarStatisticsFragment : Fragment() {
         }
     }
 
-    private fun DateButton() {
-        binding.DateLeft.setOnClickListener() {
-            val Date: Int = Integer.parseInt(binding.Date.text.toString()) - 1
-            binding.Date.text = Date.toString()
+    private fun dateButton() {
+        binding.dateLeft.setOnClickListener() {
+            val Date: Int = Integer.parseInt(binding.date.text.toString()) - 1
+            binding.date.text = Date.toString()
         }
 
-        binding.DateRight.setOnClickListener() {
-            val Date: Int = Integer.parseInt(binding.Date.text.toString()) + 1
-            binding.Date.text = Date.toString()
+        binding.dateRight.setOnClickListener() {
+            val Date: Int = Integer.parseInt(binding.date.text.toString()) + 1
+            binding.date.text = Date.toString()
         }
     }
 
-    private fun DBDataSet() {
+    private fun eiButton() {
+        binding.eiButton.setOnClickListener() {
+            flag = true
+            barchart()
+        }
+    }
+
+    private fun iiButton() {
+        binding.iiButton.setOnClickListener() {
+            flag = false
+            barchart()
+        }
+    }
+
+    private fun dbDataSet() {
         runBlocking {
             CoroutineScope(Dispatchers.IO).launch() {
-                data = app.db.loadMonthSumEI(binding.Date.text.toString())
+                data_ei = app.db.loadMonthSumEI(binding.date.text.toString())
+                data_ii = app.db.loadMonthSumII(binding.date.text.toString())
             }.join()
-            Barchart()
+            barchart()
         }
     }
 
-    private fun Barchart() {
+    private fun barchart() {
         val barchart: BarChart = binding.barchart// barChart 생성
         val entries = ArrayList<BarEntry>()
         var max = 0f
 
-        for (i in 0..11) {
-            var month : Float
-            var price : Float
+        if(flag==true){
+            for (i in 0..11) {
+                var month : Float
+                var price : Float
 
-            if(i<data!!.size){
-                month = data!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
-                price = data!!.get(i).price!!.toFloat()
-                entries.add(BarEntry(month ,price))
-            }else{
-                month = i.toFloat()+1f
-                price = 0f
-                entries.add(BarEntry(month ,price))
+                if(i<data_ei!!.size){
+                    month = data_ei!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
+                    price = data_ei!!.get(i).price!!.toFloat()
+                    entries.add(BarEntry(month ,price))
+                }else{
+                    month = i.toFloat()+1f
+                    price = 0f
+                    entries.add(BarEntry(month ,price))
+                }
+
+                if (max < price!!){
+                    max = price+1000f
+                }
             }
+        }else{
+            for (i in 0..11) {
+                var month : Float
+                var price : Float
 
-            if (max < price!!){
-                max = price+1000f
+                if(i<data_ii!!.size){
+                    month = data_ii!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
+                    price = data_ii!!.get(i).price!!.toFloat()
+                    entries.add(BarEntry(month ,price))
+                }else{
+                    month = i.toFloat()+1f
+                    price = 0f
+                    entries.add(BarEntry(month ,price))
+                }
+
+                if (max < price!!){
+                    max = price+1000f
+                }
             }
         }
-
         barchart.run {
             description.isEnabled = false // 차트 옆에 별도로 표기되는 description을 안보이게 설정 (false)
             setMaxVisibleValueCount(12) // 최대 보이는 그래프 개수를 12개로 지정

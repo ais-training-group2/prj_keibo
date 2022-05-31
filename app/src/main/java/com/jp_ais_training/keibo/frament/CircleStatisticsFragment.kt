@@ -109,6 +109,8 @@ class CircleStatisticsFragment : Fragment() {
             clearPieChart()
             moveNextMonth()
 
+
+
             //다음달 기간 표시
             cal.add(Calendar.MONTH, 1)
             if(dateStandard == 0){

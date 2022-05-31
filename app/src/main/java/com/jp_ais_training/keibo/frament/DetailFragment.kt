@@ -16,10 +16,10 @@ class DetailFragment() : Fragment() {
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
 
-    fun changeRate(){
+    fun changeRate(flag :Boolean){
         val contentsFragmentsList =childFragmentManager.fragments as List<ContentsFragment>
         contentsFragmentsList.forEach{contentsFragment ->
-            contentsFragment.changeRate()
+            contentsFragment.changeRate(flag)
         }
     }
 

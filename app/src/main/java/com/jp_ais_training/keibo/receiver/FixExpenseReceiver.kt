@@ -57,35 +57,40 @@ class FixExpenseReceiver : BroadcastReceiver() {
 
             Log.d(TAG, "fixExpenseList: $fixExpenseList")
 
-            fixExpenseList.forEachIndexed { index, item ->
-                val intent = Intent(context, MainActivity::class.java)
-                intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            val intent = Intent(context, MainActivity::class.java)
+            intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
-                val pendingIntent = PendingIntent.getActivity(
-                    context,
-                    Const.PENDING_INTENT_REQUEST_CODE,
-                    intent,
-                    Const.PENDING_INTENT_FLAGS
-                )
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                Const.PENDING_INTENT_REQUEST_CODE,
+                intent,
+                Const.PENDING_INTENT_FLAGS
+            )
 
-                val contentTitle = Const.FIX_EXPENSE_NOTI_CONTENT_TITLE
-                // 明日(XXXX-XX-XX)
-                val contentText = "${Const.FIX_EXPENSE_NOTI_CONTENT_TEXT_1}" +
-                        "($tomorrow) ${item.name} ${item.price}円 ${Const.FIX_EXPENSE_NOTI_CONTENT_TEXT_2}"
-
-                val builder = NotificationCompat.Builder(context!!, Const.KINYU_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_launcher_background)
-                    .setContentTitle(contentTitle)
-                    .setContentText(contentText)
-                    .setAutoCancel(true)
-                    .setDefaults(NotificationCompat.DEFAULT_ALL)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentIntent(pendingIntent)
-
-                val notificationManagerCompat = NotificationManagerCompat.from(context!!)
-                notificationManagerCompat.notify(0, builder.build())    // 한번에 묶어서
-//                notificationManagerCompat.notify(index, builder.build())  // 따로따로
+            val contentTitle = Const.FIX_EXPENSE_NOTI_CONTENT_TITLE
+            // 明日(XXXX-XX-XX)
+            var contentText = "${Const.FIX_EXPENSE_NOTI_CONTENT_TEXT_1} ($tomorrow)\n"
+            var sum = 0
+            for (item in fixExpenseList) {
+                contentText += "${item.name} ${item.price}円\n"
+                item.price?.let {
+                    sum+= it
+                }
             }
+            contentText += "合計(${sum}円) ${Const.FIX_EXPENSE_NOTI_CONTENT_TEXT_2}"
+
+            val builder = NotificationCompat.Builder(context!!, Const.KINYU_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle(contentTitle)
+                .setContentText(contentText)
+                .setAutoCancel(true)
+                .setStyle(NotificationCompat.BigTextStyle())
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+
+            val notificationManagerCompat = NotificationManagerCompat.from(context!!)
+            notificationManagerCompat.notify(Const.FIX_EXPENSE_NOTIFICATION_ID, builder.build())    // 한번에 묶어서
         }
     }
 }

@@ -2,8 +2,6 @@ package com.jp_ais_training.keibo.util
 
 // 애플리케이션에서 활용할 공통 상수
 object Const {
-
-
     val KINYU_CHANNEL_ID = "KINYU"
     val KINYU_CHANNEL_NAME = "KINYU CHANNEL"
     val COMPARISON_CHANNEL_ID = "COMPARISON"

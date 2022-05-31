@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="date"
-        android:textSize="25dp" />
+        android:textSize="22dp" />
 
     <TextView
         android:id="@+id/calendar_item_income"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:text="+999"
         android:textColor="#0000FF"
-        android:textSize="15dp" />
+        android:textSize="12dp" />
 
     <TextView
         android:id="@+id/calendar_item_expense"
@@ -27,6 +27,6 @@
         android:layout_height="wrap_content"
         android:text="-999"
         android:textColor="#FF0000"
-        android:textSize="15dp" />
+        android:textSize="12dp" />
 
 </LinearLayout>

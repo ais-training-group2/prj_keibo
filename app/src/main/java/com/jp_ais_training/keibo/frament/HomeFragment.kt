@@ -100,12 +100,11 @@ class HomeFragment : Fragment() {
             )
         }
         return dataSet
-        Log.d(TAG, "setCalendarData: end")
     }
 
     private fun setMonth(calendar: Calendar) {
         binding.homeCalendar.calendarMonth.text =
-            SimpleDateFormat("MM").format(calendar.time).toInt().toString() + "月"
+            (calendar.get(Calendar.MONTH) + 1).toString() + "月"
     }
 
     private fun setCalendar(itemDataList: ArrayList<CalendarItem>) {
@@ -122,16 +121,22 @@ class HomeFragment : Fragment() {
         var totalIncome: Int
     )
 
-    private fun setButtonListener(currentCalendar:Calendar) {
+    private fun setButtonListener(calendar: Calendar) {
         binding.homeCalendar.homePreviousMonth.setOnClickListener {
-            currentCalendar.add(Calendar.MONTH, -1)
-            Log.d(TAG, "setButtonListener: "+SimpleDateFormat("yyyy-MM").format(currentCalendar.time))
-            setCalendarLayout(currentCalendar)
+            calendar.add(Calendar.MONTH, -1)
+            Log.d(TAG, "setButtonListener: " + SimpleDateFormat("yyyy-MM").format(calendar.time))
+            setCalendarLayout(calendar)
         }
 
         binding.homeCalendar.homeNextMonth.setOnClickListener {
-            currentCalendar.add(Calendar.MONTH, 1)
-            setCalendarLayout(currentCalendar)
+            val currentCalendar = Calendar.getInstance()
+            if ((calendar.get(Calendar.YEAR) < currentCalendar.get(Calendar.YEAR))
+                || (calendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR)
+                        && calendar.get(Calendar.MONTH) < currentCalendar.get(Calendar.MONTH))
+            ) {
+                calendar.add(Calendar.MONTH, 1)
+                setCalendarLayout(calendar)
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.cardview.widget.CardView
@@ -27,8 +28,11 @@ import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
 import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.dialog.CategoryDialog
+import com.jp_ais_training.keibo.model.entity.ExpenseItem
+import com.jp_ais_training.keibo.model.entity.IncomeItem
 import com.jp_ais_training.keibo.model.response.ResponseItem
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ticker
 import net.cachapa.expandablelayout.ExpandableLayout
 import java.lang.reflect.Field
 import java.text.DecimalFormat
@@ -38,7 +42,7 @@ class ContentsFragment() : Fragment() {
     private lateinit var app: KeiboApplication
     private var targetDate = ""
     private var type = -1 // 0 IncomeFix 1 IncomeFlex 2 ExpenseFix 3 ExpenseFlex
-    private lateinit var dataList: List<ResponseItem>
+    private lateinit var dataList: ArrayList<ResponseItem>
     private var parentColor = -1
     private var color = -1
 
@@ -61,22 +65,22 @@ class ContentsFragment() : Fragment() {
         println("LoadData : $type")
         when (type) {
             0 -> {
-                dataList = app.db.loadFixII(targetDate)
+                dataList = ArrayList(app.db.loadFixII(targetDate))
                 parentColor = Color.rgb(255, 204, 204)
                 color = Color.rgb(255, 225, 225)
             }
             1 -> {
-                dataList = app.db.loadFlexII(targetDate)
+                dataList = ArrayList(app.db.loadFlexII(targetDate))
                 parentColor = Color.rgb(229, 255, 204)
                 color = Color.rgb(250, 255, 225)
             }
             2 -> {
-                dataList = app.db.loadFixEI(targetDate)
+                dataList = ArrayList(app.db.loadFixEI(targetDate))
                 parentColor = Color.rgb(204, 255, 255)
                 color = Color.rgb(225, 255, 255)
             }
             else -> {
-                dataList = app.db.loadFlexEI(targetDate)
+                dataList = ArrayList(app.db.loadFlexEI(targetDate))
                 parentColor = Color.rgb(229, 204, 255)
                 color = Color.rgb(250, 225, 255)
             }
@@ -97,17 +101,21 @@ class ContentsFragment() : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 loadData()
-                recyclerView.adapter = context?.let {
-                    SimpleAdapter(
-                        recyclerView,
-                        dataList,
-                        parentColor,
-                        color,
-                        type,
-                        targetDate,
-                        super.requireActivity(),
-                        it
-                    )
+                context?.let {
+                    ContextCompat.getMainExecutor(it).execute {
+                        recyclerView.adapter =
+                            SimpleAdapter(
+                                recyclerView,
+                                dataList,
+                                parentColor,
+                                color,
+                                type,
+                                targetDate,
+                                super.requireActivity(),
+                                it,
+                                app
+                            )
+                    }
                 }
             }
         }
@@ -115,10 +123,11 @@ class ContentsFragment() : Fragment() {
     }
 
     private class SimpleAdapter(
-        private val recyclerView: RecyclerView, private val dataList: List<ResponseItem>,
+        private val recyclerView: RecyclerView, private val dataList: ArrayList<ResponseItem>,
         private val parentColor: Int, private val color: Int,
         private val type: Int, private val targetDate: String,
-        private val activity: Activity, private val ctx: Context
+        private val activity: Activity, private val ctx: Context,
+        private val app: KeiboApplication
     ) : RecyclerView.Adapter<SimpleAdapter.ViewHolder>() {
 
         private var selectedItem = UNSELECTED
@@ -135,21 +144,41 @@ class ContentsFragment() : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.bind()
+            setFadeAnimation(holder.itemView)
+        }
+
+        private fun setFadeAnimation(view: View) {
+            val anim = AlphaAnimation(0.0f, 1.0f)
+            anim.duration = 500
+            view.startAnimation(anim)
         }
 
         override fun getItemCount(): Int {
             return dataList.size + 1
         }
 
-        fun addItem(item: ResponseItem) {
-            dataList.plus(item)
-            this.notifyDataSetChanged()
+        fun addItem(item: ResponseItem, position: Int) {
+            activity.runOnUiThread {
+                dataList.add(item)
+                //this.notifyDataSetChanged()
+                this.notifyItemChanged(position)
+            }
         }
+
+        fun removeItem(position: Int) {
+            activity.runOnUiThread {
+                dataList.removeAt(position)
+                //this.notifyDataSetChanged()
+                this.notifyItemRemoved(position)
+            }
+        }
+
 
         inner class ViewHolder(binding: RecyclerContentsItemBinding) :
             RecyclerView.ViewHolder(binding.root),
             View.OnClickListener, ExpandableLayout.OnExpansionUpdateListener {
             private val cardView: CardView
+            private val msgNull: TextView
             private val name: EditText
             private val price: EditText
             private val mainCg: Button
@@ -174,40 +203,111 @@ class ContentsFragment() : Fragment() {
                     deActivationItem(holder)
                     // 널체크
                     if (nullChecker(holder)) {
+                        holder.msgNull.visibility = View.GONE
                         val position = holder.cardView.tag as Int
-
+                        val taxFlag = holder.taxCheckBox.isChecked
+                        val tempPrice =
+                            holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
+                                .toInt()
+                        var price = if (taxFlag)
+                            tempPrice
+                        else
+                            (tempPrice * 1.1).toInt()
+                        var strType = ""
+                        when (type) {
+                            0 -> strType = "fix"
+                            1 -> strType = "flex"
+                            2 -> strType = "fix"
+                            3 -> strType = "flex"
+                        }
                         //마지막 아이템인가?
                         if (position == dataList.size) {
                             println("Insert" + holder.name.text)
-                            val taxFlag = holder.taxCheckBox.isChecked
-                            val tempPrice =
-                                holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
-                                    .toInt()
-                            var price = if (taxFlag)
-                                tempPrice
-                            else
-                                (tempPrice * 1.1).toInt()
-                            /*
-                             //DB에 인설트 시키고 리턴값으로 id값 받기
-                             val item = ResponseItem(
-                                 -1,
-                                 -1,
-                                 mainCg.text.toString(),
-                                 subCg.text.toString(),
-                                 name.text.toString(),
-                                 price,
-                                 targetDate
-                             )
-
-                             addItem(item)*/
-
+                            CoroutineScope(Dispatchers.Main).launch {
+                                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                                    if (type == 0 || type == 1) {
+                                        val id = app.db.loadIILastId()
+                                        val item = IncomeItem(
+                                            id + 1, strType, holder.name.text.toString(),
+                                            price,
+                                            targetDate
+                                        )
+                                        app.db.insertII(item)
+                                        addItem(
+                                            ResponseItem(
+                                                item.income_item_id, null, null, null, null, null,
+                                                item.name, item.price, item.datetime
+                                            ), position
+                                        )
+                                    } else {
+                                        val id = app.db.loadEILastId()
+                                        val item = ExpenseItem(
+                                            id + 1,
+                                            holder.subCg.tag.toString().toInt(),
+                                            holder.name.text.toString(),
+                                            price,
+                                            targetDate
+                                        )
+                                        app.db.insertEI(item)
+                                        addItem(
+                                            ResponseItem(
+                                                null,
+                                                item.expense_item_id,
+                                                holder.mainCg.tag.toString().toInt(),
+                                                holder.subCg.tag.toString().toInt(),
+                                                holder.mainCg.text.toString(),
+                                                holder.subCg.text.toString(),
+                                                item.name,
+                                                item.price,
+                                                item.datetime
+                                            ), position
+                                        )
+                                    }
+                                }
+                            }
                         } else {
-                            //기존 데이터에서 변화된 값 체크
-                            if (dataCompare(holder, position)
-                            ) {
-                                println("Update")
+                            CoroutineScope(Dispatchers.IO).async {
+                                //기존 데이터에서 변화된 값 체크
+                                if (dataCompare(holder, position)) {
+                                    println("Update" + type)
+                                    if (type == 0 || type == 1) {
+                                        println("Update Check1")
+                                        val item = IncomeItem(
+                                            dataList.elementAt(position).income_item_id!!,
+                                            strType,
+                                            holder.name.text.toString(),
+                                            price,
+                                            targetDate
+                                        )
+                                        app.db.updateII(item)
+                                        val data = dataList.elementAt(position)
+                                        data.income_item_id = item.income_item_id
+                                        data.name = holder.name.text.toString()
+                                        data.price = price
+                                    } else {
+                                        println("Update Check" + dataList.size)
+                                        val item = ExpenseItem(
+                                            dataList.elementAt(position).expense_item_id!!,
+                                            holder.subCg.tag.toString().toInt(),
+                                            holder.name.text.toString(),
+                                            price,
+                                            targetDate
+                                        )
+                                        app.db.updateEI(item)
+                                        val data = dataList.elementAt(position)
+                                        data.expense_item_id = item.expense_item_id
+                                        data.main_category_id = holder.mainCg.tag.toString().toInt()
+                                        data.sub_category_id = holder.subCg.tag.toString().toInt()
+                                        data.main_category_name = holder.mainCg.text.toString()
+                                        data.sub_category_name = holder.subCg.text.toString()
+                                        data.name = holder.name.text.toString()
+                                        data.price = price
+                                    }
+                                }
                             }
                         }
+                    } else {
+                        holder.msgNull.visibility = View.VISIBLE
                     }
                 }
 
@@ -224,6 +324,8 @@ class ContentsFragment() : Fragment() {
 
                     selectedItem = position
                 }
+
+
             }
 
             override fun onExpansionUpdate(expansionFraction: Float, state: Int) {
@@ -249,9 +351,10 @@ class ContentsFragment() : Fragment() {
                         price.text = SpannableStringBuilder(fPrice)
                         price.setTextColor(Color.RED)
 
-                        println("MAIN : " + dataList[position].main_category_name)
                         mainCg.text = dataList[position].main_category_name
+                        mainCg.tag = dataList[position].main_category_id
                         subCg.text = dataList[position].sub_category_name
+                        subCg.tag = dataList[position].sub_category_id
 
                         topLayout.visibility = View.VISIBLE
                         taxLayout.visibility = View.VISIBLE
@@ -296,28 +399,20 @@ class ContentsFragment() : Fragment() {
                 }
 
                 val onPriceFocusChangeListener = View.OnFocusChangeListener { view, isFocus ->
-                    if (position == dataList.size) {
-                        if (!isFocus) {
-                            val fPrice = if (type == 0 || type == 1) {
-                                DecimalFormat("+#,###,###.#").format(price.text.toString().toInt())
-                            } else {
-                                DecimalFormat("-#,###,###.#").format(price.text.toString().toInt())
-                            }
-                            price.text = SpannableStringBuilder(fPrice)
-                            price.clearFocus()
-                            price.clearComposingText()
-                            closeKeyBoard()
-                        }
-                    } else {
+                    if (!price.text.isNullOrEmpty()) {
                         if (isFocus) {
                             val fPrice =
                                 DecimalFormat("#########").format(dataList[position].price)
                             price.text = SpannableStringBuilder(fPrice)
                         } else {
                             val fPrice = if (type == 0 || type == 1) {
-                                DecimalFormat("+#,###,###.#").format(price.text.toString().toInt())
+                                DecimalFormat("+#,###,###.#").format(
+                                    price.text.toString().toInt()
+                                )
                             } else {
-                                DecimalFormat("-#,###,###.#").format(price.text.toString().toInt())
+                                DecimalFormat("-#,###,###.#").format(
+                                    price.text.toString().toInt()
+                                )
                             }
                             price.text = SpannableStringBuilder(fPrice)
                             price.clearFocus()
@@ -332,7 +427,10 @@ class ContentsFragment() : Fragment() {
                 }
 
                 subCg.setOnClickListener {
-                    categoryDialog.callSubCategory(mainCg.tag.toString().toInt())
+                    categoryDialog.callSubCategory(
+                        mainCg.tag.toString().toInt(),
+                        mainCg.text.toString()
+                    )
                 }
 
                 categoryDialog.setOnClickedListener(object : CategoryDialog.ButtonClickListener {
@@ -340,11 +438,13 @@ class ContentsFragment() : Fragment() {
                         if (type == "main") {
                             mainCg.text = name
                             mainCg.tag = id
+                            subCg.visibility = View.VISIBLE
                         } else if (type == "sub") {
                             subCg.text = name
                             subCg.tag = id
+                        } else if (type == "delete") {
+                            removeItem(id) //id is position
                         }
-
                     }
                 })
 
@@ -368,10 +468,31 @@ class ContentsFragment() : Fragment() {
                 cardView.isSelected = isSelected
                 cardView.tag = position
 
+
+                cardView.setOnLongClickListener {
+                    val position = cardView.tag.toString().toInt()
+                    if (type == 0 || type == 1) {
+                        categoryDialog.callDeleteItemDialog(
+                            dataList[position].income_item_id!!,
+                            type,
+                            position
+                        )
+                    } else {
+                        categoryDialog.callDeleteItemDialog(
+                            dataList[position].expense_item_id!!,
+                            type,
+                            position
+                        )
+                    }
+                    return@setOnLongClickListener true
+                }
+
+                setActivationItem(false)
             }
 
             init {
                 cardView = binding.cardView
+                msgNull = binding.msgNull
                 name = binding.name
                 name.maxWidth = name.width
                 price = binding.price
@@ -389,6 +510,7 @@ class ContentsFragment() : Fragment() {
                 priceMethod = price.movementMethod
                 categoryDialog = CategoryDialog(activity)
 
+
                 setActivationItem(false)
             }
 
@@ -403,7 +525,6 @@ class ContentsFragment() : Fragment() {
 
             fun nullChecker(holder: ViewHolder): Boolean {
 
-                val result: Boolean
                 return if (type == 0 || type == 1) {
                     !holder.name.text.isNullOrBlank()
                             && !holder.price.text.isNullOrBlank()
@@ -418,7 +539,7 @@ class ContentsFragment() : Fragment() {
 
             fun dataCompare(holder: ViewHolder, position: Int): Boolean {
 
-                val result: Boolean
+
                 val price = holder.price.text.toString().replace(("[^\\d.]").toRegex(), "").toInt()
                 return if (type == 0 || type == 1) {
                     holder.name.text.toString() != dataList[position].name
@@ -461,8 +582,12 @@ class ContentsFragment() : Fragment() {
 
                 holder.mainCg.setTextColor(Color.WHITE)
                 holder.mainCg.setBackgroundColor(parentColor)
+                holder.mainCg.isEnabled = false
+                holder.mainCg.isClickable = false
                 holder.subCg.setTextColor(Color.WHITE)
                 holder.subCg.setBackgroundColor(parentColor)
+                holder.subCg.isEnabled = false
+                holder.subCg.isClickable = false
 
             }
 
@@ -477,42 +602,21 @@ class ContentsFragment() : Fragment() {
                     name.isClickable = true
                     name.keyListener = nameListener
                     name.movementMethod = nameMethod
-                    /*   name.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
-                           if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                               closeKeyBoard()
-
-                               name.clearFocus()
-                               name.clearComposingText()
-                               price.clearFocus()
-                               name.clearComposingText()
-                               return@OnKeyListener true
-                           }
-                           false
-                       })*/
 
                     price.isClickable = true
                     price.keyListener = priceListener
                     price.movementMethod = priceMethod
-                    /*   price.setOnKeyListener(View.OnKeyListener { _, KeyCode, event ->
-                           if (KeyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                               closeKeyBoard()
-
-                               name.clearFocus()
-                               name.clearComposingText()
-                               price.clearFocus()
-                               name.clearComposingText()
-                               return@OnKeyListener true
-                           }
-                           false
-                       })*/
-
 
                     taxLayout.visibility = View.VISIBLE
 
                     mainCg.setTextColor(parentColor)
                     mainCg.setBackgroundColor(Color.WHITE)
+                    mainCg.isEnabled = true
+                    mainCg.isClickable = true
                     subCg.setTextColor(parentColor)
                     subCg.setBackgroundColor(Color.WHITE)
+                    subCg.isEnabled = true
+                    subCg.isClickable = true
 
                 } else {
                     closeKeyBoard()
@@ -536,8 +640,12 @@ class ContentsFragment() : Fragment() {
 
                     mainCg.setTextColor(Color.WHITE)
                     mainCg.setBackgroundColor(parentColor)
+                    mainCg.isEnabled = false
+                    mainCg.isClickable = false
                     subCg.setTextColor(Color.WHITE)
                     subCg.setBackgroundColor(parentColor)
+                    subCg.isEnabled = false
+                    subCg.isClickable = false
 
                 }
             }

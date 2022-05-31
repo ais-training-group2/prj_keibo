@@ -37,10 +37,14 @@ interface DAO {
     fun loadSubCategory(select: Int) : List<SubCategory>
 
     //Sub Category- SubCategory Check
-    @Query("SELECT CASE  " +
-            "WHEN S.main_category_id == :main_id AND S.sub_category_name == :sub_name THEN 1 ELSE 0 " +
-            "END FROM SubCategory AS S; " )
-    fun checkSubCategory(main_id : Int, sub_name : String) : Int
+    @Query( "SELECT sub_category_id FROM SubCategory as S "+
+            "WHERE main_category_id == :main_id and S.sub_category_name == :sub_name and deleted_yn = 'n';")
+    fun checkSubCategory(main_id : Int, sub_name : String) : List<Int>
+
+    //Sub Category- SubCategory Check
+    @Query( "SELECT sub_category_id FROM SubCategory as S "+
+            "WHERE main_category_id == :main_id and S.sub_category_name == :sub_name and deleted_yn = 'y';")
+    fun checkSubCategoryWithDeleted(main_id : Int, sub_name : String) : List<Int>
 
     //Sub Category- 데이터 추가
     @Query("INSERT INTO SubCategory(main_category_id,sub_category_name,deleted_yn) VALUES" +
@@ -66,6 +70,11 @@ interface DAO {
             "WHERE datetime Like :select||'%'" +
             "ORDER BY datetime ASC;")
     fun loadII(select:String) : List<IncomeItem>
+
+    //IncomeItem 가장 마지막 데이터 id 값 가져오기
+    @Query("SELECT income_item_id FROM IncomeItem " +
+            "ORDER BY income_item_id DESC LIMIT 1;")
+    fun loadIILastId() : Int
 
     //IncomeItem - flex기준 특정 데이터 불러오기
     @Query("SELECT * FROM IncomeItem " +
@@ -121,6 +130,10 @@ interface DAO {
             "(:type,:name,:price,:datetime);")
     fun insertII(type : String, name : String, price : Int, datetime : String)
 
+    //IncomeItem - 데이터 추가2
+    @Insert
+    fun insertII(entity: IncomeItem)
+
     //IncomeItem- 데이터 업데이트
     @Update
     fun updateII(entity: IncomeItem)
@@ -141,6 +154,11 @@ interface DAO {
             "WHERE E.datetime Like :select||'%'" +
             "ORDER BY datetime ASC;")
     fun loadEI(select:String) : List<ExpenseItemType>
+
+    //Expense Item 가장 마지막 데이터 id 값 가져오기
+    @Query("SELECT expense_item_id FROM ExpenseItem " +
+            "ORDER BY expense_item_id DESC LIMIT 1;")
+    fun loadEILastId() : Int
 
     //Expense Item - flex기준 특정 데이터 불러오기
     @Query("SELECT * " +
@@ -233,6 +251,11 @@ interface DAO {
     @Query("INSERT INTO ExpenseItem(sub_category_id,name,price,datetime) VALUES" +
             "(:sub_id,:name,:price,:datetime);")
     fun insertEI(sub_id : Int, name : String, price : Int, datetime : String)
+
+
+    //Expense Item - 데이터 추가
+    @Insert
+    fun insertEI(entity: ExpenseItem)
 
     //Expense Item- 데이터 업데이트
     @Update

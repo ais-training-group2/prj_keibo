@@ -1,6 +1,5 @@
 package com.jp_ais_training.keibo.frament
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context.MODE_PRIVATE
@@ -15,7 +14,6 @@ import android.view.ViewGroup
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.activity.MainActivity
@@ -147,12 +145,6 @@ class SettingsFragment : Fragment() {
                     }
                 }
             }
-
-            val str = "binding.swiFixExpenseNoti.isChecked: ${binding.swiFixExpenseNoti.isChecked}\n" +
-                    "binding.swiKinyuNoti.isChecked: ${binding.swiKinyuNoti.isChecked}\n" +
-                    "binding.swiComparisonNoti.isChecked: ${binding.swiComparisonNoti.isChecked}"
-
-            Log.d(TAG, "$str")
         }
     }
 
@@ -163,7 +155,6 @@ class SettingsFragment : Fragment() {
 
             val prevMonthAsYYYYMM = getPrevMonthAsYYYYMM()
             val db = AppDatabase.getInstance(requireContext())!!
-
 
                 runBlocking {
                     val currentList = ArrayList<String>()
@@ -325,8 +316,6 @@ class SettingsFragment : Fragment() {
                             "${Const.COMPARISON_NOTI_CONTENT_TEXT_2}${currentMonthExpenseSum.price}円\n" +
                             "${Const.COMPARISON_NOTI_CONTENT_TEXT_3}${currentMonthExpenseSum.price - prevMonthExpenseSum.price}${Const.COMPARISON_NOTI_CONTENT_TEXT_4}"
 
-                Log.d(TAG, "${currentMonthExpenseSum.price} - prevMonthExpenseSum.price: ${currentMonthExpenseSum.price - prevMonthExpenseSum.price}")
-
                 val builder = NotificationCompat.Builder(requireContext(), Const.COMPARISON_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_background)
                     .setContentTitle(contentTitle)
@@ -353,8 +342,6 @@ class SettingsFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             // $year-$month-$day : YYYY-MM-DD
             val fixExpenseList = DB.dao().loadFixEI(tomorrow)
-
-            Log.d(TAG, "fixExpenseList: $fixExpenseList")
 
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -427,6 +414,7 @@ class SettingsFragment : Fragment() {
         // 이전달 Calendar 객체
         val prevCalendar = Calendar.getInstance()
         prevCalendar.set(Calendar.MONTH, prevCalendar.get(Calendar.MONTH) - 1)
+        prevCalendar.set(Calendar.DAY_OF_MONTH, 1)  // 30, 31일 경우, MONTH(달)을 바꾸더라도 이전달로 넘어가지 않는 문제 발생
 
         val prevYear = prevCalendar.get(Calendar.YEAR)
         val prevMonth = (prevCalendar.get(Calendar.MONTH) + 1).let {

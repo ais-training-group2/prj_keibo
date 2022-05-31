@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.jp_ais_training.keibo.KeiboApplication
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.activity.MainActivity
 import com.jp_ais_training.keibo.databinding.DialogTestBinding
@@ -23,6 +24,7 @@ import com.jp_ais_training.keibo.db.AppDatabase
 import com.jp_ais_training.keibo.model.response.LoadSumEI
 import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.util.NotificationUtil
+import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,7 +34,8 @@ class SettingsFragment : Fragment() {
 
     private val TAG = this::class.java.simpleName.toString()
     private lateinit var binding:FragmentSettingsBinding
-    private lateinit var sharedPreferences: SharedPreferences   // 이전 스위치 상태 저장 객체
+
+    private lateinit var preferenceUtil: PreferenceUtil
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,15 +54,21 @@ class SettingsFragment : Fragment() {
 
     // 스위치 상태 초기화
     private fun initSwitchValue() {
+        preferenceUtil = if (activity != null) {
+            (activity?.application as KeiboApplication).prefs
+        } else {
+            PreferenceUtil(requireContext())
+        }
+
         // 이전 스위치 상태 확인 및 대입
-        sharedPreferences = requireContext().getSharedPreferences(Const.NOTI_KEY,MODE_PRIVATE)
-        val alarm1isRunning = sharedPreferences.getBoolean(Const.FIX_EXPENSE_NOTI_KEY, false)
-        val alarm2isRunning = sharedPreferences.getBoolean(Const.KINYU_NOTI_KEY, false)
-        val alarm3isRunning = sharedPreferences.getBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, false)
-        binding.swiAll.isChecked= alarm1isRunning && alarm2isRunning && alarm3isRunning
-        binding.swiFixExpenseNoti.isChecked= alarm1isRunning
-        binding.swiKinyuNoti.isChecked= alarm2isRunning
-        binding.swiComparisonNoti.isChecked= alarm3isRunning
+        val isRunningFixExpenseNoti = preferenceUtil.getIsRunningFixExpenseNoti()
+        val isRunningKinyuNoti = preferenceUtil.getIsRunningKinyuNoti()
+        val isRunningComparisonExpenseNoti = preferenceUtil.getIsRunningComparisonExpenseNoti()
+
+        binding.swiAll.isChecked= isRunningFixExpenseNoti && isRunningKinyuNoti && isRunningComparisonExpenseNoti
+        binding.swiFixExpenseNoti.isChecked= isRunningFixExpenseNoti
+        binding.swiKinyuNoti.isChecked= isRunningKinyuNoti
+        binding.swiComparisonNoti.isChecked= isRunningComparisonExpenseNoti
     }
 
     // 화면 클릭 이벤트 설정
@@ -70,50 +79,42 @@ class SettingsFragment : Fragment() {
             binding.swiKinyuNoti.isChecked= isChecked
             binding.swiComparisonNoti.isChecked= isChecked
 
-            val editor = sharedPreferences.edit()
-            editor.putBoolean(Const.FIX_EXPENSE_NOTI_KEY, isChecked)
-            editor.putBoolean(Const.KINYU_NOTI_KEY, isChecked)
-            editor.putBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, isChecked)
-            editor.commit()
+            preferenceUtil.setIsRunningFixExpenseNoti(isChecked)
+            preferenceUtil.setIsRunningKinyuNoti(isChecked)
+            preferenceUtil.setIsRunningComparisonExpenseNoti(isChecked)
 
-            updateNotification(Const.FIX_EXPENSE_NOTI_KEY)
-            updateNotification(Const.KINYU_NOTI_KEY)
-            updateNotification(Const.COMPARISON_EXPENSE_NOTI_KEY)
+            updateNotification(Const.PREF_FIX_EXPENSE_NOTI_KEY)
+            updateNotification(Const.PREF_KINYU_NOTI_KEY)
+            updateNotification(Const.PREF_COMPARISON_EXPENSE_NOTI_KEY)
         }
 
         binding.swiFixExpenseNoti.setOnClickListener{
             val isChecked = binding.swiFixExpenseNoti.isChecked
-            val editor = sharedPreferences.edit()
-            editor.putBoolean(Const.FIX_EXPENSE_NOTI_KEY, isChecked)
-            editor.commit()
+            preferenceUtil.setIsRunningFixExpenseNoti(isChecked)
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
             binding.swiAll.isChecked= isChecked && binding.swiKinyuNoti.isChecked&& binding.swiComparisonNoti.isChecked
 
-            updateNotification(Const.FIX_EXPENSE_NOTI_KEY)
+            updateNotification(Const.PREF_FIX_EXPENSE_NOTI_KEY)
         }
 
         binding.swiKinyuNoti.setOnClickListener{
             val isChecked = binding.swiKinyuNoti.isChecked
-            val editor = sharedPreferences.edit()
-            editor.putBoolean(Const.KINYU_NOTI_KEY, isChecked)
-            editor.commit()
+            preferenceUtil.setIsRunningKinyuNoti(isChecked)
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
             binding.swiAll.isChecked= binding.swiFixExpenseNoti.isChecked&& isChecked  && binding.swiComparisonNoti.isChecked
-            updateNotification(Const.KINYU_NOTI_KEY)
+            updateNotification(Const.PREF_KINYU_NOTI_KEY)
         }
 
         binding.swiComparisonNoti.setOnClickListener{
             val isChecked = binding.swiComparisonNoti.isChecked
-            val editor = sharedPreferences.edit()
-            editor.putBoolean(Const.COMPARISON_EXPENSE_NOTI_KEY, isChecked)
-            editor.commit()
+            preferenceUtil.setIsRunningComparisonExpenseNoti(isChecked)
 
             // 각각의 스위치 상태 변화시 switchAll 상태 변화
             binding.swiAll.isChecked= binding.swiFixExpenseNoti.isChecked&& binding.swiKinyuNoti.isChecked&& isChecked
 
-            updateNotification(Const.COMPARISON_EXPENSE_NOTI_KEY)
+            updateNotification(Const.PREF_COMPARISON_EXPENSE_NOTI_KEY)
         }
     }
 
@@ -123,21 +124,21 @@ class SettingsFragment : Fragment() {
         if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.O) {
             val notificationUtil = NotificationUtil(requireContext())
             when(flag) {
-                Const.FIX_EXPENSE_NOTI_KEY -> {
+                Const.PREF_FIX_EXPENSE_NOTI_KEY -> {
                     if (binding.swiFixExpenseNoti.isChecked) {
                         notificationUtil.setFixExpenseNotification()
                     } else {
                         notificationUtil.cancelFixExpenseNotification()
                     }
                 }
-                Const.KINYU_NOTI_KEY -> {
+                Const.PREF_KINYU_NOTI_KEY -> {
                     if (binding.swiKinyuNoti.isChecked) {
                         notificationUtil.setKinyuNotification()
                     } else {
                         notificationUtil.cancelKinyuNotification()
                     }
                 }
-                Const.COMPARISON_EXPENSE_NOTI_KEY -> {
+                Const.PREF_COMPARISON_EXPENSE_NOTI_KEY -> {
                     if (binding.swiComparisonNoti.isChecked) {
                         notificationUtil.setComparisonExpenseByMonthly()
                     } else {
@@ -220,6 +221,11 @@ class SettingsFragment : Fragment() {
         binding.btnFixExpenseNoti.text = "固定支出($tomorrow)"
         binding.btnFixExpenseNoti.setOnClickListener {
             setNotiFixExpense()
+        }
+
+        binding.btnKawase.setOnClickListener {
+            val currentKawaseRate = PreferenceUtil(requireContext()).getKawaseRate()
+            binding.btnKawase.text = "為替レート確認($currentKawaseRate)"
         }
     }
 

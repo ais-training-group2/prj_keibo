@@ -67,8 +67,8 @@ class ComparisonExpenseNotiReceiver: BroadcastReceiver() {
 
                     val contentTitle = Const.COMPARISON_NOTI_CONTENT_TITLE
                     val contentText =
-                        "${Const.COMPARISON_NOTI_CONTENT_TEXT_1}${currentMonthExpenseSum.price}円\n" +
-                                "${Const.COMPARISON_NOTI_CONTENT_TEXT_2}${prevMonthExpenseSum.price}円\n" +
+                        "${Const.COMPARISON_NOTI_CONTENT_TEXT_1}${prevMonthExpenseSum.price}円\n" +
+                                "${Const.COMPARISON_NOTI_CONTENT_TEXT_2}${currentMonthExpenseSum.price}円\n" +
                                 "${Const.COMPARISON_NOTI_CONTENT_TEXT_3}${currentMonthExpenseSum.price - prevMonthExpenseSum.price}${Const.COMPARISON_NOTI_CONTENT_TEXT_4}"
 
                     val builder = NotificationCompat.Builder(context!!, Const.COMPARISON_CHANNEL_ID)
@@ -76,12 +76,13 @@ class ComparisonExpenseNotiReceiver: BroadcastReceiver() {
                         .setContentTitle(contentTitle)
                         .setContentText(contentText)
                         .setAutoCancel(true)
+                        .setStyle(NotificationCompat.BigTextStyle())
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent)
 
                     val notificationManagerCompat = NotificationManagerCompat.from(context!!)
-                    notificationManagerCompat.notify(0, builder.build())
+                    notificationManagerCompat.notify(Const.COMPARISON_NOTIFICATION_ID, builder.build())
                 }
 
             }

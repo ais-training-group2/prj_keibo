@@ -12,7 +12,9 @@ object Const {
     val FIX_EXPENSE_CHANNEL_ID = "FIXEXPENSE"
     val FIX_EXPENSE_CHANNEL_NAME = "FIXEXPENSE CHANNEL"
 
-    val KINYU_NOTIFICATION = -777
+    val KINYU_NOTIFICATION_ID = 0
+    val COMPARISON_NOTIFICATION_ID = 1
+    val FIX_EXPENSE_NOTIFICATION_ID = 2
     val IS_INIT_KINYU_NOTI = "isInitKinyuNoti"
     val IS_INIT_COMPARISON_NOTI = "isInitComparisonNoti"
     val NOTI_KEY = "Noti"
@@ -33,7 +35,7 @@ object Const {
     val COMPARISON_NOTI_CONTENT_TEXT_1 = "前月総支出："
     val COMPARISON_NOTI_CONTENT_TEXT_2 = "今月総支出："
     val COMPARISON_NOTI_CONTENT_TEXT_3 = "前月に比べ "
-    val COMPARISON_NOTI_CONTENT_TEXT_4 = "円ほど使いました。"
+    val COMPARISON_NOTI_CONTENT_TEXT_4 = "円使いました。"
 
 
     val KINYU_MAIN_ACTIVITY_EXTRA_YEAR = "year"
@@ -46,7 +48,9 @@ object Const {
     val NOTI_RECEIVER_PENDING_INTENT_REQUEST_CODE = 0
     val NOTI_RECEIVER_PENDING_INTENT_FLAGS = 0
 
+    val ALARM_DAY_OF_MONTH_1 = 1
     val NOTI_DAY_OF_MONTH_25 = 25
+    val ALARM_HOUR_OF_DAY_ZERO = 0
     val NOTI_HOUR_OF_DAY_21 = 21
     val NOTI_MINUTE_ZERO = 0
     val NOTI_SECOND_ZERO = 0

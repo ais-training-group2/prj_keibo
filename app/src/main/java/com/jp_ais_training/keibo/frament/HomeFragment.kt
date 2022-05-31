@@ -33,9 +33,13 @@ class HomeFragment : Fragment() {
         // 캘린더 레이아웃 작성
         val numberOfWeek = 7
         binding.homeCalendar.calendar.layoutManager = GridLayoutManager(context, numberOfWeek)
-        setCalendarLayout(currentCalendar)
         setButtonListener(currentCalendar)
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setCalendarLayout(currentCalendar)
     }
 
     private fun setCalendarLayout(calendar: Calendar) {

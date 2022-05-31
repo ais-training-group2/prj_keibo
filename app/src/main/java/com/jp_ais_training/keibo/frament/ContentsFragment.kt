@@ -109,7 +109,7 @@ class ContentsFragment() : Fragment() {
                 context?.let {
                     ContextCompat.getMainExecutor(it).execute {
                         recyclerView.adapter =
-                            SimpleAdapter(
+                           SimpleAdapter(
                                 recyclerView,
                                 dataList,
                                 parentColor,
@@ -140,7 +140,11 @@ class ContentsFragment() : Fragment() {
         private val itemBinding get() = _itemBinding!!
 
         fun toggle() {
-            
+            val rate  = 9.875
+            dataList.forEach{data ->
+                data.price = data.price?.times(rate.toInt())
+            }
+            this.notifyDataSetChanged()
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

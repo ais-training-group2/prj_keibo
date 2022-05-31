@@ -109,7 +109,7 @@ class ContentsFragment() : Fragment() {
                 context?.let {
                     ContextCompat.getMainExecutor(it).execute {
                         recyclerView.adapter =
-                           SimpleAdapter(
+                            SimpleAdapter(
                                 recyclerView,
                                 dataList,
                                 parentColor,
@@ -136,12 +136,12 @@ class ContentsFragment() : Fragment() {
     ) : RecyclerView.Adapter<SimpleAdapter.ViewHolder>() {
 
         private var selectedItem = UNSELECTED
-        private var _itemBinding : RecyclerContentsItemBinding? = null
+        private var _itemBinding: RecyclerContentsItemBinding? = null
         private val itemBinding get() = _itemBinding!!
 
         fun toggle() {
-            val rate  = 9.875
-            dataList.forEach{data ->
+            val rate = 9.875
+            dataList.forEach { data ->
                 data.price = data.price?.times(rate.toInt())
             }
             this.notifyDataSetChanged()
@@ -484,18 +484,20 @@ class ContentsFragment() : Fragment() {
 
                 cardView.setOnLongClickListener {
                     val position = bindingAdapterPosition
-                    if (type == 0 || type == 1) {
-                        categoryDialog.callDeleteItemDialog(
-                            dataList[position].income_item_id!!,
-                            type,
-                            position
-                        )
-                    } else {
-                        categoryDialog.callDeleteItemDialog(
-                            dataList[position].expense_item_id!!,
-                            type,
-                            position
-                        )
+                    if (position != dataList.size) {
+                        if (type == 0 || type == 1) {
+                            categoryDialog.callDeleteItemDialog(
+                                dataList[position].income_item_id!!,
+                                type,
+                                position
+                            )
+                        } else {
+                            categoryDialog.callDeleteItemDialog(
+                                dataList[position].expense_item_id!!,
+                                type,
+                                position
+                            )
+                        }
                     }
                     return@setOnLongClickListener true
                 }
@@ -527,7 +529,7 @@ class ContentsFragment() : Fragment() {
                 setActivationItem(false)
             }
 
-            fun reWritePrice(){
+            fun reWritePrice() {
                 println(price.text)
             }
 

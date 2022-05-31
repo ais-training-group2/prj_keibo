@@ -1,11 +1,18 @@
 package com.jp_ais_training.keibo
 
+import android.app.AlarmManager
 import android.app.Application
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import com.jp_ais_training.keibo.util.NotificationUtil
 import com.jp_ais_training.keibo.db.AppDatabase
 import com.jp_ais_training.keibo.db.DAO
+import com.jp_ais_training.keibo.receiver.AutoAddFixExpenseReceiver
+import com.jp_ais_training.keibo.receiver.ComparisonExpenseNotiReceiver
+import com.jp_ais_training.keibo.util.AlarmUtil
+import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +28,16 @@ open class KeiboApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        db = AppDatabase.getInstance(this)?.dao()!!
+        prefs = PreferenceUtil(applicationContext)
+        if (!prefs.getTestData()) {
+            testSet()
+            prefs.setTestData()
+        } else {
+            Log.d("testSet", "true")
+        }
+
         if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.O) {
             val notificationUtil = NotificationUtil(this)
 
@@ -35,18 +52,37 @@ open class KeiboApplication: Application() {
 
             // 월말 지출 비교 알림 생성
             notificationUtil.setComparisonExpenseByMonthly()
+
         }
 
-        db = AppDatabase.getInstance(this)?.dao()!!
-        prefs = PreferenceUtil(applicationContext)
-        if (!prefs.getTestData()) {
-            testSet()
-            prefs.setTestData()
-        } else {
-            Log.d("testSet", "true")
+        // format:YYYY-MM
+        val autoAddFixExpenseDate = prefs.getAutoAddFixExpenseDate()
+        val currentMonth = getCurrentMonth()
+
+        Log.d(TAG, "autoAddFixExpenseDate: $autoAddFixExpenseDate, currentMonth: $currentMonth")
+        if (autoAddFixExpenseDate.isNullOrEmpty() || autoAddFixExpenseDate != currentMonth) {
+            // 알람설정이 한번도 실행된적 없거나, 이번달에 고정지출 자동추가를 진행한적이 없는 경우
+            // 매월 1일 고정지출 자동 추가 기능
+            AlarmUtil(this).setAutoAddFixExpense()
+            prefs.setAutoAddFixExpenseDate(currentMonth) // 이번달 고정지출 자동추가 설정 완료이기에 다시 실행되지 않도록 함
         }
 
     }
+
+    private fun getCurrentMonth(): String {
+        val currentCalendar = Calendar.getInstance()
+        val year = currentCalendar.get(Calendar.YEAR)
+        val month = (currentCalendar.get(Calendar.MONTH) + 1).let {
+            if (it < 10) {
+                "0$it"
+            } else {
+                it.toString()
+            }
+        }
+
+        return "$year-$month"
+    }
+
 
     fun testSet() {
         CoroutineScope(Dispatchers.IO).async {

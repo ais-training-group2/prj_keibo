@@ -6,17 +6,12 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import com.jp_ais_training.keibo.util.NotificationUtil
 import com.jp_ais_training.keibo.db.AppDatabase
 import com.jp_ais_training.keibo.db.DAO
 import com.jp_ais_training.keibo.receiver.AutoAddFixExpenseReceiver
 import com.jp_ais_training.keibo.receiver.ComparisonExpenseNotiReceiver
-import com.jp_ais_training.keibo.util.AlarmUtil
-import com.jp_ais_training.keibo.util.Const
-import com.jp_ais_training.keibo.util.PreferenceUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import com.jp_ais_training.keibo.util.*
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -46,13 +41,13 @@ open class KeiboApplication: Application() {
 
             // 정기 고정 지출 알림 생성
             notificationUtil.setFixExpenseNotification()
-
+            prefs.setIsRunningFixExpenseNoti(true)
             // 가계부 기입 요청 알림 생성
             notificationUtil.setKinyuNotification()
-
+            prefs.setIsRunningKinyuNoti(true)
             // 월말 지출 비교 알림 생성
             notificationUtil.setComparisonExpenseByMonthly()
-
+            prefs.setIsRunningComparisonExpenseNoti(true)
         }
 
         // format:YYYY-MM
@@ -66,7 +61,7 @@ open class KeiboApplication: Application() {
             AlarmUtil(this).setAutoAddFixExpense()
             prefs.setAutoAddFixExpenseDate(currentMonth) // 이번달 고정지출 자동추가 설정 완료이기에 다시 실행되지 않도록 함
         }
-
+        refreshKawaseRate()
     }
 
     private fun getCurrentMonth(): String {
@@ -83,6 +78,18 @@ open class KeiboApplication: Application() {
         return "$year-$month"
     }
 
+    private fun refreshKawaseRate() {
+        var currentKawaseRate: Float? = null
+        runBlocking {
+            withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                currentKawaseRate = KawaseUtil().getCurrentKawaseRate()
+            }
+            currentKawaseRate?.let {
+                Log.d(TAG, "currentKawaseRate: $currentKawaseRate")
+                prefs.setKawaseRate(it)
+            }
+        }
+    }
 
     fun testSet() {
         CoroutineScope(Dispatchers.IO).async {

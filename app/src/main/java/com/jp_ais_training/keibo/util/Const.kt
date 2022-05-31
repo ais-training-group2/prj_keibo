@@ -19,9 +19,7 @@ object Const {
     val IS_INIT_COMPARISON_NOTI = "isInitComparisonNoti"
     val NOTI_KEY = "Noti"
 
-    val FIX_EXPENSE_NOTI_KEY = "FixExpenseNoti"
-    val KINYU_NOTI_KEY = "KinyuNoti"
-    val COMPARISON_EXPENSE_NOTI_KEY = "ComparisonExpense"
+
 
     val FIX_EXPENSE_NOTI_CONTENT_TITLE = "定期固定支出通知"
     val FIX_EXPENSE_NOTI_CONTENT_TEXT_1 = "明日"
@@ -64,4 +62,11 @@ object Const {
 
     const val TARGET_DATE = "targetDate"
     const val TYPE = "type"
+
+    val PREF_TESTDATA_KEY = "Data"
+    val PREF_AUTOADDFIXEXPENSEDATE_KEY = "autoAddFixExpenseDate"
+    val PREF_KAWASERATE_KEY = "kawaseRate"
+    val PREF_FIX_EXPENSE_NOTI_KEY = "FixExpenseNoti"
+    val PREF_KINYU_NOTI_KEY = "KinyuNoti"
+    val PREF_COMPARISON_EXPENSE_NOTI_KEY = "ComparisonExpense"
 }

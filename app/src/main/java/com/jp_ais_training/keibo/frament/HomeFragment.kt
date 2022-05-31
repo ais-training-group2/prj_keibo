@@ -74,7 +74,7 @@ class HomeFragment : Fragment() {
         val calendar = paramCalendar.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")     // 년월일 날짜 포멧
-        val dateNum = calendar.getMaximum(Calendar.DAY_OF_MONTH)    // 당월의 마지막 날
+        val dateNum = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)    // 당월의 마지막 날
         val datePadding = calendar.get(Calendar.DAY_OF_WEEK)        // 당월 1일의 요일
         val yearMonthFormat = SimpleDateFormat("yyyy-MM")    // 년월 날짜 포멧
         val yearMonth = yearMonthFormat.format(calendar.time)

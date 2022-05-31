@@ -1,5 +1,9 @@
 package com.jp_ais_training.keibo.frament
 
+import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,6 +22,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.jp_ais_training.keibo.KeiboApplication
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentBarStatisticsBinding
+import com.jp_ais_training.keibo.dialog.YearPickerDialog
 import com.jp_ais_training.keibo.model.response.LoadSumEI
 import com.jp_ais_training.keibo.model.response.LoadSumII
 import kotlinx.coroutines.*
@@ -70,6 +75,28 @@ class BarStatisticsFragment : Fragment() {
             binding.dateYearBtn.text = "${year}年"
             dbDataSet()
         }
+
+        binding.dateYearBtn.setOnClickListener() {
+            showYearPickerDialog()
+        }
+
+    }
+
+    private fun showYearPickerDialog() {
+        val numberSetListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, dayOfMonth ->
+            val month = month + 1
+//            val date = makeDateString(dayOfMonth, month, year)
+//            binding.btnDatePicker.text = date
+        }
+
+        val style = AlertDialog.THEME_HOLO_LIGHT
+
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val numberPickerDialog = YearPickerDialog(requireContext())
+        numberPickerDialog.show()
     }
 
     private fun eiButton() {
@@ -197,3 +224,4 @@ class BarStatisticsFragment : Fragment() {
         }
     }
 }
+

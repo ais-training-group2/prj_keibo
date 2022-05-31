@@ -204,6 +204,67 @@
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toBottomOf="@+id/cl_comparison_noti"
+                app:layout_constraintBottom_toBottomOf="parent"
+                >
+
+                <Button
+                    android:id="@+id/btn_auto_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="毎月固定支出自動追加"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/btn_kinyu_noti"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
+                <Button
+                    android:id="@+id/btn_kinyu_noti"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="記入要請"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_auto_add"
+                    app:layout_constraintBottom_toTopOf="@+id/btn_comparison_noti"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
+                <Button
+                    android:id="@+id/btn_comparison_noti"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="支出比較"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_kinyu_noti"
+                    app:layout_constraintBottom_toTopOf="@+id/btn_fix_expense_noti"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
+                <Button
+                    android:id="@+id/btn_fix_expense_noti"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="固定支出通知"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_comparison_noti"
+                    app:layout_constraintBottom_toTopOf="@+id/btn_kawase"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
+
+                <Button
+                    android:id="@+id/btn_kawase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="為替レート確認"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_fix_expense_noti"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </FrameLayout>

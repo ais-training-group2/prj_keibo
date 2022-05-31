@@ -7,15 +7,14 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.KeiboApplication
 import kotlinx.coroutines.*
 import java.lang.Runnable
+import java.text.FieldPosition
 
 
 class CategoryDialog(private val activity: Activity) {
@@ -30,6 +29,171 @@ class CategoryDialog(private val activity: Activity) {
 
     fun setOnClickedListener(listener: ButtonClickListener) {
         onClickListener = listener
+    }
+
+    private fun displayAddCategoryDialog(
+        context: Context,
+        mainCgId: Int,
+        mainCgName: String,
+    ) {
+        ContextCompat.getMainExecutor(context).execute {
+
+            var inflater = LayoutInflater.from(context)
+
+            val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog_add_category, null)
+            val dialog = AlertDialog.Builder(context).create()
+            dialog.setCancelable(false)
+            dialog.setView(inflatedLayout)
+            inflatedLayout.findViewById<TextView>(R.id.mainCg_name).text = mainCgName
+            val edtSubCg: EditText = inflatedLayout.findViewById(R.id.edittext_sub_category)
+            val btnBack: Button = inflatedLayout.findViewById(R.id.btn_back)
+            val btnAdd: Button = inflatedLayout.findViewById(R.id.btn_add)
+            val txtMsg: TextView = inflatedLayout.findViewById(R.id.msg)
+
+            btnBack.setOnClickListener {
+                dialog.dismiss()
+                callSubCategory(mainCgId, mainCgName)
+            }
+            btnAdd.setOnClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    var checker = 0
+                    withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                        val listInt1 = app.db.checkSubCategory(
+                            mainCgId,
+                            edtSubCg.text.toString().lowercase()
+                        )
+                        val listInt2 = app.db.checkSubCategoryWithDeleted(
+                            mainCgId,
+                            edtSubCg.text.toString().lowercase()
+                        )
+                        if (listInt1.isNotEmpty())
+                            checker = 1
+
+                        if (checker == 0) {
+                            if (listInt2.isEmpty()) {
+                                app.db.insertSubCategory(
+                                    mainCgId,
+                                    edtSubCg.text.toString().lowercase()
+                                )
+                            } else {
+                                app.db.updateDeletedSubCategory(listInt2[0])
+                            }
+                        }
+
+                    }
+
+                    if (checker == 1) {
+                        txtMsg.visibility = View.VISIBLE
+                    } else {
+                        dialog.dismiss()
+                        callSubCategory(mainCgId, mainCgName)
+                    }
+                }
+            }
+            dialog.show()
+        }
+    }
+
+    private fun displayDeleteItemDialog(
+        context: Context,
+        title: String,
+        body: String,
+        id: Int,
+        type: Int,
+        position: Int
+    ) {
+        var inflater = LayoutInflater.from(context)
+
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog, null)
+        val dialog = AlertDialog.Builder(context).create()
+        dialog.setCancelable(false)
+        dialog.setView(inflatedLayout)
+        inflatedLayout.findViewById<TextView>(R.id.title).text = title
+        inflatedLayout.findViewById<TextView>(R.id.body).text = body
+        val buttonContainer = inflatedLayout.findViewById<LinearLayout>(R.id.buttonContainer)
+        var buttonRow: LinearLayout =
+            inflater.inflate(R.layout.custom_alert_dialog_button, null) as LinearLayout
+        buttonRow.gravity = Gravity.CENTER
+        var buttons = buttonRow.children as Sequence<Button>
+        buttons.elementAt(1).text = "Cancle"
+        buttons.elementAt(2).text = "OK"
+        buttons.elementAt(1).visibility = View.VISIBLE
+        buttons.elementAt(2).visibility = View.VISIBLE
+        buttons.elementAt(1).setOnClickListener {
+            dialog.dismiss()
+        }
+        buttons.elementAt(2).setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                    if (type == 0 || type == 1)
+                        app.db.deleteII(id)
+                    else
+                        app.db.deleteEI(id)
+
+                    onClickListener.onClicked(
+                        position,
+                        "",
+                        "delete"
+                    )
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        buttonContainer.addView(buttonRow, params)
+        dialog.show()
+    }
+
+
+    private fun displayDeleteCategoryDialog(
+        context: Context,
+        title: String,
+        body: String,
+        subCategoryId: Int,
+        main_category_id: Int,
+        main_category_name: String
+    ) {
+        var inflater = LayoutInflater.from(context)
+
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog, null)
+        val dialog = AlertDialog.Builder(context).create()
+        dialog.setCancelable(false)
+        dialog.setView(inflatedLayout)
+        inflatedLayout.findViewById<TextView>(R.id.title).text = title
+        inflatedLayout.findViewById<TextView>(R.id.body).text = body
+        val buttonContainer = inflatedLayout.findViewById<LinearLayout>(R.id.buttonContainer)
+        var buttonRow: LinearLayout =
+            inflater.inflate(R.layout.custom_alert_dialog_button, null) as LinearLayout
+        buttonRow.gravity = Gravity.CENTER
+        var buttons = buttonRow.children as Sequence<Button>
+        buttons.elementAt(1).text = "Cancle"
+        buttons.elementAt(2).text = "OK"
+        buttons.elementAt(1).visibility = View.VISIBLE
+        buttons.elementAt(2).visibility = View.VISIBLE
+        buttons.elementAt(1).setOnClickListener {
+            dialog.dismiss()
+        }
+        buttons.elementAt(2).setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                runBlocking {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        println("!!!!!!!!!!$subCategoryId")
+                        val subCategoryList = app.db.deleteSubCategory(subCategoryId)
+                    }.join()
+                    dialog.dismiss()
+                    callSubCategory(main_category_id, main_category_name)
+                }
+            }
+        }
+
+        buttonContainer.addView(buttonRow, params)
+        dialog.show()
     }
 
     private fun displayMainCategoryDialog(
@@ -47,6 +211,7 @@ class CategoryDialog(private val activity: Activity) {
             )
             val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog, null)
             val dialog = AlertDialog.Builder(context).create()
+            dialog.setCancelable(false)
             dialog.setView(inflatedLayout)
             inflatedLayout.findViewById<TextView>(R.id.title).text = title
             inflatedLayout.findViewById<TextView>(R.id.body).text = body
@@ -77,7 +242,10 @@ class CategoryDialog(private val activity: Activity) {
                             dialogActionListLimit3.elementAt(i).text,
                             "main"
                         )
-                        callSubCategory(dialogActionListLimit3.elementAt(i).id)
+                        callSubCategory(
+                            dialogActionListLimit3.elementAt(i).id,
+                            dialogActionListLimit3.elementAt(i).text
+                        )
                         dialog.dismiss()
                     })
                 }
@@ -92,6 +260,8 @@ class CategoryDialog(private val activity: Activity) {
         context: Context,
         title: String,
         body: String,
+        main_category_id: Int,
+        main_category_name: String,
         dialogActions: MutableList<DialogAction>
     ) {
         ContextCompat.getMainExecutor(context).execute {
@@ -103,6 +273,7 @@ class CategoryDialog(private val activity: Activity) {
             )
             val inflatedLayout = inflater.inflate(R.layout.custom_alert_dialog, null)
             val dialog = AlertDialog.Builder(context).create()
+            dialog.setCancelable(false)
             dialog.setView(inflatedLayout)
             inflatedLayout.findViewById<TextView>(R.id.title).text = title
             inflatedLayout.findViewById<TextView>(R.id.body).text = body
@@ -121,7 +292,6 @@ class CategoryDialog(private val activity: Activity) {
                     inflater.inflate(R.layout.custom_alert_dialog_button, null) as LinearLayout
                 buttonRow.gravity = Gravity.CENTER
                 var buttons = buttonRow.children as Sequence<Button>
-
                 //button.elementAt(i)
                 for (i in 0 until dialogActionListLimit3.size) {
                     buttons.elementAt(i).visibility = View.VISIBLE
@@ -135,15 +305,60 @@ class CategoryDialog(private val activity: Activity) {
                         )
                         dialog.dismiss()
                     })
+                    buttons.elementAt(i).setOnLongClickListener {
+                        displayDeleteCategoryDialog(
+                            context,
+                            "注意",
+                            buttons.elementAt(i).text.toString() + "カテゴリを削除しますか？",
+                            dialogActionListLimit3.elementAt(i).id,
+                            main_category_id,
+                            main_category_name
+                        )
+                        dialog.dismiss()
+                        return@setOnLongClickListener true
+                    }
                 }
-                buttonContainer.addView(buttonRow, params)
+                if (i == dialogActions.size / 3) {
+                    val onClickListener = View.OnClickListener {
+                        displayAddCategoryDialog(context, main_category_id, main_category_name)
+                        dialog.dismiss()
+                    }
+
+                    if (buttons.elementAt(2).visibility == View.VISIBLE) {
+                        buttonContainer.addView(buttonRow, params)
+                        buttons.elementAt(0).text = "+"
+                        buttons.elementAt(0).setOnClickListener(onClickListener)
+                        buttons.elementAt(1).visibility = View.INVISIBLE
+                        buttons.elementAt(2).visibility = View.INVISIBLE
+                        buttonContainer.addView(buttonRow, params)
+                    } else {
+                        if (buttons.elementAt(0).visibility == View.INVISIBLE) {
+                            buttons.elementAt(0).text = "+"
+                            buttons.elementAt(0).setOnClickListener(onClickListener)
+                            buttons.elementAt(0).visibility = View.VISIBLE
+                            buttonContainer.addView(buttonRow, params)
+                        } else if (buttons.elementAt(1).visibility == View.INVISIBLE) {
+                            buttons.elementAt(1).text = "+"
+                            buttons.elementAt(1).setOnClickListener(onClickListener)
+                            buttons.elementAt(1).visibility = View.VISIBLE
+                            buttonContainer.addView(buttonRow, params)
+                        } else if (buttons.elementAt(2).visibility == View.INVISIBLE) {
+                            buttons.elementAt(2).text = "+"
+                            buttons.elementAt(2).setOnClickListener(onClickListener)
+                            buttons.elementAt(2).visibility = View.VISIBLE
+                            buttonContainer.addView(buttonRow, params)
+                        }
+                    }
+                } else
+                    buttonContainer.addView(buttonRow, params)
             }
             dialog.show()
 
         }
     }
 
-    fun callSubCategory(main_category_id: Int) {
+
+    fun callSubCategory(main_category_id: Int, main_category_name: String) {
         val dialogActions = mutableListOf<DialogAction>()
         CoroutineScope(Dispatchers.IO).launch {
             runBlocking {
@@ -165,6 +380,8 @@ class CategoryDialog(private val activity: Activity) {
                     activity,
                     "サブカテゴリ",
                     "カテゴリの追加はプラスボタンを押してください",
+                    main_category_id,
+                    main_category_name,
                     dialogActions
                 )
             }
@@ -202,6 +419,10 @@ class CategoryDialog(private val activity: Activity) {
                 )
             }
         }
+    }
+
+    fun callDeleteItemDialog(id: Int, type: Int, position: Int) {
+        displayDeleteItemDialog(activity, "注意", "削除しますか？", id, type, position)
     }
 
 }

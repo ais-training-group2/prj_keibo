@@ -9,61 +9,58 @@ class PreferenceUtil(context: Context)
 
     fun setTestData()
     {
-        prefs.edit().putBoolean("Data", true).apply()
+        prefs.edit().putBoolean(Const.PREF_TESTDATA_KEY, true).apply()
     }
 
     fun getTestData(): Boolean
     {
-        return prefs.getBoolean("Data", false)
+        return prefs.getBoolean(Const.PREF_TESTDATA_KEY, false)
     }
 
     //----------------------------------------------------------------
 
-    fun setAlarm()
-    {
-        prefs.edit().putBoolean("Alarm", true).apply()
+
+    // 이번달 고정지출 자동 추가 확인 여부용 플래그 저장
+    fun setAutoAddFixExpenseDate(date: String) {
+        prefs.edit().putString(Const.PREF_AUTOADDFIXEXPENSEDATE_KEY, date).apply()
     }
 
-    fun getAlarm(): Boolean
-    {
-        return prefs.getBoolean("Alarm", false)
+    // 이번달 고정지출 자동 추가 확인 여부용 플래그 출력
+    fun getAutoAddFixExpenseDate(): String? {
+        return prefs.getString(Const.PREF_AUTOADDFIXEXPENSEDATE_KEY, "")
     }
 
-    //----------------------------------------------------------------
-
-    fun setAlarm1()
-    {
-        prefs.edit().putBoolean("Alarm1", true).apply()
+    fun setIsRunningFixExpenseNoti(isChecked: Boolean) {
+        prefs.edit().putBoolean(Const.PREF_FIX_EXPENSE_NOTI_KEY, isChecked).apply()
     }
 
-    fun getAlarm1(): Boolean
-    {
-        return prefs.getBoolean("Alarm1", false)
+    fun getIsRunningFixExpenseNoti() : Boolean {
+        return prefs.getBoolean(Const.PREF_FIX_EXPENSE_NOTI_KEY, false)
     }
 
-    //----------------------------------------------------------------
-
-    fun setAlarm2()
-    {
-        prefs.edit().putBoolean("Alarm2", true).apply()
+    fun setIsRunningKinyuNoti(isChecked: Boolean) {
+        prefs.edit().putBoolean(Const.PREF_KINYU_NOTI_KEY, isChecked).apply()
     }
 
-    fun getAlarm2(): Boolean
-    {
-        return prefs.getBoolean("Alarm2", false)
+    fun getIsRunningKinyuNoti() : Boolean {
+        return prefs.getBoolean(Const.PREF_KINYU_NOTI_KEY, false)
     }
 
-    //----------------------------------------------------------------
-
-    fun setAlarm3()
-    {
-        prefs.edit().putBoolean("Alarm3", true).apply()
+    fun setIsRunningComparisonExpenseNoti(isChecked: Boolean) {
+        prefs.edit().putBoolean(Const.PREF_COMPARISON_EXPENSE_NOTI_KEY, isChecked).apply()
     }
 
-    fun getAlarm3(): Boolean
-    {
-        return prefs.getBoolean("Alarm3", false)
+    fun getIsRunningComparisonExpenseNoti() : Boolean {
+        return prefs.getBoolean(Const.PREF_COMPARISON_EXPENSE_NOTI_KEY, false)
     }
 
+    // 환율 데이터 저장
+    fun setKawaseRate(currentKawaseRate: Float) {
+        prefs.edit().putFloat(Const.PREF_KAWASERATE_KEY, currentKawaseRate).apply()
+    }
+    // 환율 데이터 출력
+    fun getKawaseRate() : Float {
+        return prefs.getFloat(Const.PREF_KAWASERATE_KEY, 1000.0F)
+    }
 
 }

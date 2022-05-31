@@ -13,18 +13,22 @@ import com.jp_ais_training.keibo.activity.DetailActivity
 class CalendarAdapter(private val itemList: ArrayList<CalendarItem>, val context: Context?) :
     RecyclerView.Adapter<CalendarAdapter.ViewHolder>() {
     val TAG = "View Holder"
+
     // 캘린더 뷰에 작성될 홀더
     inner class ViewHolder(private val binding: CalendarItemBinding, val context: Context?) :
         RecyclerView.ViewHolder(binding.root) {
         init {
             // 아이템 클릭 리스너 작성
             binding.calendarItem.setOnClickListener {
-                Log.d(TAG, itemList[bindingAdapterPosition].date)
+                val item = itemList[bindingAdapterPosition]
+                if (item.index == 0) return@setOnClickListener
+
+                Log.d(TAG, item.date)
                 val intent = Intent(context, DetailActivity::class.java)
-                intent.putExtra(Const.TARGET_DATE,itemList[bindingAdapterPosition].date)
+                intent.putExtra(Const.TARGET_DATE, item.date)
                 context?.startActivity(intent)
             }
-            
+
         }
 
         // 뷰 바인딩

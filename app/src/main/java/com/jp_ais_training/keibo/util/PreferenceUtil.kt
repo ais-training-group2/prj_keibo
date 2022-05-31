@@ -60,7 +60,7 @@ class PreferenceUtil(context: Context)
     }
     // 환율 데이터 출력
     fun getKawaseRate() : Float {
-        return prefs.getFloat(Const.PREF_KAWASERATE_KEY, -1.0F)
+        return prefs.getFloat(Const.PREF_KAWASERATE_KEY, 1000.0F)
     }
 
 }

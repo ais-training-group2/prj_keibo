@@ -29,18 +29,20 @@ data class LoadSumMainCategoryEI(
 )
 
 data class ResponseItem(
-    @ColumnInfo(name = "id") val id: Int?,
-    @ColumnInfo(name = "sub_category_id") val sub_category_id: Int?,
-    @ColumnInfo(name = "main_category_name") val main_category_name: String?,
-    @ColumnInfo(name = "sub_category_name") val sub_category_name: String?,
-    @ColumnInfo(name = "name") val name: String?,
-    @ColumnInfo(name = "price") val price: Int?,
-    @ColumnInfo(name = "datetime") val datetime: String?
+    @ColumnInfo(name = "income_item_id") var income_item_id: Int?,
+    @ColumnInfo(name = "expense_item_id") var expense_item_id: Int?,
+    @ColumnInfo(name = "main_category_id") var main_category_id: Int?,
+    @ColumnInfo(name = "sub_category_id") var sub_category_id: Int?,
+    @ColumnInfo(name = "main_category_name") var main_category_name: String?,
+    @ColumnInfo(name = "sub_category_name") var sub_category_name: String?,
+    @ColumnInfo(name = "name") var name: String?,
+    @ColumnInfo(name = "price") var price: Int?,
+    @ColumnInfo(name = "datetime") var datetime: String?
 )
 
 data class ExpenseItemType(
     @ColumnInfo(name = "expense_item_id") val expense_item_id: Int?,
-    @ColumnInfo(name = "sub_category_id")val sub_category_id: Int?,
+    @ColumnInfo(name = "sub_category_id") val sub_category_id: Int?,
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "price") val price: Int?,
     @ColumnInfo(name = "datetime") val datetime: String?,

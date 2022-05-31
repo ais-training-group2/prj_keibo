@@ -3,6 +3,7 @@ package com.jp_ais_training.keibo.activity
 import DetailFragment
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -24,16 +25,21 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailBinding
     private lateinit var viewPagerAdapter: ViewPagerAdapter
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        //DB = AppDatabase.getInstance(this)!!
-
-        //testSet()
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -94,8 +100,8 @@ class DetailActivity : AppCompatActivity() {
 
             if (Period.between(lastDayOfMonth, targetDate).months == 0
                 && Period.between(lastDayOfMonth, targetDate).days == 0
-            ) println(Period.between(lastDayOfMonth, targetDate).months)
-            else {
+            ) {
+            } else {
 
                 targetDate = targetDate.plusDays(1)
                 binding.titleDate.text = targetDate.toString()
@@ -121,8 +127,6 @@ class DetailActivity : AppCompatActivity() {
 
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
-
             override fun onPageScrollStateChanged(state: Int) {
                 super.onPageScrollStateChanged(state)
             }
@@ -132,6 +136,12 @@ class DetailActivity : AppCompatActivity() {
                 super.onPageSelected(position)
             }
         })
+
+        binding.btnRate.setOnClickListener {
+            val detailFragment =
+                supportFragmentManager.fragments[0] as DetailFragment
+            detailFragment.changeRate()
+        }
     }
 
     private fun createFragment(targetDate: LocalDate?): Fragment {
@@ -141,7 +151,6 @@ class DetailActivity : AppCompatActivity() {
         fragment.arguments = bundle
         return fragment
     }
-
 
 
 }

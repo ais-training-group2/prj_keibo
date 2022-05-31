@@ -16,6 +16,13 @@ class DetailFragment() : Fragment() {
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
 
+    fun changeRate(){
+        val contentsFragmentsList =childFragmentManager.fragments as List<ContentsFragment>
+        contentsFragmentsList.forEach{contentsFragment ->
+            contentsFragment.changeRate()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val bundle = arguments
         if (bundle != null) {

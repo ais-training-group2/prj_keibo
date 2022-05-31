@@ -21,6 +21,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val TAG = this::class.java.simpleName.toString()
     private lateinit var app: KeiboApplication
+    private val currentCalendar = Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +33,8 @@ class HomeFragment : Fragment() {
         // 캘린더 레이아웃 작성
         val numberOfWeek = 7
         binding.homeCalendar.calendar.layoutManager = GridLayoutManager(context, numberOfWeek)
-        setCalendarLayout(Calendar.getInstance())
+        setCalendarLayout(currentCalendar)
+        setButtonListener(currentCalendar)
         return binding.root
     }
 
@@ -61,10 +63,11 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private fun setCalendarData(calendar: Calendar): ArrayList<CalendarItem> {
+    private fun setCalendarData(paramCalendar: Calendar): ArrayList<CalendarItem> {
         Log.d(TAG, "setCalendarData: start")
         // 기존 데이터 삭제
         val dataSet = ArrayList<CalendarItem>()
+        val calendar = paramCalendar.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")     // 년월일 날짜 포멧
         val dateNum = calendar.getMaximum(Calendar.DAY_OF_MONTH)    // 당월의 마지막 날
@@ -97,12 +100,11 @@ class HomeFragment : Fragment() {
             )
         }
         return dataSet
-        Log.d(TAG, "setCalendarData: end")
     }
 
     private fun setMonth(calendar: Calendar) {
         binding.homeCalendar.calendarMonth.text =
-            SimpleDateFormat("MM").format(calendar.time).toInt().toString() + "月"
+            (calendar.get(Calendar.MONTH) + 1).toString() + "月"
     }
 
     private fun setCalendar(itemDataList: ArrayList<CalendarItem>) {
@@ -118,4 +120,23 @@ class HomeFragment : Fragment() {
         var totalExpense: Int,
         var totalIncome: Int
     )
+
+    private fun setButtonListener(calendar: Calendar) {
+        binding.homeCalendar.homePreviousMonth.setOnClickListener {
+            calendar.add(Calendar.MONTH, -1)
+            Log.d(TAG, "setButtonListener: " + SimpleDateFormat("yyyy-MM").format(calendar.time))
+            setCalendarLayout(calendar)
+        }
+
+        binding.homeCalendar.homeNextMonth.setOnClickListener {
+            val currentCalendar = Calendar.getInstance()
+            if ((calendar.get(Calendar.YEAR) < currentCalendar.get(Calendar.YEAR))
+                || (calendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR)
+                        && calendar.get(Calendar.MONTH) < currentCalendar.get(Calendar.MONTH))
+            ) {
+                calendar.add(Calendar.MONTH, 1)
+                setCalendarLayout(calendar)
+            }
+        }
+    }
 }

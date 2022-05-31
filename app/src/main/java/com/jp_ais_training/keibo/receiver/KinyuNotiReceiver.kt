@@ -72,12 +72,13 @@ class KinyuNotiReceiver: BroadcastReceiver() {
                         .setContentTitle(contentTitle)
                         .setContentText(contentText)
                         .setAutoCancel(true)
+                        .setStyle(NotificationCompat.BigTextStyle())
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent)
 
                     val notificationManagerCompat = NotificationManagerCompat.from(context!!)
-                    notificationManagerCompat.notify(0, builder.build())
+                    notificationManagerCompat.notify(Const.KINYU_NOTIFICATION_ID, builder.build())
                 }
             }
         }

@@ -6,7 +6,6 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.jp_ais_training.keibo.db.AppDatabase
 import com.jp_ais_training.keibo.receiver.ComparisonExpenseNotiReceiver
@@ -181,11 +180,6 @@ class NotificationUtil(context: Context) : ContextWrapper(context) {
                     AlarmManager.RTC_WAKEUP,
                     alarmCalendar.timeInMillis,
                     pendingIntent
-                )
-
-                Log.e(
-                    TAG,
-                    "item.datetime: ${item.datetime}, itemDatetime: $year-$month-$day $hour:$minute:$second"
                 )
             }
         }

@@ -317,6 +317,8 @@ class ContentsFragment() : Fragment() {
                                         data.sub_category_name = holder.subCg.text.toString()
                                         data.name = holder.name.text.toString()
                                         data.price = price
+                                        holder.price.text = SpannableStringBuilder(price.toString())
+                                        holder.taxCheckBox.isChecked = true
                                     }
                                 }
                             }
@@ -462,7 +464,6 @@ class ContentsFragment() : Fragment() {
                         }
                     }
                 })
-
 
                 cardView.setBackgroundColor(Color.WHITE)
                 name.setBackgroundColor(Color.WHITE)

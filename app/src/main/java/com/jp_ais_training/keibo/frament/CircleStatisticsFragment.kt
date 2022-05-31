@@ -38,15 +38,15 @@ class CircleStatisticsFragment : Fragment() {
     private lateinit var app: KeiboApplication
 
     var mainCategoryName = ""
-    var mainSumBundle = ""
+    private var mainSumBundle = ""
 
     // 부모 리스트
-    val groupData: ArrayList<HashMap<String, String?>> = ArrayList()
+    private val groupData: ArrayList<HashMap<String, String?>> = ArrayList()
     // 자식 리스트
-    val childData: ArrayList<ArrayList<HashMap<String, String?>>> = ArrayList()
+    private val childData: ArrayList<ArrayList<HashMap<String, String?>>> = ArrayList()
 
     //중복 클릭 처리 변수
-    private var mLaskClickTime: Long = 0
+    private var mLastClickTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,10 +85,10 @@ class CircleStatisticsFragment : Fragment() {
         //전달 통계 표시 버튼
         binding.naviSengetsuBtn.setOnClickListener(){
             //중복 클릭 방지 처리 (2.5초)
-            if(SystemClock.elapsedRealtime() - mLaskClickTime<2500){
+            if(SystemClock.elapsedRealtime() - mLastClickTime<2500){
                 return@setOnClickListener
             }
-            mLaskClickTime = SystemClock.elapsedRealtime()
+            mLastClickTime = SystemClock.elapsedRealtime()
             clearPieChart()
             moveLastMonth()
 
@@ -102,11 +102,10 @@ class CircleStatisticsFragment : Fragment() {
         //다음달 통계 표시 버튼 -> dateStandard = 0이 될 경우 Invisible 처리
         binding.naviYokugetsuBtn.setOnClickListener(){
             //중복 클릭 방지 처리 (2.5초)
-            if(SystemClock.elapsedRealtime() - mLaskClickTime<2500){
+            if(SystemClock.elapsedRealtime() - mLastClickTime<2500){
                 return@setOnClickListener
             }
-            mLaskClickTime = SystemClock.elapsedRealtime()
-            var mainCategoryName = ""
+            mLastClickTime = SystemClock.elapsedRealtime()
             clearPieChart()
             moveNextMonth()
 
@@ -150,7 +149,7 @@ class CircleStatisticsFragment : Fragment() {
     }
 
     //원그래프 항목 추가
-    suspend fun setPieChartItem(setPieItem: String) {
+    private fun setPieChartItem(setPieItem: String) {
         val arr = setPieItem.split(",")
         val arr2 = mainCategoryName.split(",")
         if(arr.isNotEmpty()){
@@ -158,7 +157,6 @@ class CircleStatisticsFragment : Fragment() {
                 yValues.add(PieEntry(arr[i].toFloat(), arr2[i]))
             }
         }
-        delay(300L)
     }
 
     //원그래프 데이터 세팅
@@ -229,6 +227,7 @@ class CircleStatisticsFragment : Fragment() {
                     "食費,","生活,","余暇,",
                     "文化,","自己開発,","その他,"
                 )
+
                 //메인 카테고리명 취득
                 for(i in 0..8){
                     if(str_data.contains(nameSet1[i])){

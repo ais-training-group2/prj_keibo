@@ -61,6 +61,7 @@ open class KeiboApplication: Application() {
             AlarmUtil(this).setAutoAddFixExpense()
             prefs.setAutoAddFixExpenseDate(currentMonth) // 이번달 고정지출 자동추가 설정 완료이기에 다시 실행되지 않도록 함
         }
+
         refreshKawaseRate()
     }
 

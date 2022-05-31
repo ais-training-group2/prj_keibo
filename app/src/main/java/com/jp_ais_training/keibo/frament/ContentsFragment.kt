@@ -49,6 +49,11 @@ class ContentsFragment() : Fragment() {
     private var _binding: FragmentContentsBinding? = null
     private val binding get() = _binding!!
 
+    fun changeRate() {
+        val adapter = binding.recyclerContentsView.adapter as SimpleAdapter
+        adapter.toggle()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         app = requireActivity().application as KeiboApplication
 
@@ -131,15 +136,20 @@ class ContentsFragment() : Fragment() {
     ) : RecyclerView.Adapter<SimpleAdapter.ViewHolder>() {
 
         private var selectedItem = UNSELECTED
+        private var _itemBinding : RecyclerContentsItemBinding? = null
+        private val itemBinding get() = _itemBinding!!
+
+        fun toggle() {
+            
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val itemBinding = RecyclerContentsItemBinding.inflate(
+            _itemBinding = RecyclerContentsItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
             )
             return ViewHolder(itemBinding)
-
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -204,7 +214,8 @@ class ContentsFragment() : Fragment() {
                     // 널체크
                     if (nullChecker(holder)) {
                         holder.msgNull.visibility = View.GONE
-                        val position = holder.cardView.tag as Int
+                        val position = selectedItem
+                        println("position $position , selectedItem $selectedItem, adapterPosition $bindingAdapterPosition")
                         val taxFlag = holder.taxCheckBox.isChecked
                         val tempPrice =
                             holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
@@ -466,11 +477,9 @@ class ContentsFragment() : Fragment() {
                 taxCheckBox.buttonTintList = ColorStateList.valueOf(parentColor)
 
                 cardView.isSelected = isSelected
-                cardView.tag = position
-
 
                 cardView.setOnLongClickListener {
-                    val position = cardView.tag.toString().toInt()
+                    val position = bindingAdapterPosition
                     if (type == 0 || type == 1) {
                         categoryDialog.callDeleteItemDialog(
                             dataList[position].income_item_id!!,
@@ -512,6 +521,10 @@ class ContentsFragment() : Fragment() {
 
 
                 setActivationItem(false)
+            }
+
+            fun reWritePrice(){
+                println(price.text)
             }
 
             fun closeKeyBoard() {

@@ -126,12 +126,21 @@ class CategoryDialog(private val activity: Activity) {
             dialog.dismiss()
         }
         buttons.elementAt(2).setOnClickListener {
-            onClickListener.onClicked(
-                position,
-                "",
-                "delete"
-            )
-            dialog.dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                    if (type == 0 || type == 1)
+                        app.db.deleteII(id)
+                    else
+                        app.db.deleteEI(id)
+
+                    onClickListener.onClicked(
+                        position,
+                        "",
+                        "delete"
+                    )
+                    dialog.dismiss()
+                }
+            }
         }
 
         buttonContainer.addView(buttonRow, params)
@@ -412,8 +421,8 @@ class CategoryDialog(private val activity: Activity) {
         }
     }
 
-    fun callDeleteItemDialog(id: Int,type: Int,position: Int) {
-        displayDeleteItemDialog(activity, "注意", "削除しますか？",id,type,position)
+    fun callDeleteItemDialog(id: Int, type: Int, position: Int) {
+        displayDeleteItemDialog(activity, "注意", "削除しますか？", id, type, position)
     }
 
 }

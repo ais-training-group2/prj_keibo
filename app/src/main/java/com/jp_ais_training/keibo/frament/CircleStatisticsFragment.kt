@@ -3,7 +3,7 @@ package com.jp_ais_training.keibo.frament
 import android.R
 import android.graphics.Color
 import android.os.Bundle
-import android.os.SystemClock
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +27,7 @@ class CircleStatisticsFragment : Fragment() {
     private val binding get() = mBinding!!
 
     //원그래프 선언
-    private var pieChart: PieChart?= null
+    private lateinit var pieChart: PieChart
     //원그래프 항목
     private var yValues = ArrayList<PieEntry>()
     //월별 이동 처리 기준
@@ -37,6 +37,10 @@ class CircleStatisticsFragment : Fragment() {
     //DB 선언
     private lateinit var app: KeiboApplication
 
+    //DB 데이터 처리 코루틴
+    private var job: Job = Job()
+
+    //문자열 취득용 변수
     var mainCategoryName = ""
     private var mainSumBundle = ""
 
@@ -44,9 +48,6 @@ class CircleStatisticsFragment : Fragment() {
     private val groupData: ArrayList<HashMap<String, String?>> = ArrayList()
     // 자식 리스트
     private val childData: ArrayList<ArrayList<HashMap<String, String?>>> = ArrayList()
-
-    //중복 클릭 처리 변수
-    private var mLastClickTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,11 +85,9 @@ class CircleStatisticsFragment : Fragment() {
         //버튼 클릭 이벤트 -----------------------------------------------------------------------------------------
         //전달 통계 표시 버튼
         binding.naviSengetsuBtn.setOnClickListener(){
-            //중복 클릭 방지 처리 (2.5초)
-            if(SystemClock.elapsedRealtime() - mLastClickTime<2500){
-                return@setOnClickListener
-            }
-            mLastClickTime = SystemClock.elapsedRealtime()
+            //실행중인 코루틴 취소
+            job.cancel()
+
             clearPieChart()
             moveLastMonth()
 
@@ -101,15 +100,11 @@ class CircleStatisticsFragment : Fragment() {
         }
         //다음달 통계 표시 버튼 -> dateStandard = 0이 될 경우 Invisible 처리
         binding.naviYokugetsuBtn.setOnClickListener(){
-            //중복 클릭 방지 처리 (2.5초)
-            if(SystemClock.elapsedRealtime() - mLastClickTime<2500){
-                return@setOnClickListener
-            }
-            mLastClickTime = SystemClock.elapsedRealtime()
+            //실행중인 코루틴 취소
+            job.cancel()
+
             clearPieChart()
             moveNextMonth()
-
-
 
             //다음달 기간 표시
             cal.add(Calendar.MONTH, 1)
@@ -128,9 +123,9 @@ class CircleStatisticsFragment : Fragment() {
             }
         }
 
+        //확장리스트 세팅
         setParent()
-        setChild1()
-        setChild2()
+        setChild()
         setExListAdapter()
 
         return binding.root
@@ -138,25 +133,25 @@ class CircleStatisticsFragment : Fragment() {
 
     //원그래프 옵션 설정
     private fun setPieChartOption(){
-        pieChart!!.setUsePercentValues(true)
-        pieChart!!.description!!.isEnabled = false
-        pieChart!!.setExtraOffsets(5f, 10f, 5f, 5f)
-        pieChart!!.dragDecelerationFrictionCoef = 0.95f
-        pieChart!!.setEntryLabelTextSize(0f)
-        pieChart!!.isDrawHoleEnabled = false
-        pieChart!!.setHoleColor(Color.WHITE)
-        pieChart!!.transparentCircleRadius = 61f
-        pieChart!!.legend!!.isEnabled = true //하단 색항목 리스트
-        pieChart!!.animateXY(1000, 1000) //초기 애니메이션 설정
+        pieChart.setUsePercentValues(true)
+        pieChart.description.isEnabled = false
+        pieChart.setExtraOffsets(5f, 10f, 5f, 5f)
+        pieChart.dragDecelerationFrictionCoef = 0.95f
+        pieChart.setEntryLabelTextSize(0f)
+        pieChart.isDrawHoleEnabled = false
+        pieChart.setHoleColor(Color.WHITE)
+        pieChart.transparentCircleRadius = 61f
+        pieChart.legend.isEnabled = true //하단 색항목 리스트
+        pieChart.animateXY(1000, 1000) //초기 애니메이션 설정
     }
 
     //원그래프 항목 추가
     private fun setPieChartItem(setPieItem: String) {
-        val arr = setPieItem.split(",")
-        val arr2 = mainCategoryName.split(",")
-        if(arr.isNotEmpty()){
-            for (i in 0 until arr.size-1){
-                yValues.add(PieEntry(arr[i].toFloat(), arr2[i]))
+        val arrPrice = setPieItem.split(",")
+        val arrName = mainCategoryName.split(",")
+        if(arrPrice.isNotEmpty()){
+            for (i in 0 until arrPrice.size-1){
+                yValues.add(PieEntry(arrPrice[i].toFloat(), arrName[i]))
             }
         }
     }
@@ -172,14 +167,14 @@ class CircleStatisticsFragment : Fragment() {
         data.setValueTextSize(10f);
         data.setValueTextColor(Color.WHITE);
 
-        pieChart?.data = data
+        pieChart.data = data
     }
 
     //원그래프 데이터 초기화
     private fun clearPieChart(){
         yValues.clear()
-        pieChart!!.invalidate()
-        pieChart!!.clear()
+        pieChart.invalidate()
+        pieChart.clear()
     }
 
     //전달 이동
@@ -207,24 +202,24 @@ class CircleStatisticsFragment : Fragment() {
     //메인 카테고리 기준 DB 결과 값 가격 추출  <--  "yyyy-mm"형식 날짜, 메인 카테고리 번호 입력
     private fun pickOutMainPrice(setDate: String){
         //DB에서 데이터 가져오기
-        CoroutineScope(Dispatchers.Main).launch{
+        job = CoroutineScope(Dispatchers.Main).launch{
             //원그래프 옵션 설정
             setPieChartOption()
             withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                var sumTest1 = app.db.loadMonthSumMainCategoryEI(setDate)
+                var getSumMainCategory = app.db.loadMonthSumMainCategoryEI(setDate)
                 //println(app.db.loadMonthSumSubCategoryEI(setDate))
 
                 //초기 string 변수 선언
-                var str_data = sumTest1.toString()
+                var str_data = getSumMainCategory.toString()
                 //공백 제거
                 str_data = str_data.replace(" ", "")
 
-                val nameSet1 = arrayOf(
+                val nameSetOfDBData = arrayOf(
                     "公課金,main_id=1,type=fix","生活,main_id=2,type=fix","その他,main_id=3,type=fix",
                     "食費,main_id=4,type=flex","生活,main_id=5,type=flex","余暇,main_id=6,type=flex",
                     "文化,main_id=7,type=flex","自己開発,main_id=8,type=flex","その他,main_id=9,type=flex"
                 )
-                val nameSet2 = arrayOf(
+                val nameSetMainCategory = arrayOf(
                     "公課金,","生活,","その他,",
                     "食費,","生活,","余暇,",
                     "文化,","自己開発,","その他,"
@@ -232,8 +227,8 @@ class CircleStatisticsFragment : Fragment() {
 
                 //메인 카테고리명 취득
                 for(i in 0..8){
-                    if(str_data.contains(nameSet1[i])){
-                        mainCategoryName = mainCategoryName.plus(nameSet2[i])
+                    if(str_data.contains(nameSetOfDBData[i])){
+                        mainCategoryName = mainCategoryName.plus(nameSetMainCategory[i])
                     }
                 }
 
@@ -261,8 +256,8 @@ class CircleStatisticsFragment : Fragment() {
     }
 
     //확장리스트 -----------------------------------------------------------------------------------
+    //ExpandableListView 부모리스트 설정
     private fun setParent(){
-        // 부모 리스트에 요소를 추가
         val groupA: HashMap<String, String?> = HashMap()
         groupA["group"] = "1"
         val groupB: HashMap<String, String?> = HashMap()
@@ -270,10 +265,15 @@ class CircleStatisticsFragment : Fragment() {
 
         groupData.add(groupA)
         groupData.add(groupB)
+        /*확장리스트 테스트
+        println("groupA : $groupA")
+        println("groupB : $groupB")
+        println("groupData : $groupData")
+         */
     }
 
-    private fun setChild1(){
-        // 자식 리스트에 요소를 추가
+    //ExpandableListView 자식리스트 설정
+    private fun setChild(){
         val childListA: ArrayList<HashMap<String, String?>> = ArrayList()
 
         val childAA: HashMap<String, String?> = HashMap()
@@ -292,32 +292,16 @@ class CircleStatisticsFragment : Fragment() {
         childListA.add(childAC)
 
         childData.add(childListA)
+
+        /*확장리스트 테스트
+        println("childAA : $childAA")
+        println("childListA : $childListA")
+        println("childData : $childData")
+         */
     }
 
-    private fun setChild2(){
-        // 자식 리스트에 요소를 추가
-        val childListB: ArrayList<HashMap<String, String?>> = ArrayList()
-
-        val childBA: HashMap<String, String?> = HashMap()
-        childBA["group"] = "2"
-        childBA["name"] = "a"
-        childListB.add(childBA)
-
-        val childBB: HashMap<String, String?> = HashMap()
-        childBB["group"] = "2"
-        childBB["name"] = "b"
-        childListB.add(childBB)
-
-        val childBC: HashMap<String, String?> = HashMap()
-        childBC["group"] = "2"
-        childBC["name"] = "c"
-        childListB.add(childBC)
-
-        childData.add(childListB)
-    }
-
+    //ExpandableListView 어댑터 설정
     private fun setExListAdapter(){
-        // 부모 리스트와 자식 리스트를 포함한 어댑터 생성
         val adapter = SimpleExpandableListAdapter(
             context,
             groupData,
@@ -330,7 +314,7 @@ class CircleStatisticsFragment : Fragment() {
             intArrayOf(R.id.text1, R.id.text2)
         )
 
-        // ExpandableListView에 Adapter를 설정
+        //확장리스트 어댑터 설정
         val listView = binding.circleExV
         listView.setAdapter(adapter)
     }
@@ -341,6 +325,7 @@ class CircleStatisticsFragment : Fragment() {
         //원그래프 데이터 초기화
         clearPieChart()
 
+        //확장리스트 데이터 초기화
         groupData.clear()
         childData.clear()
         binding.circleExV.invalidate()

@@ -31,6 +31,7 @@ import com.jp_ais_training.keibo.dialog.CategoryDialog
 import com.jp_ais_training.keibo.model.entity.ExpenseItem
 import com.jp_ais_training.keibo.model.entity.IncomeItem
 import com.jp_ais_training.keibo.model.response.ResponseItem
+import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ticker
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -49,9 +50,9 @@ class ContentsFragment() : Fragment() {
     private var _binding: FragmentContentsBinding? = null
     private val binding get() = _binding!!
 
-    fun changeRate() {
+    fun changeRate(flag: Boolean) {
         val adapter = binding.recyclerContentsView.adapter as SimpleAdapter
-        adapter.toggle()
+        adapter.toggle(flag)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,11 +139,21 @@ class ContentsFragment() : Fragment() {
         private var selectedItem = UNSELECTED
         private var _itemBinding: RecyclerContentsItemBinding? = null
         private val itemBinding get() = _itemBinding!!
+        private var isJPY = true
 
-        fun toggle() {
-            val rate = 9.875
-            dataList.forEach { data ->
-                data.price = data.price?.times(rate.toInt())
+
+        fun toggle(flag: Boolean) {
+            val rate = (PreferenceUtil(ctx).getKawaseRate().div(100.0)).toInt()
+            if (flag) {
+                dataList.forEach { data ->
+                    data.price = data.price?.times(rate)
+                    isJPY = false
+                }
+            } else {
+                dataList.forEach { data ->
+                    data.price = data.price?.times(1.div(rate.toFloat()))?.toInt()
+                    isJPY = true
+                }
             }
             this.notifyDataSetChanged()
         }
@@ -209,139 +220,151 @@ class ContentsFragment() : Fragment() {
             private val categoryDialog: CategoryDialog
 
             override fun onClick(v: View?) {
-                val holder =
-                    recyclerView.findViewHolderForAdapterPosition(selectedItem) as ViewHolder?
+                if (isJPY) {
+                    val holder =
+                        recyclerView.findViewHolderForAdapterPosition(selectedItem) as ViewHolder?
 
-                if (holder != null) {
-                    println("holder")
-                    deActivationItem(holder)
-                    // 널체크
-                    if (nullChecker(holder)) {
-                        holder.msgNull.visibility = View.GONE
-                        val position = selectedItem
-                        println("position $position , selectedItem $selectedItem, adapterPosition $bindingAdapterPosition")
-                        val taxFlag = holder.taxCheckBox.isChecked
-                        val tempPrice =
-                            holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
-                                .toInt()
-                        var price = if (taxFlag)
-                            tempPrice
-                        else
-                            (tempPrice * 1.1).toInt()
-                        var strType = ""
-                        when (type) {
-                            0 -> strType = "fix"
-                            1 -> strType = "flex"
-                            2 -> strType = "fix"
-                            3 -> strType = "flex"
-                        }
-                        //마지막 아이템인가?
-                        if (position == dataList.size) {
-                            println("Insert" + holder.name.text)
-                            CoroutineScope(Dispatchers.Main).launch {
-                                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                                    if (type == 0 || type == 1) {
-                                        val id = app.db.loadIILastId()
-                                        val item = IncomeItem(
-                                            id + 1, strType, holder.name.text.toString(),
-                                            price,
-                                            targetDate
-                                        )
-                                        app.db.insertII(item)
-                                        addItem(
-                                            ResponseItem(
-                                                item.income_item_id, null, null, null, null, null,
-                                                item.name, item.price, item.datetime
-                                            ), position
-                                        )
-                                    } else {
-                                        val id = app.db.loadEILastId()
-                                        val item = ExpenseItem(
-                                            id + 1,
-                                            holder.subCg.tag.toString().toInt(),
-                                            holder.name.text.toString(),
-                                            price,
-                                            targetDate
-                                        )
-                                        app.db.insertEI(item)
-                                        addItem(
-                                            ResponseItem(
-                                                null,
-                                                item.expense_item_id,
-                                                holder.mainCg.tag.toString().toInt(),
+                    if (holder != null) {
+                        println("holder")
+                        deActivationItem(holder)
+                        // 널체크
+                        if (nullChecker(holder)) {
+                            holder.msgNull.visibility = View.GONE
+                            val position = selectedItem
+                            println("position $position , selectedItem $selectedItem, adapterPosition $bindingAdapterPosition")
+                            val taxFlag = holder.taxCheckBox.isChecked
+                            val tempPrice =
+                                holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
+                                    .toInt()
+                            var price = if (taxFlag)
+                                tempPrice
+                            else
+                                (tempPrice * 1.1).toInt()
+                            var strType = ""
+                            when (type) {
+                                0 -> strType = "fix"
+                                1 -> strType = "flex"
+                                2 -> strType = "fix"
+                                3 -> strType = "flex"
+                            }
+                            //마지막 아이템인가?
+                            if (position == dataList.size) {
+                                println("Insert" + holder.name.text)
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                                        if (type == 0 || type == 1) {
+                                            val id = app.db.loadIILastId()
+                                            val item = IncomeItem(
+                                                id + 1, strType, holder.name.text.toString(),
+                                                price,
+                                                targetDate
+                                            )
+                                            app.db.insertII(item)
+                                            addItem(
+                                                ResponseItem(
+                                                    item.income_item_id,
+                                                    null,
+                                                    null,
+                                                    null,
+                                                    null,
+                                                    null,
+                                                    item.name,
+                                                    item.price,
+                                                    item.datetime
+                                                ), position
+                                            )
+                                        } else {
+                                            val id = app.db.loadEILastId()
+                                            val item = ExpenseItem(
+                                                id + 1,
                                                 holder.subCg.tag.toString().toInt(),
-                                                holder.mainCg.text.toString(),
-                                                holder.subCg.text.toString(),
-                                                item.name,
-                                                item.price,
-                                                item.datetime
-                                            ), position
-                                        )
+                                                holder.name.text.toString(),
+                                                price,
+                                                targetDate
+                                            )
+                                            app.db.insertEI(item)
+                                            addItem(
+                                                ResponseItem(
+                                                    null,
+                                                    item.expense_item_id,
+                                                    holder.mainCg.tag.toString().toInt(),
+                                                    holder.subCg.tag.toString().toInt(),
+                                                    holder.mainCg.text.toString(),
+                                                    holder.subCg.text.toString(),
+                                                    item.name,
+                                                    item.price,
+                                                    item.datetime
+                                                ), position
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                CoroutineScope(Dispatchers.IO).async {
+                                    //기존 데이터에서 변화된 값 체크
+                                    if (dataCompare(holder, position)) {
+                                        println("Update" + type)
+                                        if (type == 0 || type == 1) {
+                                            println("Update Check1")
+                                            val item = IncomeItem(
+                                                dataList.elementAt(position).income_item_id!!,
+                                                strType,
+                                                holder.name.text.toString(),
+                                                price,
+                                                targetDate
+                                            )
+                                            app.db.updateII(item)
+                                            val data = dataList.elementAt(position)
+                                            data.income_item_id = item.income_item_id
+                                            data.name = holder.name.text.toString()
+                                            data.price = price
+                                        } else {
+                                            println("Update Check" + dataList.size)
+                                            val item = ExpenseItem(
+                                                dataList.elementAt(position).expense_item_id!!,
+                                                holder.subCg.tag.toString().toInt(),
+                                                holder.name.text.toString(),
+                                                price,
+                                                targetDate
+                                            )
+                                            app.db.updateEI(item)
+                                            val data = dataList.elementAt(position)
+                                            data.expense_item_id = item.expense_item_id
+                                            data.main_category_id =
+                                                holder.mainCg.tag.toString().toInt()
+                                            data.sub_category_id =
+                                                holder.subCg.tag.toString().toInt()
+                                            data.main_category_name = holder.mainCg.text.toString()
+                                            data.sub_category_name = holder.subCg.text.toString()
+                                            data.name = holder.name.text.toString()
+                                            data.price = price
+                                            holder.price.text =
+                                                SpannableStringBuilder(price.toString())
+                                            holder.taxCheckBox.isChecked = true
+                                        }
                                     }
                                 }
                             }
                         } else {
-                            CoroutineScope(Dispatchers.IO).async {
-                                //기존 데이터에서 변화된 값 체크
-                                if (dataCompare(holder, position)) {
-                                    println("Update" + type)
-                                    if (type == 0 || type == 1) {
-                                        println("Update Check1")
-                                        val item = IncomeItem(
-                                            dataList.elementAt(position).income_item_id!!,
-                                            strType,
-                                            holder.name.text.toString(),
-                                            price,
-                                            targetDate
-                                        )
-                                        app.db.updateII(item)
-                                        val data = dataList.elementAt(position)
-                                        data.income_item_id = item.income_item_id
-                                        data.name = holder.name.text.toString()
-                                        data.price = price
-                                    } else {
-                                        println("Update Check" + dataList.size)
-                                        val item = ExpenseItem(
-                                            dataList.elementAt(position).expense_item_id!!,
-                                            holder.subCg.tag.toString().toInt(),
-                                            holder.name.text.toString(),
-                                            price,
-                                            targetDate
-                                        )
-                                        app.db.updateEI(item)
-                                        val data = dataList.elementAt(position)
-                                        data.expense_item_id = item.expense_item_id
-                                        data.main_category_id = holder.mainCg.tag.toString().toInt()
-                                        data.sub_category_id = holder.subCg.tag.toString().toInt()
-                                        data.main_category_name = holder.mainCg.text.toString()
-                                        data.sub_category_name = holder.subCg.text.toString()
-                                        data.name = holder.name.text.toString()
-                                        data.price = price
-                                        holder.price.text = SpannableStringBuilder(price.toString())
-                                        holder.taxCheckBox.isChecked = true
-                                    }
-                                }
-                            }
+                            holder.msgNull.visibility = View.VISIBLE
                         }
-                    } else {
-                        holder.msgNull.visibility = View.VISIBLE
                     }
-                }
 
-                val position = bindingAdapterPosition
-                if (position == selectedItem) {
-                    println("DeActive")
-                    setActivationItem(false)
+                    val position = bindingAdapterPosition
+                    if (position == selectedItem) {
+                        println("DeActive")
+                        setActivationItem(false)
 
-                    selectedItem = UNSELECTED
+                        selectedItem = UNSELECTED
 
-                } else {
-                    println("Active")
-                    setActivationItem(true)
+                    } else {
+                        println("Active")
+                        setActivationItem(true)
 
-                    selectedItem = position
-                }
-
+                        selectedItem = position
+                    }
+                } else
+                    Toast.makeText(ctx, "₩表示の時にはデータの変更はできません。", Toast.LENGTH_LONG).show()
 
             }
 
@@ -356,15 +379,19 @@ class ContentsFragment() : Fragment() {
                 if (dataList.size != position) {
                     name.text = SpannableStringBuilder(dataList[position].name)
                     if (type == 0 || type == 1) {
-                        val fPrice =
-                            DecimalFormat("+#,###,###.#").format(dataList[position].price)
+                        val fPrice = if (isJPY)
+                            DecimalFormat("+#,###,###.#円").format(dataList[position].price)
+                        else
+                            DecimalFormat("+#,###,###.#₩").format(dataList[position].price)
                         price.text = SpannableStringBuilder(fPrice)
                         price.setTextColor(Color.BLUE)
                         topLayout.visibility = View.GONE
                         taxLayout.visibility = View.INVISIBLE
                     } else {
-                        val fPrice =
-                            DecimalFormat("-#,###,###.#").format(dataList[position].price)
+                        val fPrice = if (isJPY)
+                            DecimalFormat("-#,###,###.#円").format(dataList[position].price)
+                        else
+                            DecimalFormat("-#,###,###.#₩").format(dataList[position].price)
                         price.text = SpannableStringBuilder(fPrice)
                         price.setTextColor(Color.RED)
 
@@ -423,13 +450,23 @@ class ContentsFragment() : Fragment() {
                             price.text = SpannableStringBuilder(fPrice)
                         } else {
                             val fPrice = if (type == 0 || type == 1) {
-                                DecimalFormat("+#,###,###.#").format(
-                                    price.text.toString().toInt()
-                                )
+                                if (isJPY)
+                                    DecimalFormat("+#,###,###.#円").format(
+                                        price.text.toString().toInt()
+                                    )
+                                else
+                                    DecimalFormat("+#,###,###.#₩").format(
+                                        price.text.toString().toInt()
+                                    )
                             } else {
-                                DecimalFormat("-#,###,###.#").format(
-                                    price.text.toString().toInt()
-                                )
+                                if (isJPY)
+                                    DecimalFormat("-#,###,###.#円").format(
+                                        price.text.toString().toInt()
+                                    )
+                                else
+                                    DecimalFormat("-#,###,###.#₩").format(
+                                        price.text.toString().toInt()
+                                    )
                             }
                             price.text = SpannableStringBuilder(fPrice)
                             price.clearFocus()

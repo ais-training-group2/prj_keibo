@@ -53,20 +53,20 @@
                                 android:orientation="horizontal">
 
                                 <ImageButton
-                                    android:id="@+id/DateLeft"
+                                    android:id="@+id/date_left_btn"
                                     android:layout_width="48dp"
                                     android:layout_height="match_parent"
                                     android:background="@drawable/navi1_foreground" />
 
                                 <Button
-                                    android:id="@+id/Date"
+                                    android:id="@+id/date_year_btn"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="2022"
                                     android:textColor="	#FFFFFF" />
 
                                 <ImageButton
-                                    android:id="@+id/DateRight"
+                                    android:id="@+id/date_right_btn"
                                     android:layout_width="48dp"
                                     android:layout_height="match_parent"
                                     android:background="@drawable/navi2_foreground" />
@@ -87,7 +87,7 @@
                                 android:orientation="horizontal">
 
                                 <Button
-                                    android:id="@+id/button19"
+                                    android:id="@+id/ei_button"
                                     android:layout_width="70dp"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
@@ -95,7 +95,7 @@
                                     android:textColor="	#FFFFFF" />
 
                                 <Button
-                                    android:id="@+id/button20"
+                                    android:id="@+id/ii_button"
                                     android:layout_width="70dp"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"

@@ -116,7 +116,7 @@ open class KeiboApplication: Application() {
                     type = "fix"
                 }
                 db.insertII(
-                    type, "test" + i.toString(), 100,
+                    type, "test" + i.toString(), 50,
                     "2022-0" + month.toString() + "-" + dayF.toString() + dayN.toString()
                 )
 

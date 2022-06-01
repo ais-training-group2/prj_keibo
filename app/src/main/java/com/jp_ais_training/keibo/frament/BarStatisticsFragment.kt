@@ -1,5 +1,9 @@
 package com.jp_ais_training.keibo.frament
 
+import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,14 +22,23 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.jp_ais_training.keibo.KeiboApplication
 import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.databinding.FragmentBarStatisticsBinding
+import com.jp_ais_training.keibo.dialog.YearPickerDialog
 import com.jp_ais_training.keibo.model.response.LoadSumEI
+import com.jp_ais_training.keibo.model.response.LoadSumII
 import kotlinx.coroutines.*
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class BarStatisticsFragment : Fragment() {
-    private var data: List<LoadSumEI>? = null
+    private var data_ei: List<LoadSumEI>? = null
+    private var data_ii: List<LoadSumII>? = null
     private var _binding: FragmentBarStatisticsBinding? = null
     private val binding get() = _binding!!
     lateinit var app: KeiboApplication
+    private var flag:Boolean= true
+    private var year = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,65 +47,126 @@ class BarStatisticsFragment : Fragment() {
         _binding = FragmentBarStatisticsBinding.inflate(inflater, container, false)
         app = requireActivity().application as KeiboApplication
 
-        DateButton()
-        DBDataSet()
+        //캘린더 변수 선언
+        val cal = Calendar.getInstance()
+        //날짜 형식 지정
+        cal.time = Date()
+        year = cal.get(Calendar.YEAR)
+
+        //최초 기간 표시
+        binding.dateYearBtn.text = "${year}年"
+
+        dateButton()
+        dbDataSet()
+        eiButton()
+        iiButton()
         return binding.root
     }
 
-    inner class MyXAxisFormatter : ValueFormatter() {
-        private val days =
-            arrayOf("1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月")
+    private fun dateButton() {
+        binding.dateLeftBtn.setOnClickListener() {
+            year--
+            binding.dateYearBtn.text = "${year}年"
+            dbDataSet()
+        }
 
-        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-            return days.getOrNull(value.toInt() - 1) ?: value.toString()
+        binding.dateRightBtn.setOnClickListener() {
+            year++
+            binding.dateYearBtn.text = "${year}年"
+            dbDataSet()
+        }
+
+        binding.dateYearBtn.setOnClickListener() {
+            showYearPickerDialog()
+        }
+
+    }
+
+    private fun showYearPickerDialog() {
+        val numberSetListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, dayOfMonth ->
+            val month = month + 1
+//            val date = makeDateString(dayOfMonth, month, year)
+//            binding.btnDatePicker.text = date
+        }
+
+        val style = AlertDialog.THEME_HOLO_LIGHT
+
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val numberPickerDialog = YearPickerDialog(requireContext())
+        numberPickerDialog.show()
+    }
+
+    private fun eiButton() {
+        binding.eiButton.setOnClickListener() {
+            flag = true
+            barChart()
         }
     }
 
-    private fun DateButton() {
-        binding.DateLeft.setOnClickListener() {
-            val Date: Int = Integer.parseInt(binding.Date.text.toString()) - 1
-            binding.Date.text = Date.toString()
-        }
-
-        binding.DateRight.setOnClickListener() {
-            val Date: Int = Integer.parseInt(binding.Date.text.toString()) + 1
-            binding.Date.text = Date.toString()
+    private fun iiButton() {
+        binding.iiButton.setOnClickListener() {
+            flag = false
+            barChart()
         }
     }
 
-    private fun DBDataSet() {
+    private fun dbDataSet() {
         runBlocking {
             CoroutineScope(Dispatchers.IO).launch() {
-                data = app.db.loadMonthSumEI(binding.Date.text.toString())
+                data_ei = app.db.loadMonthSumEI(year.toString())
+                data_ii = app.db.loadMonthSumII(year.toString())
             }.join()
-            Barchart()
+            barChart()
         }
     }
 
-    private fun Barchart() {
+    private fun barChart() {
         val barchart: BarChart = binding.barchart// barChart 생성
         val entries = ArrayList<BarEntry>()
         var max = 0f
 
-        for (i in 0..11) {
-            var month : Float
-            var price : Float
+        if(flag==true){
+            for (i in 0..11) {
+                var month : Float
+                var price : Float
 
-            if(i<data!!.size){
-                month = data!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
-                price = data!!.get(i).price!!.toFloat()
-                entries.add(BarEntry(month ,price))
-            }else{
-                month = i.toFloat()+1f
-                price = 0f
-                entries.add(BarEntry(month ,price))
+                if(i<data_ei!!.size){
+                    month = data_ei!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
+                    price = data_ei!!.get(i).price!!.toFloat()
+                    entries.add(BarEntry(month ,price))
+                }else{
+                    month = i.toFloat()+1f
+                    price = 0f
+                    entries.add(BarEntry(month ,price))
+                }
+
+                if (max < price!!){
+                    max = price+1000f
+                }
             }
+        }else{
+            for (i in 0..11) {
+                var month : Float
+                var price : Float
 
-            if (max < price!!){
-                max = price+1000f
+                if(i<data_ii!!.size){
+                    month = data_ii!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
+                    price = data_ii!!.get(i).price!!.toFloat()
+                    entries.add(BarEntry(month ,price))
+                }else{
+                    month = i.toFloat()+1f
+                    price = 0f
+                    entries.add(BarEntry(month ,price))
+                }
+
+                if (max < price!!){
+                    max = price+1000f
+                }
             }
         }
-
         barchart.run {
             description.isEnabled = false // 차트 옆에 별도로 표기되는 description을 안보이게 설정 (false)
             setMaxVisibleValueCount(12) // 최대 보이는 그래프 개수를 12개로 지정
@@ -141,4 +215,13 @@ class BarStatisticsFragment : Fragment() {
             invalidate()
         }
     }
+    inner class MyXAxisFormatter : ValueFormatter() {
+        private val days =
+            arrayOf("1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月")
+
+        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+            return days.getOrNull(value.toInt() - 1) ?: value.toString()
+        }
+    }
 }
+

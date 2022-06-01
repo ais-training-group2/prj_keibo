@@ -51,10 +51,10 @@ class MonthPickerDialog(context: Context): Dialog(context) {
     // 클릭 이벤트 설정
     private fun setClickEvent() {
         binding.btnCancel.setOnClickListener {
-            // cancel
+            // TODO cancel
         }
         binding.btnConfirm.setOnClickListener {
-            // confirm
+            // TODO confirm
         }
     }
 

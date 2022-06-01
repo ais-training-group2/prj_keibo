@@ -32,13 +32,13 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class BarStatisticsFragment : Fragment() {
-    private var data_ei: List<LoadSumEI>? = null
-    private var data_ii: List<LoadSumII>? = null
+    private var data_ei =  ArrayList<LoadSumEI>()
+    private var data_ii = ArrayList<LoadSumII>()
     private var _binding: FragmentBarStatisticsBinding? = null
     private val binding get() = _binding!!
     lateinit var app: KeiboApplication
-    private var flag:Boolean= true
-    private var year = -1
+    private var flag:Boolean= true //수입 지출 버튼 구분 플래그
+    private var year = Calendar.getInstance().get(Calendar.YEAR) //캘린더 year 선언
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,33 +47,26 @@ class BarStatisticsFragment : Fragment() {
         _binding = FragmentBarStatisticsBinding.inflate(inflater, container, false)
         app = requireActivity().application as KeiboApplication
 
-        //캘린더 변수 선언
-        val cal = Calendar.getInstance()
-        //날짜 형식 지정
-        cal.time = Date()
-        year = cal.get(Calendar.YEAR)
-
-        //최초 기간 표시
         binding.dateYearBtn.text = "${year}年"
 
-        dateButton()
-        dbDataSet()
-        eiButton()
-        iiButton()
+        setDateButton()
+        setDBData()
+        setEiButton()
+        setIiButton()
         return binding.root
     }
 
-    private fun dateButton() {
+    private fun setDateButton() {
         binding.dateLeftBtn.setOnClickListener() {
             year--
             binding.dateYearBtn.text = "${year}年"
-            dbDataSet()
+            setDBData()
         }
 
         binding.dateRightBtn.setOnClickListener() {
             year++
             binding.dateYearBtn.text = "${year}年"
-            dbDataSet()
+            setDBData()
         }
 
         binding.dateYearBtn.setOnClickListener() {
@@ -99,25 +92,25 @@ class BarStatisticsFragment : Fragment() {
         numberPickerDialog.show()
     }
 
-    private fun eiButton() {
+    private fun setEiButton() {
         binding.eiButton.setOnClickListener() {
             flag = true
             barChart()
         }
     }
 
-    private fun iiButton() {
+    private fun setIiButton() {
         binding.iiButton.setOnClickListener() {
             flag = false
             barChart()
         }
     }
 
-    private fun dbDataSet() {
+    private fun setDBData() {
         runBlocking {
             CoroutineScope(Dispatchers.IO).launch() {
-                data_ei = app.db.loadMonthSumEI(year.toString())
-                data_ii = app.db.loadMonthSumII(year.toString())
+                data_ei = ArrayList(app.db.loadMonthSumEI(year.toString()))
+                data_ii = ArrayList(app.db.loadMonthSumII(year.toString()))
             }.join()
             barChart()
         }
@@ -128,14 +121,14 @@ class BarStatisticsFragment : Fragment() {
         val entries = ArrayList<BarEntry>()
         var max = 0f
 
-        if(flag==true){
+        if(flag){
             for (i in 0..11) {
                 var month : Float
                 var price : Float
 
-                if(i<data_ei!!.size){
-                    month = data_ei!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
-                    price = data_ei!!.get(i).price!!.toFloat()
+                if(i<data_ei.size){
+                    month = data_ei.get(i).date!!.substring(5,7).toFloat() // 2022-01
+                    price = data_ei.get(i).price!!.toFloat()
                     entries.add(BarEntry(month ,price))
                 }else{
                     month = i.toFloat()+1f
@@ -152,9 +145,9 @@ class BarStatisticsFragment : Fragment() {
                 var month : Float
                 var price : Float
 
-                if(i<data_ii!!.size){
-                    month = data_ii!!.get(i).date!!.substring(5,7).toFloat() // 2022-01
-                    price = data_ii!!.get(i).price!!.toFloat()
+                if(i<data_ii.size){
+                    month = data_ii.get(i).date!!.substring(5,7).toFloat() // 2022-01
+                    price = data_ii.get(i).price!!.toFloat()
                     entries.add(BarEntry(month ,price))
                 }else{
                     month = i.toFloat()+1f
@@ -162,7 +155,7 @@ class BarStatisticsFragment : Fragment() {
                     entries.add(BarEntry(month ,price))
                 }
 
-                if (max < price!!){
+                if (max < price){
                     max = price+1000f
                 }
             }
@@ -194,7 +187,7 @@ class BarStatisticsFragment : Fragment() {
                 setDrawGridLines(false) // 격자
                 textColor = ContextCompat.getColor(context, R.color.black) //라벨 색상
                 textSize = 10f // 텍스트 크기
-                valueFormatter = MyXAxisFormatter() // X축 라벨값(밑에 표시되는 글자) 바꿔주기 위해 설정
+                valueFormatter = XAxisFormatter() // X축 라벨값(밑에 표시되는 글자) 바꿔주기 위해 설정
                 setLabelCount(12, false) //x축 라벨 갯수 지정
             }
             axisRight.isEnabled = false // 오른쪽 Y축을 안보이게 해줌.
@@ -215,7 +208,7 @@ class BarStatisticsFragment : Fragment() {
             invalidate()
         }
     }
-    inner class MyXAxisFormatter : ValueFormatter() {
+    inner class XAxisFormatter : ValueFormatter() {
         private val days =
             arrayOf("1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月")
 

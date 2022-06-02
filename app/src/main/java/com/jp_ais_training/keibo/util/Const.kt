@@ -67,4 +67,6 @@ object Const {
     val PREF_FIX_EXPENSE_NOTI_KEY = "FixExpenseNoti"
     val PREF_KINYU_NOTI_KEY = "KinyuNoti"
     val PREF_COMPARISON_EXPENSE_NOTI_KEY = "ComparisonExpense"
+
+    val LICENSE_TEXTVIEW_TEXT = "Licenseについて"
 }

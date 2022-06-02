@@ -140,7 +140,15 @@ class DetailActivity : AppCompatActivity() {
         binding.btnRate.setOnClickListener {
             val detailFragment =
                 supportFragmentManager.fragments[0] as DetailFragment
-            detailFragment.changeRate()
+            val flag = binding.btnRate.text.toString() == "円"
+
+            if(flag){
+                binding.btnRate.text = "₩"
+                detailFragment.changeRate(flag)
+            }else{
+                binding.btnRate.text = "円"
+                detailFragment.changeRate(flag)
+            }
         }
     }
 

@@ -1,12 +1,16 @@
 package com.jp_ais_training.keibo.frament
 
+import android.app.AlertDialog
 import android.app.Dialog
 import android.app.PendingIntent
-import android.content.Context.MODE_PRIVATE
+import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +30,7 @@ import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.util.NotificationUtil
 import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.*
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,6 +50,7 @@ class SettingsFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
 
         initSwitchValue()
+        initLicenseTextView()
         setClickEvent()
 
         setTestEvent()
@@ -69,6 +75,13 @@ class SettingsFragment : Fragment() {
         binding.swiFixExpenseNoti.isChecked= isRunningFixExpenseNoti
         binding.swiKinyuNoti.isChecked= isRunningKinyuNoti
         binding.swiComparisonNoti.isChecked= isRunningComparisonExpenseNoti
+    }
+
+    private fun initLicenseTextView() {
+        val content = SpannableString(Const.LICENSE_TEXTVIEW_TEXT)
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        content.setSpan(ForegroundColorSpan(Color.BLUE), 0, content.length, 0)
+        binding.tvLicense.text = content
     }
 
     // 화면 클릭 이벤트 설정
@@ -116,6 +129,27 @@ class SettingsFragment : Fragment() {
 
             updateNotification(Const.PREF_COMPARISON_EXPENSE_NOTI_KEY)
         }
+
+        // Licenseについて 클릭
+        binding.tvLicense.setOnClickListener {
+            val builder = AlertDialog.Builder(requireContext())
+
+            val inputStream: InputStream = this.resources.openRawResource(R.raw.license)
+            val buffer = ByteArray(inputStream.available())
+            while (inputStream.read(buffer) !== -1){ }
+            val licenseText = String(buffer)
+            builder.setMessage(licenseText)
+            builder.setNegativeButton("閉じる", object: DialogInterface.OnClickListener {
+                override fun onClick(view: DialogInterface?, which: Int) {
+                    view?.dismiss()
+                }
+            })
+            val dialog = builder.create()
+            dialog.show()
+
+
+        }
+
     }
 
     // 스위치의 현재 상태를 확인해
@@ -262,7 +296,7 @@ class SettingsFragment : Fragment() {
         val contentTitle = Const.KINYU_NOTI_CONTENT_TITLE
         val contentText = "$today\n${Const.KINYU_NOTI_CONTENT_TEXT}"
 
-        val builder = NotificationCompat.Builder(requireContext()!!, Const.KINYU_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(requireContext(), Const.KINYU_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle(contentTitle)
             .setContentText(contentText)
@@ -389,7 +423,7 @@ class SettingsFragment : Fragment() {
 
     private fun convertStringToCalendar(itemDatetime: String?): Calendar {
         val sdf = SimpleDateFormat("yyyy-MM-dd")
-        val date: Date = sdf.parse(itemDatetime)
+        val date = sdf.parse(itemDatetime)
         val cal = Calendar.getInstance()
         cal.time = date
 

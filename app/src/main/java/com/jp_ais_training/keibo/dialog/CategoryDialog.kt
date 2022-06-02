@@ -21,12 +21,15 @@ class CategoryDialog(private val activity: Activity) {
 
     val app = activity.application as KeiboApplication
 
+    //$$
     interface ButtonClickListener {
         fun onClicked(id: Int, name: String, type: String)
     }
 
+    //$$
     private lateinit var onClickListener: ButtonClickListener
 
+    //$$
     fun setOnClickedListener(listener: ButtonClickListener) {
         onClickListener = listener
     }
@@ -237,6 +240,8 @@ class CategoryDialog(private val activity: Activity) {
                     buttons.elementAt(i).text = dialogActionListLimit3.elementAt(i).text
                     buttons.elementAt(i).setOnClickListener(View.OnClickListener {
                         dialogActionListLimit3.elementAt(i).runnable.run()
+
+                        //$$
                         onClickListener.onClicked(
                             dialogActionListLimit3.elementAt(i).id,
                             dialogActionListLimit3.elementAt(i).text,

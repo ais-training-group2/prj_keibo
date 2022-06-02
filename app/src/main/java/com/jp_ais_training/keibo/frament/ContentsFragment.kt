@@ -450,6 +450,7 @@ class ContentsFragment() : Fragment() {
                     )
                 }
 
+                //$$
                 categoryDialog.setOnClickedListener(object : CategoryDialog.ButtonClickListener {
                     override fun onClicked(id: Int, name: String, type: String) {
                         if (type == "main") {

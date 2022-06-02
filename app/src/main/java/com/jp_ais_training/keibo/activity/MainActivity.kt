@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.circle_statistics -> setCurrentFragment(secondFragment)
                 R.id.bar_statistics -> setCurrentFragment(thirdFragment)
                 R.id.settings -> setCurrentFragment(fourthFragment)
-
             }
             true
         }

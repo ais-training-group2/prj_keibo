@@ -6,35 +6,38 @@
     android:gravity="center">
 
     <Button
-        android:visibility="invisible"
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="8dp"
         android:layout_weight="1"
         android:background="#FF0000"
+        android:maxLines="1"
         android:padding="10dp"
-        android:text="Button"></Button>
+        android:text="Button"
+        android:visibility="invisible"></Button>
 
     <Button
-        android:visibility="invisible"
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="8dp"
         android:layout_weight="1"
         android:background="#FF0000"
+        android:maxLines="1"
         android:padding="10dp"
-        android:text="Button"></Button>
+        android:text="Button"
+        android:visibility="invisible"></Button>
 
     <Button
-        android:visibility="invisible"
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="8dp"
         android:layout_weight="1"
         android:background="#FF0000"
+        android:maxLines="1"
         android:padding="10dp"
-        android:text="Button"></Button>
+        android:text="Button"
+        android:visibility="invisible"></Button>
 </LinearLayout>

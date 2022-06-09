@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.text.InputFilter
 import android.text.SpannableStringBuilder
 import android.text.method.KeyListener
 import android.text.method.MovementMethod
@@ -26,14 +27,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jp_ais_training.keibo.KeiboApplication
 import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
-import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.dialog.CategoryDialog
 import com.jp_ais_training.keibo.model.entity.ExpenseItem
 import com.jp_ais_training.keibo.model.entity.IncomeItem
 import com.jp_ais_training.keibo.model.response.ResponseItem
+import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ticker
 import net.cachapa.expandablelayout.ExpandableLayout
 import java.lang.reflect.Field
 import java.text.DecimalFormat
@@ -225,13 +225,13 @@ class ContentsFragment() : Fragment() {
                         recyclerView.findViewHolderForAdapterPosition(selectedItem) as ViewHolder?
 
                     if (holder != null) {
-                        println("holder")
+
                         deActivationItem(holder)
                         // 널체크
                         if (nullChecker(holder)) {
                             holder.msgNull.visibility = View.GONE
                             val position = selectedItem
-                            println("position $position , selectedItem $selectedItem, adapterPosition $bindingAdapterPosition")
+
                             val taxFlag = holder.taxCheckBox.isChecked
                             val tempPrice =
                                 holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
@@ -249,7 +249,7 @@ class ContentsFragment() : Fragment() {
                             }
                             //마지막 아이템인가?
                             if (position == dataList.size) {
-                                println("Insert" + holder.name.text)
+
                                 CoroutineScope(Dispatchers.Main).launch {
                                     withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                                         if (type == 0 || type == 1) {
@@ -303,9 +303,9 @@ class ContentsFragment() : Fragment() {
                                 CoroutineScope(Dispatchers.IO).async {
                                     //기존 데이터에서 변화된 값 체크
                                     if (dataCompare(holder, position)) {
-                                        println("Update" + type)
+
                                         if (type == 0 || type == 1) {
-                                            println("Update Check1")
+
                                             val item = IncomeItem(
                                                 dataList.elementAt(position).income_item_id!!,
                                                 strType,
@@ -319,7 +319,7 @@ class ContentsFragment() : Fragment() {
                                             data.name = holder.name.text.toString()
                                             data.price = price
                                         } else {
-                                            println("Update Check" + dataList.size)
+
                                             val item = ExpenseItem(
                                                 dataList.elementAt(position).expense_item_id!!,
                                                 holder.subCg.tag.toString().toInt(),
@@ -352,13 +352,13 @@ class ContentsFragment() : Fragment() {
 
                     val position = bindingAdapterPosition
                     if (position == selectedItem) {
-                        println("DeActive")
+
                         setActivationItem(false)
 
                         selectedItem = UNSELECTED
 
                     } else {
-                        println("Active")
+
                         setActivationItem(true)
 
                         selectedItem = position
@@ -447,7 +447,12 @@ class ContentsFragment() : Fragment() {
                         if (isFocus) {
                             val fPrice =
                                 DecimalFormat("#########").format(dataList[position].price)
+/*
+                            val inputFilter = arrayOf(InputFilter.LengthFilter(14))
+                            price.filters = inputFilter
+                            */
                             price.text = SpannableStringBuilder(fPrice)
+                            println("Price Length : " + price.length())
                         } else {
                             val fPrice = if (type == 0 || type == 1) {
                                 if (isJPY)
@@ -567,9 +572,6 @@ class ContentsFragment() : Fragment() {
                 setActivationItem(false)
             }
 
-            fun reWritePrice() {
-                println(price.text)
-            }
 
             fun closeKeyBoard() {
                 val view = activity.currentFocus
@@ -650,7 +652,7 @@ class ContentsFragment() : Fragment() {
 
 
             fun setActivationItem(active: Boolean) {
-                println("Set Active : $active")
+
                 if (active) {
 
                     cardView.isSelected = true
@@ -764,7 +766,8 @@ class ContentsFragment() : Fragment() {
     }
 
     override fun onDestroy() {
-        println("onDestroy : $targetDate")
+
+
         super.onDestroy()
     }
 

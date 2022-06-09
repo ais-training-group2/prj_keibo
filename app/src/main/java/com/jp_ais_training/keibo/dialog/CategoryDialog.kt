@@ -56,37 +56,53 @@ class CategoryDialog(private val activity: Activity) {
             }
             btnAdd.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    var checker = 0
-                    withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                        val listInt1 = app.db.checkSubCategory(
-                            mainCgId,
-                            edtSubCg.text.toString().lowercase()
-                        )
-                        val listInt2 = app.db.checkSubCategoryWithDeleted(
-                            mainCgId,
-                            edtSubCg.text.toString().lowercase()
-                        )
-                        if (listInt1.isNotEmpty())
-                            checker = 1
+                    var checker = 0 //0 정상, 1 카케고리명 중복 , 2 널체크
+                    if (edtSubCg.text.isNullOrBlank())
+                        checker = 2
+                    else {
+                        withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                            // 기존의 삭제 되지 않은 서브카테고리 중 동일한 이름의 카테고리가 있는지
+                            val listInt1 = app.db.checkSubCategory(
+                                mainCgId,
+                                edtSubCg.text.toString().lowercase()
+                            )
+                            // 기존의 삭제된 서브 서브카테고리 중 동일한 이름의 카테고리가 있는지
+                            val listInt2 = app.db.checkSubCategoryWithDeleted(
+                                mainCgId,
+                                edtSubCg.text.toString().lowercase()
+                            )
 
-                        if (checker == 0) {
-                            if (listInt2.isEmpty()) {
-                                app.db.insertSubCategory(
-                                    mainCgId,
-                                    edtSubCg.text.toString().lowercase()
-                                )
-                            } else {
-                                app.db.updateDeletedSubCategory(listInt2[0])
+                            if (listInt1.isNotEmpty())
+                                checker = 1
+
+                            if (checker == 0) {
+                                // 논리삭제된 동일명의 서브카테고리가 있다면 업데이트
+                                // 없다면 새로 인설트
+                                if (listInt2.isEmpty()) {
+                                    app.db.insertSubCategory(
+                                        mainCgId,
+                                        edtSubCg.text.toString().lowercase()
+                                    )
+                                } else {
+                                    app.db.updateDeletedSubCategory(listInt2[0])
+                                }
                             }
                         }
-
                     }
 
-                    if (checker == 1) {
-                        txtMsg.visibility = View.VISIBLE
-                    } else {
-                        dialog.dismiss()
-                        callSubCategory(mainCgId, mainCgName)
+                    when (checker) {
+                        1 -> {
+                            txtMsg.text = "同じカテゴリが既に存在します。";
+                            txtMsg.visibility = View.VISIBLE
+                        }
+                        2 -> {
+                            txtMsg.text = "カテゴリ名を入力してくだい。";
+                            txtMsg.visibility = View.VISIBLE
+                        }
+                        else -> {
+                            dialog.dismiss()
+                            callSubCategory(mainCgId, mainCgName)
+                        }
                     }
                 }
             }

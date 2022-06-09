@@ -45,6 +45,7 @@
         android:hint="サブカテゴリ名"
         android:maxLength="9"
         android:maxLines="1"
+        android:inputType="text"
         android:paddingHorizontal="15dp"
         android:textColorHint="#CCCCFF" />
 

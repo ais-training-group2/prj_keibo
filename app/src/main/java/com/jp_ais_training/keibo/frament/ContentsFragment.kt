@@ -147,18 +147,12 @@ class ContentsFragment() : Fragment() {
             val rate = (PreferenceUtil(ctx).getKawaseRate().div(100.0)).toInt()
             if (flag) {
                 dataList.forEach { data ->
-                    println("rate : $rate")
-                    println("price : ${data.price}")
                     data.price = data.price?.times(rate)
-                    println("price2 : ${data.price}")
                     isJPY = false
                 }
             } else {
                 dataList.forEach { data ->
-                    println("rate : $rate")
-                    println("price : ${data.price}")
                     data.price = data.price?.times(1.div(rate.toFloat()))?.toInt()
-                    println("price2 : ${data.price}")
                     isJPY = true
                 }
             }

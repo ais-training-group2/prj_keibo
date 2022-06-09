@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -68,7 +69,7 @@ class ContentsFragment() : Fragment() {
     }
 
     private fun loadData() {
-        println("LoadData : $type")
+
         when (type) {
             0 -> {
                 dataList = ArrayList(app.db.loadFixII(targetDate))
@@ -146,12 +147,18 @@ class ContentsFragment() : Fragment() {
             val rate = (PreferenceUtil(ctx).getKawaseRate().div(100.0)).toInt()
             if (flag) {
                 dataList.forEach { data ->
+                    println("rate : $rate")
+                    println("price : ${data.price}")
                     data.price = data.price?.times(rate)
+                    println("price2 : ${data.price}")
                     isJPY = false
                 }
             } else {
                 dataList.forEach { data ->
+                    println("rate : $rate")
+                    println("price : ${data.price}")
                     data.price = data.price?.times(1.div(rate.toFloat()))?.toInt()
+                    println("price2 : ${data.price}")
                     isJPY = true
                 }
             }
@@ -338,8 +345,14 @@ class ContentsFragment() : Fragment() {
                                             data.sub_category_name = holder.subCg.text.toString()
                                             data.name = holder.name.text.toString()
                                             data.price = price
+                                            //세금계산된 가격 EditText 에 반영
                                             holder.price.text =
-                                                SpannableStringBuilder(price.toString())
+                                                SpannableStringBuilder(
+                                                    DecimalFormat("-#,###,###.#円").format(
+                                                        price
+                                                    )
+                                                )
+                                            //체크박스 초기화
                                             holder.taxCheckBox.isChecked = true
                                         }
                                     }
@@ -445,15 +458,17 @@ class ContentsFragment() : Fragment() {
                 val onPriceFocusChangeListener = View.OnFocusChangeListener { view, isFocus ->
                     if (!price.text.isNullOrEmpty()) {
                         if (isFocus) {
+                            val regexPrice = price.text.toString().replace(("[^\\d.]").toRegex(), "").toInt()
                             val fPrice =
-                                DecimalFormat("#########").format(dataList[position].price)
-/*
-                            val inputFilter = arrayOf(InputFilter.LengthFilter(14))
+                                DecimalFormat("########").format(regexPrice)
+
+                            val inputFilter = arrayOf(InputFilter.LengthFilter(8))
                             price.filters = inputFilter
-                            */
                             price.text = SpannableStringBuilder(fPrice)
-                            println("Price Length : " + price.length())
+
                         } else {
+                            val inputFilter = arrayOf(InputFilter.LengthFilter(16))
+                            price.filters = inputFilter
                             val fPrice = if (type == 0 || type == 1) {
                                 if (isJPY)
                                     DecimalFormat("+#,###,###.#円").format(
@@ -478,6 +493,9 @@ class ContentsFragment() : Fragment() {
                             price.clearComposingText()
                             closeKeyBoard()
                         }
+                    }else{
+                        val inputFilter = arrayOf(InputFilter.LengthFilter(8))
+                        price.filters = inputFilter
                     }
                 }
 

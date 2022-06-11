@@ -174,7 +174,7 @@ class NotificationUtil(context: Context) : ContextWrapper(context) {
                     mContext,
                     Const.NOTI_RECEIVER_PENDING_INTENT_REQUEST_CODE,
                     intent,
-                    Const.NOTI_RECEIVER_PENDING_INTENT_FLAGS
+                    TargetSDKUtil.getFlags()
                 )
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
@@ -207,7 +207,7 @@ class NotificationUtil(context: Context) : ContextWrapper(context) {
             this,
             Const.NOTI_RECEIVER_PENDING_INTENT_REQUEST_CODE,
             intent,
-            Const.NOTI_RECEIVER_PENDING_INTENT_FLAGS
+            TargetSDKUtil.getFlags()
         )
         alarmManager.setExact(
             AlarmManager.RTC_WAKEUP,
@@ -265,7 +265,7 @@ class NotificationUtil(context: Context) : ContextWrapper(context) {
             this,
             Const.NOTI_RECEIVER_PENDING_INTENT_REQUEST_CODE,
             intent,
-            Const.NOTI_RECEIVER_PENDING_INTENT_FLAGS
+            TargetSDKUtil.getFlags()
         )
 
         // calendar.getActualMaximum(Calendar.DAY_OF_MONTH)는 매달 달라져야함, 정확히 25일이 아닐 수 있음. 추후 수정 필요
@@ -303,4 +303,5 @@ class NotificationUtil(context: Context) : ContextWrapper(context) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.deleteNotificationChannel(Const.COMPARISON_CHANNEL_ID)
     }
+
 }

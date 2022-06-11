@@ -59,7 +59,7 @@ class AlarmUtil(val context: Context) {
                 context,
                 Const.NOTI_RECEIVER_PENDING_INTENT_REQUEST_CODE,
                 intent,
-                Const.NOTI_RECEIVER_PENDING_INTENT_FLAGS
+                TargetSDKUtil.getFlags()
             )
 
             // 매월 1일00시00분00초에 실행

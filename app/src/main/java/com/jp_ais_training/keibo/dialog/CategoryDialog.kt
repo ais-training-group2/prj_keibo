@@ -7,15 +7,21 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
-import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.KeiboApplication
+import com.jp_ais_training.keibo.R
 import kotlinx.coroutines.*
 import java.lang.Runnable
-import java.text.FieldPosition
 
+//NORMAL 정상, DUPLICATE 중복 , NULL 널
+enum class Checker {
+    NORMAL, DUPLICATE, NULL
+}
 
 class CategoryDialog(private val activity: Activity) {
 
@@ -56,9 +62,10 @@ class CategoryDialog(private val activity: Activity) {
             }
             btnAdd.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    var checker = 0 //0 정상, 1 카케고리명 중복 , 2 널체크
+                    var checker = Checker.NORMAL
+
                     if (edtSubCg.text.isNullOrBlank())
-                        checker = 2
+                        checker = Checker.NULL
                     else {
                         withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                             // 기존의 삭제 되지 않은 서브카테고리 중 동일한 이름의 카테고리가 있는지
@@ -73,9 +80,9 @@ class CategoryDialog(private val activity: Activity) {
                             )
 
                             if (listInt1.isNotEmpty())
-                                checker = 1
+                                checker = Checker.DUPLICATE
 
-                            if (checker == 0) {
+                            if (checker == Checker.NORMAL) {
                                 // 논리삭제된 동일명의 서브카테고리가 있다면 업데이트
                                 // 없다면 새로 인설트
                                 if (listInt2.isEmpty()) {
@@ -91,11 +98,11 @@ class CategoryDialog(private val activity: Activity) {
                     }
 
                     when (checker) {
-                        1 -> {
+                        Checker.DUPLICATE -> {
                             txtMsg.text = "同じカテゴリが既に存在します。";
                             txtMsg.visibility = View.VISIBLE
                         }
-                        2 -> {
+                        Checker.NULL -> {
                             txtMsg.text = "カテゴリ名を入力してくだい。";
                             txtMsg.visibility = View.VISIBLE
                         }

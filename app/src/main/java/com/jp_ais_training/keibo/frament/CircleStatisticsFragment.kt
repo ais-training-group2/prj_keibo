@@ -10,10 +10,11 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.jp_ais_training.keibo.KeiboApplication
-import com.jp_ais_training.keibo.adapter.ExpandableListAdapter
+import com.jp_ais_training.keibo.R
+import com.jp_ais_training.keibo.adapter.CircleStatisticsExpandableListAdapter
 import com.jp_ais_training.keibo.databinding.FragmentCircleStatisticsBinding
+import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -50,7 +51,7 @@ class CircleStatisticsFragment : Fragment() {
 
     //확장리스트 변수
     private var parentList = mutableListOf<MenuTitle>()
-    var childValueList = mutableListOf<MenuSpecific>()
+    private var childValueList = mutableListOf<MenuSpecific>()
     private var childList = mutableListOf<MutableList<MenuSpecific>>()
 
     //대분류 항목 리스트
@@ -59,8 +60,16 @@ class CircleStatisticsFragment : Fragment() {
         "食費,","生活(変動),","余暇,",
         "文化,","自己開発,","その他(変動)"
     )
-    //최초 0  -> 엔화
-    var setJpOrKr = 0
+
+    //원그래프 항목 색상 리스트
+    private val colorOfCircleContents = listOf(
+        R.color.circle1, R.color.circle2, R.color.circle3, R.color.circle4, R.color.circle5,
+        R.color.circle6, R.color.circle7, R.color.circle8, R.color.circle9
+    )
+
+    //최초 true  -> 엔화
+    //    false -> 원화
+    var isJPY = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +80,7 @@ class CircleStatisticsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentCircleStatisticsBinding.inflate(inflater, container, false)
+        binding.noDataLayout.visibility = View.INVISIBLE
 
         //월별 이동 처리 기준
         dateStandard = 0
@@ -139,7 +149,7 @@ class CircleStatisticsFragment : Fragment() {
             }
         }
         binding.tsukaKiriKaeBtn.setOnClickListener(){
-            if(setJpOrKr == 0){
+            if(isJPY){
                 //실행중인 코루틴 취소
                 job.cancel()
 
@@ -148,8 +158,7 @@ class CircleStatisticsFragment : Fragment() {
                 clearExpandableList()
 
                 //원화 설정
-                setJpOrKr = 1
-                ExpandableListAdapter.setKRW = false
+                isJPY = false
                 binding.tsukaKiriKaeBtn.text = "￦"
 
                 getDataFromDB(df.format(cal.time).substring(0,7))
@@ -163,8 +172,7 @@ class CircleStatisticsFragment : Fragment() {
                 clearExpandableList()
 
                 //엔화설정
-                setJpOrKr = 0
-                ExpandableListAdapter.setKRW = true
+                isJPY = true
                 binding.tsukaKiriKaeBtn.text = "円"
 
                 getDataFromDB(df.format(cal.time).substring(0,7))
@@ -186,7 +194,9 @@ class CircleStatisticsFragment : Fragment() {
             pieChart.setHoleColor(Color.WHITE)
             pieChart.transparentCircleRadius = 61f
             pieChart.legend.isEnabled = true //하단 색항목 리스트
+            pieChart.legend.textSize = 12f
             pieChart.animateXY(500, 500) //초기 애니메이션 설정
+            pieChart.setNoDataText(" ")//최초 표시되는 no chart data available 텍스트
         }
     }
 
@@ -206,10 +216,10 @@ class CircleStatisticsFragment : Fragment() {
         val dataSet = PieDataSet(yValues, "")
         dataSet.sliceSpace = 3f
         dataSet.selectionShift = 5f
-        dataSet.setColors(*ColorTemplate.JOYFUL_COLORS)
+        dataSet.setColors(colorOfCircleContents.toIntArray(), context)
 
         val data = PieData(dataSet)
-        data.setValueTextSize(10f);
+        data.setValueTextSize(15f);
         data.setValueTextColor(Color.WHITE);
 
         pieChart.data = data
@@ -246,10 +256,10 @@ class CircleStatisticsFragment : Fragment() {
 
     //메인 카테고리 기준 DB 결과 값 가격 추출  <--  "yyyy-mm"형식 날짜 입력
     private fun getDataFromDB(setDate: String){
-        //DB에서 데이터 가져오기
+        //DB 데이터 가져오기
         job = CoroutineScope(Dispatchers.Main).launch{
             withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                //DB에서 데이터 취득
+                //DB 데이터 취득
                 var getSumMainCategory = app.db.loadMonthSumMainCategoryEI(setDate)
                 var getSubCategory = app.db.loadMonthSumSubCategoryEI(setDate)
 
@@ -310,13 +320,20 @@ class CircleStatisticsFragment : Fragment() {
 
                 arrSub = str_subData.split("),")
 
-                //원그래프 항목, 옵션, 데이터 설정
-                setPieChartItem(mainSumBundle, mainCategoryName)
-                setPieChartOption()
-                setPieChartDataSet()
+                //데이터 유무에 따라 화면 처리
+                if(mainSumBundle.isNotEmpty()){
+                    setExistDataCase()
 
-                //확장리스트 데이터 설정
-                setExpandableList(mainCategoryName, mainSumBundle, arrSub)
+                    //원그래프 항목, 옵션, 데이터 설정
+                    setPieChartItem(mainSumBundle, mainCategoryName)
+                    setPieChartOption()
+                    setPieChartDataSet()
+
+                    //확장리스트 데이터 설정
+                    setExpandableList(mainCategoryName, mainSumBundle, arrSub)
+                }else{
+                    setBlankCase()
+                }
             }
         }
     }
@@ -328,14 +345,22 @@ class CircleStatisticsFragment : Fragment() {
         setSub:List<String>
     )
     {
-        val arrMainName = getMainName.split(",")
-        val arrMainPrice = getMainPrice.split(",")
+        //환율 적용 변수
+        val rate = ((PreferenceUtil(requireContext()).getKawaseRate())*0.01).toFloat()
 
-        var k = 0
+        val arrMainName = getMainName.split(",")
+        val arrMainPrice = getMainPrice.split(",").toMutableList()
+
+        //원화로 표시할 경우 환율 적용
+        if(!isJPY && arrMainPrice.isNotEmpty()){
+            for (i in 0 until arrMainPrice.size){
+                arrMainPrice[i] = (arrMainPrice[i].toFloat()*rate).toInt().toString()
+            }
+        }
+
         //대분류 세팅
-        while (k <= arrMainPrice.size-1){
-            parentList.add(MenuTitle(arrMainName[k], arrMainPrice[k], k))
-            k++
+        for(i in arrMainPrice.indices){
+            parentList.add(MenuTitle(arrMainName[i], arrMainPrice[i], i))
         }
 
         //소분류 항목명, 가격 설정
@@ -343,14 +368,22 @@ class CircleStatisticsFragment : Fragment() {
             childValueList.clear()
             for(j in 0 until setSub.size-1){
                 if(setSub[j].contains("main_id=$i")){
-                    var bundleArr = setSub[j].split(",")
+                    var bundleArr = setSub[j].split(",").toMutableList()
 
+                    //원화로 표시할 경우 환율 적용
+                    if(!isJPY && bundleArr.isNotEmpty()){
+                        var bundleArrOfKRW =
+                            "price=" + ((bundleArr[1].replace("price=","")).toFloat()*rate).toInt().toString()
+
+                        bundleArr[1] = bundleArrOfKRW
+                    }
                     childValueList.add(
                         MenuSpecific(
                             bundleArr[2].replace("sub_name=",""),
                             bundleArr[1].replace("price=","")
                         )
                     )
+
                 }
             }
             //소분류 세팅
@@ -358,11 +391,10 @@ class CircleStatisticsFragment : Fragment() {
                 childList.add(childValueList.toMutableList())
             }
         }
-
         //어댑터 세팅
-        var expandableListAdapter = ExpandableListAdapter(requireContext(), parentList.toMutableList(), childList.toMutableList())
+        var circleStatisticsExpandableListAdapter = CircleStatisticsExpandableListAdapter(requireContext(), parentList.toMutableList(), childList.toMutableList())
         binding.root.post{
-            binding.expandableListView.setAdapter(expandableListAdapter)
+            binding.expandableListView.setAdapter(circleStatisticsExpandableListAdapter)
         }
     }
 
@@ -372,6 +404,28 @@ class CircleStatisticsFragment : Fragment() {
         parentList.clear()
         childList.clear()
         childValueList.clear()
+    }
+
+    //데이터 없는 경우 화면처리
+    private fun setBlankCase(){
+        binding.root.post{
+            binding.noDataLayout.visibility = View.VISIBLE
+            binding.percentTv.visibility = View.INVISIBLE
+            binding.pieChart.visibility = View.INVISIBLE
+            binding.tsukaKiriKaeBtn.visibility = View.INVISIBLE
+            binding.expandableListView.visibility = View.INVISIBLE
+        }
+    }
+
+    //데이터 있는 경우 화면처리
+    private fun setExistDataCase(){
+        binding.root.post{
+            binding.noDataLayout.visibility = View.INVISIBLE
+            binding.percentTv.visibility = View.VISIBLE
+            binding.pieChart.visibility = View.VISIBLE
+            binding.tsukaKiriKaeBtn.visibility = View.VISIBLE
+            binding.expandableListView.visibility = View.VISIBLE
+        }
     }
 
     override fun onDestroyView() {

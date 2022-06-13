@@ -9,18 +9,13 @@ import com.jp_ais_training.keibo.R
 import com.jp_ais_training.keibo.frament.CircleStatisticsFragment
 import com.jp_ais_training.keibo.databinding.ExpandablelistParentRowBinding
 import com.jp_ais_training.keibo.databinding.ExpandablelistChildRowBinding
-import com.jp_ais_training.keibo.util.PreferenceUtil
 
 
-class ExpandableListAdapter(
+class CircleStatisticsExpandableListAdapter(
     private val context: Context,
     private val parents: MutableList<CircleStatisticsFragment.MenuTitle>,
     private val childList: MutableList<MutableList<CircleStatisticsFragment.MenuSpecific>>
 ) : BaseExpandableListAdapter() {
-    companion object{
-        var setKRW = true
-    }
-    private val rate = (PreferenceUtil(context).getKawaseRate().div(100.0)).toInt()
 
     override fun getGroupCount(): Int {
         return parents.size
@@ -52,13 +47,10 @@ class ExpandableListAdapter(
 
     override fun getGroupView(parent: Int, isExpanded: Boolean, convertView: View?, parentView: ViewGroup?): View {
         val binding = ExpandablelistParentRowBinding.inflate(LayoutInflater.from(context), parentView, false)
+
         binding.expandTitle.text = parents[parent].title
-        if(setKRW){
-            binding.mainCategorySumPrice.text = parents[parent].price
-        }else{
-            var fromJPYToKRW = parents[parent].price.toInt()*rate
-            binding.mainCategorySumPrice.text = fromJPYToKRW.toString()
-        }
+        binding.mainCategorySumPrice.text = parents[parent].price
+
         setArrow(binding, isExpanded)
 
         return binding.root
@@ -69,12 +61,7 @@ class ExpandableListAdapter(
         val item = getChild(parent, child) as CircleStatisticsFragment.MenuSpecific
 
         binding.expandChildTitle.text= item.title
-        if(setKRW){
-            binding.expandChildDetail.text = item.detail
-        }else{
-            var fromJPYToKRW = item.detail!!.toInt()*rate
-            binding.expandChildDetail.text = fromJPYToKRW.toString()
-        }
+        binding.expandChildDetail.text = item.detail
 
         return binding.root
     }

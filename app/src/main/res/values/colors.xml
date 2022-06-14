@@ -9,6 +9,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#A7A7FA</color>
     <color name="yellow">#F5F5DC</color>
+    <color name="pink">#F2DCDC</color>
+    <color name="mint">#DCF2DC</color>
+    <color name="month">#D16D6A</color>
+    <color name="week">#9DC384</color>
     <color name="circle1">#E83572</color>
     <color name="circle2">#3F53BF</color>
     <color name="circle3">#DD98E8</color>
@@ -18,4 +22,5 @@
     <color name="circle7">#0A96A8</color>
     <color name="circle8">#FF9800</color>
     <color name="circle9">#872709</color>
+
 </resources>

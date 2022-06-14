@@ -16,18 +16,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             >
             <NumberPicker
+                style="@style/NumberPicker"
                 android:id="@+id/np_year"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/np_month"
                 />
             <NumberPicker
+                style="@style/NumberPicker"
                 android:id="@+id/np_month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/np_year"

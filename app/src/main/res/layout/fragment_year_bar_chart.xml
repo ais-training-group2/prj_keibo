@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".frament.BarStatisticsFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/blue"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/textView4"
+                                android:layout_width="match_parent"
+                                android:layout_height="35dp"
+                                android:layout_marginTop="15dp"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:text="年間変化統計"
+                                android:textColor="	#FFFFFF"
+                                android:textSize="30dp"
+                                android:layout_marginBottom="10dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:weightSum="5"
+                                android:orientation="horizontal">
+
+                                <ImageButton
+                                    android:id="@+id/date_left_btn"
+                                    android:layout_width="48dp"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/navi1_foreground" />
+
+
+                                <androidx.appcompat.widget.AppCompatButton
+                                    android:id="@+id/date_year_btn"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/year_round_button"
+                                    android:text="2022"
+                                    android:layout_weight="2"
+                                    android:textColor="	#FFFFFF"
+                                    android:layout_marginBottom="5dp"
+                                    android:layout_marginTop="5dp"
+                                    android:textSize="20dp"/>
+
+                                <ImageButton
+                                    android:id="@+id/date_right_btn"
+                                    android:layout_width="48dp"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/navi2_foreground" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="465dp"
+                            android:background="@color/yellow"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="end"
+                                android:orientation="horizontal"
+                                android:padding="5dp">
+
+                                <androidx.appcompat.widget.AppCompatButton
+                                    android:id="@+id/ei_button"
+                                    android:layout_width="50dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:text="支出"
+                                    android:background="@color/blue"
+                                    android:textColor="	#FFFFFF" />
+
+                                <androidx.appcompat.widget.AppCompatButton
+                                    android:id="@+id/ii_button"
+                                    android:layout_width="50dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginRight="15dp"
+                                    android:background="@color/white"
+                                    android:text="収入"
+                                    android:textColor="@color/black" />
+
+                            </LinearLayout>
+
+                            <com.github.mikephil.charting.charts.BarChart
+                                android:id="@+id/barchart"
+                                android:layout_width="match_parent"
+                                android:layout_height="381dp"
+                                android:layout_marginTop="10dp" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                </FrameLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

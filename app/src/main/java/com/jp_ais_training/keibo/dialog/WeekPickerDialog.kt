@@ -3,6 +3,7 @@ package com.jp_ais_training.keibo.dialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import com.jp_ais_training.keibo.databinding.DialogWeekPickerBinding
 import java.util.*
@@ -13,9 +14,18 @@ class WeekPickerDialog(context: Context): Dialog(context) {
     private lateinit var calendar: Calendar
     // 현재 연도로부터 과거 몇년까지 선택가능한가
     private val yearCountLimit = 5
-
     private var mCurrentYear = -1
     private var mCurrentMonth = -1
+    private lateinit var onClickedListener: ButtonClickListener
+
+    fun setOnClickedListener(listener: ButtonClickListener) {
+        onClickedListener = listener
+    }
+
+    interface ButtonClickListener {
+        fun onClicked(year: String, month: String, week: String, day: String)
+    }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +44,6 @@ class WeekPickerDialog(context: Context): Dialog(context) {
         calendar = Calendar.getInstance()                   // 현재 날짜 객체 생성
         val currentYear = calendar.get(Calendar.YEAR)       // 현재 연
         val currentMonth = calendar.get(Calendar.MONTH) + 1 // 현재 월, 0~11 = 1월~12월이기에 +1
-        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)// 현재 일
 
         binding.npYear.maxValue = currentYear               // 미래 데이터를 검색할 수 없기에 현재 년도를 최대값으로 설정
         binding.npYear.minValue = currentYear - yearCountLimit  // yearCountLimit을 이용해 (현재년도-N)년 ~ 현재년도
@@ -60,10 +69,14 @@ class WeekPickerDialog(context: Context): Dialog(context) {
     // 클릭 이벤트 설정
     private fun setClickEvent() {
         binding.btnCancel.setOnClickListener {
-            // cancel
+            this.dismiss()
         }
         binding.btnConfirm.setOnClickListener {
-            // confirm
+            onClickedListener.onClicked(binding.npYear.value.toString()+"年"
+                ,binding.npMonth.value.toString()+"月"
+                ,(binding.npWeek.value+1).toString()+"週"
+                , binding.npWeek.displayedValues[binding.npWeek.value])
+            this.dismiss()
         }
     }
 

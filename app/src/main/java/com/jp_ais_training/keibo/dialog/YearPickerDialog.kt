@@ -51,7 +51,6 @@ class YearPickerDialog(context: Context): Dialog(context) {
             this.dismiss()
         }
         binding.btnConfirm.setOnClickListener {
-            println(binding.npYear.value)
             onClickedListener.onClicked(binding.npYear.value.toString()+"年")
             this.dismiss()
         }

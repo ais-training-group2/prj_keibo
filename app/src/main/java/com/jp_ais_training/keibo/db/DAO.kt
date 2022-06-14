@@ -265,4 +265,6 @@ interface DAO {
     @Query("DELETE FROM ExpenseItem WHERE expense_item_id == :id;")
     fun deleteEI(id : Int);
 
+    @Query("SELECT strftime('%W',:select)")
+    fun setWeek(select : String) : Int
 }

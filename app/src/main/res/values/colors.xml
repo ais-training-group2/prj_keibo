@@ -9,4 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#A7A7FA</color>
     <color name="yellow">#F5F5DC</color>
+    <color name="pink">#F2DCDC</color>
+    <color name="mint">#DCF2DC</color>
+    <color name="month">#D16D6A</color>
+    <color name="week">#9DC384</color>
 </resources>

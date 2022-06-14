@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,7 +40,6 @@ class YearBarChartFragment : Fragment() {
     private var flag: Boolean = true //수입 지출 버튼 구분 플래그
     private var year = Calendar.getInstance().get(Calendar.YEAR) //캘린더 year 선언
     private lateinit var yearPickerDialog : YearPickerDialog
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,14 +48,11 @@ class YearBarChartFragment : Fragment() {
         app = requireActivity().application as KeiboApplication
 
         binding.dateYearBtn.text = "${year}年"
-
         setDateButton()
         setDBData()
         setEiButton()
         setIiButton()
-
         yearPickerDialog = YearPickerDialog(requireContext())
-
         return binding.root
     }
 
@@ -79,8 +76,10 @@ class YearBarChartFragment : Fragment() {
 
     private fun showYearPickerDialog() {
         yearPickerDialog.setOnClickedListener(object : YearPickerDialog.ButtonClickListener {
-            override fun onClicked(year: String) {
-                binding.dateYearBtn.text = year
+            override fun onClicked(strYear: String) {
+                binding.dateYearBtn.text = strYear
+                year = strYear.substring(0,4).toInt()
+                setDBData()
             }
         })
         yearPickerDialog.show()
@@ -137,20 +136,20 @@ class YearBarChartFragment : Fragment() {
         } else {
             for (i in 0..11) {
                 var month: Float
-                var price: Float
+                var income: Float
 
                 if (i < data_ii.size) {
                     month = data_ii.get(i).date!!.substring(5, 7).toFloat() // 2022-01
-                    price = data_ii.get(i).price!!.toFloat()
-                    entries.add(BarEntry(month, price))
+                    income = data_ii.get(i).price!!.toFloat()
+                    entries.add(BarEntry(month, income))
                 } else {
                     month = i.toFloat() + 1f
-                    price = 0f
-                    entries.add(BarEntry(month, price))
+                    income = 0f
+                    entries.add(BarEntry(month, income))
                 }
 
-                if (max < price) {
-                    max = price + 1000f
+                if (max < income) {
+                    max = income + 1000f
                 }
             }
         }

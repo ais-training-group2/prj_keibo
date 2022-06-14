@@ -8,8 +8,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
@@ -21,6 +21,7 @@
             android:text="親カテゴリ : "
             android:textColor="#CCCCFF"
             android:textSize="20dp" />
+
         <TextView
             android:id="@+id/mainCg_name"
             android:layout_width="wrap_content"
@@ -35,7 +36,6 @@
     </LinearLayout>
 
 
-
     <EditText
         android:id="@+id/edittext_sub_category"
         android:layout_width="match_parent"
@@ -43,39 +43,43 @@
         android:layout_gravity="center"
         android:layout_margin="20dp"
         android:hint="サブカテゴリ名"
-        android:paddingHorizontal="15dp"
+        android:maxLength="9"
         android:maxLines="1"
-        android:maxLength="8"
+        android:inputType="text"
+        android:paddingHorizontal="15dp"
         android:textColorHint="#CCCCFF" />
+
     <TextView
         android:id="@+id/msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="同じカテゴリが既に存在します。"
         android:gravity="right"
+        android:text="同じカテゴリが既に存在します。"
         android:textColor="#FF0000"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="end"
         android:orientation="horizontal"
-        android:paddingVertical="20dp"
-        android:gravity="end">
+        android:paddingVertical="20dp">
+
         <Button
             android:id="@+id/btn_back"
-            android:text="戻る"
-            android:background="#CCCCFF"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:background="#CCCCFF"
+            android:text="戻る" />
+
         <Button
             android:id="@+id/btn_add"
-            android:text="追加"
-            android:background="#CCCCFF"
-            android:layout_marginHorizontal="30dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:background="#CCCCFF"
+            android:text="追加" />
 
     </LinearLayout>
 </LinearLayout>

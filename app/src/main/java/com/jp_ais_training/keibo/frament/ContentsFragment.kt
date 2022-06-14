@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.text.InputFilter
 import android.text.SpannableStringBuilder
 import android.text.method.KeyListener
 import android.text.method.MovementMethod
@@ -18,6 +19,7 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -26,14 +28,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jp_ais_training.keibo.KeiboApplication
 import com.jp_ais_training.keibo.databinding.FragmentContentsBinding
 import com.jp_ais_training.keibo.databinding.RecyclerContentsItemBinding
-import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.dialog.CategoryDialog
 import com.jp_ais_training.keibo.model.entity.ExpenseItem
 import com.jp_ais_training.keibo.model.entity.IncomeItem
 import com.jp_ais_training.keibo.model.response.ResponseItem
+import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.util.PreferenceUtil
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ticker
 import net.cachapa.expandablelayout.ExpandableLayout
 import java.lang.reflect.Field
 import java.text.DecimalFormat
@@ -68,7 +69,7 @@ class ContentsFragment() : Fragment() {
     }
 
     private fun loadData() {
-        println("LoadData : $type")
+
         when (type) {
             0 -> {
                 dataList = ArrayList(app.db.loadFixII(targetDate))
@@ -225,13 +226,13 @@ class ContentsFragment() : Fragment() {
                         recyclerView.findViewHolderForAdapterPosition(selectedItem) as ViewHolder?
 
                     if (holder != null) {
-                        println("holder")
+
                         deActivationItem(holder)
                         // 널체크
                         if (nullChecker(holder)) {
                             holder.msgNull.visibility = View.GONE
                             val position = selectedItem
-                            println("position $position , selectedItem $selectedItem, adapterPosition $bindingAdapterPosition")
+
                             val taxFlag = holder.taxCheckBox.isChecked
                             val tempPrice =
                                 holder.price.text.toString().replace(("[^\\d.]").toRegex(), "")
@@ -249,7 +250,7 @@ class ContentsFragment() : Fragment() {
                             }
                             //마지막 아이템인가?
                             if (position == dataList.size) {
-                                println("Insert" + holder.name.text)
+
                                 CoroutineScope(Dispatchers.Main).launch {
                                     withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                                         if (type == 0 || type == 1) {
@@ -303,9 +304,9 @@ class ContentsFragment() : Fragment() {
                                 CoroutineScope(Dispatchers.IO).async {
                                     //기존 데이터에서 변화된 값 체크
                                     if (dataCompare(holder, position)) {
-                                        println("Update" + type)
+
                                         if (type == 0 || type == 1) {
-                                            println("Update Check1")
+
                                             val item = IncomeItem(
                                                 dataList.elementAt(position).income_item_id!!,
                                                 strType,
@@ -319,7 +320,7 @@ class ContentsFragment() : Fragment() {
                                             data.name = holder.name.text.toString()
                                             data.price = price
                                         } else {
-                                            println("Update Check" + dataList.size)
+
                                             val item = ExpenseItem(
                                                 dataList.elementAt(position).expense_item_id!!,
                                                 holder.subCg.tag.toString().toInt(),
@@ -338,8 +339,14 @@ class ContentsFragment() : Fragment() {
                                             data.sub_category_name = holder.subCg.text.toString()
                                             data.name = holder.name.text.toString()
                                             data.price = price
+                                            //세금계산된 가격 EditText 에 반영
                                             holder.price.text =
-                                                SpannableStringBuilder(price.toString())
+                                                SpannableStringBuilder(
+                                                    DecimalFormat("-#,###,###.#円").format(
+                                                        price
+                                                    )
+                                                )
+                                            //체크박스 초기화
                                             holder.taxCheckBox.isChecked = true
                                         }
                                     }
@@ -352,13 +359,13 @@ class ContentsFragment() : Fragment() {
 
                     val position = bindingAdapterPosition
                     if (position == selectedItem) {
-                        println("DeActive")
+
                         setActivationItem(false)
 
                         selectedItem = UNSELECTED
 
                     } else {
-                        println("Active")
+
                         setActivationItem(true)
 
                         selectedItem = position
@@ -445,10 +452,17 @@ class ContentsFragment() : Fragment() {
                 val onPriceFocusChangeListener = View.OnFocusChangeListener { view, isFocus ->
                     if (!price.text.isNullOrEmpty()) {
                         if (isFocus) {
+                            val regexPrice = price.text.toString().replace(("[^\\d.]").toRegex(), "").toInt()
                             val fPrice =
-                                DecimalFormat("#########").format(dataList[position].price)
+                                DecimalFormat("########").format(regexPrice)
+
+                            val inputFilter = arrayOf(InputFilter.LengthFilter(8))
+                            price.filters = inputFilter
                             price.text = SpannableStringBuilder(fPrice)
+
                         } else {
+                            val inputFilter = arrayOf(InputFilter.LengthFilter(16))
+                            price.filters = inputFilter
                             val fPrice = if (type == 0 || type == 1) {
                                 if (isJPY)
                                     DecimalFormat("+#,###,###.#円").format(
@@ -473,6 +487,9 @@ class ContentsFragment() : Fragment() {
                             price.clearComposingText()
                             closeKeyBoard()
                         }
+                    }else{
+                        val inputFilter = arrayOf(InputFilter.LengthFilter(8))
+                        price.filters = inputFilter
                     }
                 }
 
@@ -568,9 +585,6 @@ class ContentsFragment() : Fragment() {
                 setActivationItem(false)
             }
 
-            fun reWritePrice() {
-                println(price.text)
-            }
 
             fun closeKeyBoard() {
                 val view = activity.currentFocus
@@ -651,7 +665,7 @@ class ContentsFragment() : Fragment() {
 
 
             fun setActivationItem(active: Boolean) {
-                println("Set Active : $active")
+
                 if (active) {
 
                     cardView.isSelected = true
@@ -765,7 +779,8 @@ class ContentsFragment() : Fragment() {
     }
 
     override fun onDestroy() {
-        println("onDestroy : $targetDate")
+
+
         super.onDestroy()
     }
 

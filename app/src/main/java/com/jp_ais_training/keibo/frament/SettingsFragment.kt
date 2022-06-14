@@ -29,6 +29,7 @@ import com.jp_ais_training.keibo.model.response.LoadSumEI
 import com.jp_ais_training.keibo.util.Const
 import com.jp_ais_training.keibo.util.NotificationUtil
 import com.jp_ais_training.keibo.util.PreferenceUtil
+import com.jp_ais_training.keibo.util.TargetSDKUtil
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -291,7 +292,7 @@ class SettingsFragment : Fragment() {
         intent.putExtra(Const.KINYU_MAIN_ACTIVITY_EXTRA_MONTH, month)
         intent.putExtra(Const.KINYU_MAIN_ACTIVITY_EXTRA_DAY, day)
 
-        val pendingIntent = PendingIntent.getActivity(context, Const.PENDING_INTENT_REQUEST_CODE, intent, Const.PENDING_INTENT_FLAGS)
+        val pendingIntent = PendingIntent.getActivity(context, Const.PENDING_INTENT_REQUEST_CODE, intent, TargetSDKUtil.getFlags())
 
         val contentTitle = Const.KINYU_NOTI_CONTENT_TITLE
         val contentText = "$today\n${Const.KINYU_NOTI_CONTENT_TEXT}"
@@ -348,7 +349,7 @@ class SettingsFragment : Fragment() {
                 intent.putExtra(Const.NOTI_INTENT_TYPE_KEY_WHAT_TO_DO, Const.NOTI_INTENT_TYPE_VALUE_GO_TO_BAR_STATISTIC)
                 intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
-                val pendingIntent = PendingIntent.getActivity(context, Const.PENDING_INTENT_REQUEST_CODE, intent, Const.PENDING_INTENT_FLAGS)
+                val pendingIntent = PendingIntent.getActivity(context, Const.PENDING_INTENT_REQUEST_CODE, intent, TargetSDKUtil.getFlags())
 
                 val contentTitle = Const.COMPARISON_NOTI_CONTENT_TITLE
                 val contentText =
@@ -390,7 +391,7 @@ class SettingsFragment : Fragment() {
                 context,
                 Const.PENDING_INTENT_REQUEST_CODE,
                 intent,
-                Const.PENDING_INTENT_FLAGS
+                TargetSDKUtil.getFlags()
             )
 
             val contentTitle = Const.FIX_EXPENSE_NOTI_CONTENT_TITLE

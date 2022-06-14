@@ -83,7 +83,6 @@ class DetailActivity : AppCompatActivity() {
             )
 
             if (Period.between(minDate, targetDate).days < 1) {
-                // println(Period.between(minDate, targetDate).days)
                 viewPagerAdapter.addWithNotify(
                     0,
                     createFragment(minDate.minusDays(1))

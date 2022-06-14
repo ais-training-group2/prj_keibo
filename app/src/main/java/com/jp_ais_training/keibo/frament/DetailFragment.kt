@@ -57,7 +57,6 @@ class DetailFragment() : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        println("onCreateView : $targetDate ")
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
 
         var colorArray = ArrayList<Int>()
@@ -123,7 +122,6 @@ class DetailFragment() : Fragment() {
     }
 
     override fun onDestroy() {
-        println("onDestroy : $targetDate")
         super.onDestroy()
     }
 }

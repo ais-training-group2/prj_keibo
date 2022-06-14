@@ -177,7 +177,7 @@ class MonthBarChartFragment : Fragment() {
             axisLeft.run { //왼쪽 축. 즉 Y방향 축을 뜻한다.
                 axisMaximum = max //지출금액 위에 선을 그리기 위해 맥시멈값 설정 max = price+1000f
                 axisMinimum = 0f // 최소값 0
-                granularity = 1000f// 1000 단위마다 선을 그리려고 설정.
+                granularity = 4/max// 1000 단위마다 선을 그리려고 설정.
                 setDrawLabels(true) // 값 적는거 허용 (0, 50, 100)
                 setDrawGridLines(true) //격자 라인 활용
                 setDrawAxisLine(false) // 축 그리기 설정
